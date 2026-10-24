@@ -31,7 +31,7 @@
       radial-gradient(ellipse 50% 60% at 45% 120%, rgba(255,80,20,.22) 0%, transparent 70%),#000;
   }
   body.danger{
-    --amber:#ff2415;--cyan:#ff2415;
+    --amber:#ff2415;   /* 注意：--cyan 保持青蓝不变，刻度线不随警戒变色 */
     --glow:0 0 11px rgba(255,40,20,.95),0 0 33px rgba(255,20,10,.7),0 0 78px rgba(255,10,0,.4);
     --seg-glow:0 0 6px rgba(255,60,30,.65),0 0 14px rgba(255,20,10,.3);
     --seg-bloom:drop-shadow(0 0 4px rgba(255,60,30,.55)) drop-shadow(0 0 12px rgba(255,20,10,.3));
@@ -44,7 +44,25 @@
     background:radial-gradient(ellipse at 8% 0%,rgba(255,60,30,.45) 0%,transparent 45%),radial-gradient(ellipse at 0% 100%,rgba(200,20,10,.4) 0%,transparent 50%),radial-gradient(ellipse at 100% 100%,rgba(255,50,20,.22) 0%,transparent 45%)}
   /* 画布 1300×600：裁掉左侧留白，只留到装甲外一点 */
   .panel{position:absolute;left:50%;top:50%;width:1300px;height:600px;transform-origin:center;overflow:hidden;filter:drop-shadow(0 20px 40px rgba(0,0,0,.85))}
-  .inner{position:absolute;left:-200px;top:0;width:1500px;height:600px;background:var(--rb)}
+  .inner{position:absolute;left:-200px;top:0;width:1500px;height:600px;background:#000}
+  /* 充电式装甲充能：未通电时纯黑，通电后装甲沿渐变方向（左下→右上）充满。
+     mask 等色线平行于反对角线（斜率 H/W=0.4），固定 X、动画 Y 即可让分界线
+     恰好从面板左下角扫到右上角 */
+  .charge{position:absolute;inset:0;pointer-events:none;background:var(--rb);
+    -webkit-mask-image:linear-gradient(to top right,#000 0 50%,transparent 52%);
+    -webkit-mask-repeat:no-repeat;-webkit-mask-size:6000px 2400px;-webkit-mask-position:-1500px 0;
+    mask-image:linear-gradient(to top right,#000 0 50%,transparent 52%);
+    mask-repeat:no-repeat;mask-size:6000px 2400px;mask-position:-1500px 0;
+    transition:-webkit-mask-position .5s cubic-bezier(.35,.1,.25,1),mask-position .5s cubic-bezier(.35,.1,.25,1)}
+  body.pw .charge{-webkit-mask-position:-1500px -1200px;mask-position:-1500px -1200px}
+  /* gline 与装甲同一套扫掠遮罩：通电充能扫过时才显现 */
+  .chargelayer{position:absolute;inset:0;pointer-events:none;
+    -webkit-mask-image:linear-gradient(to top right,#000 0 50%,transparent 52%);
+    -webkit-mask-repeat:no-repeat;-webkit-mask-size:6000px 2400px;-webkit-mask-position:-1500px 0;
+    mask-image:linear-gradient(to top right,#000 0 50%,transparent 52%);
+    mask-repeat:no-repeat;mask-size:6000px 2400px;mask-position:-1500px 0;
+    transition:-webkit-mask-position .5s cubic-bezier(.35,.1,.25,1),mask-position .5s cubic-bezier(.35,.1,.25,1)}
+  body.pw .chargelayer{-webkit-mask-position:-1500px -1200px;mask-position:-1500px -1200px}
   .a{position:absolute}
   .deco{position:absolute;inset:0;width:1500px;height:600px;overflow:visible}
   .deco .blk{fill:#000;stroke:var(--amber);stroke-width:2;stroke-linejoin:miter;filter:drop-shadow(0 0 4px rgba(255,150,20,.5))}
@@ -56,9 +74,11 @@
   .tk.b1{left:549px;top:490px;width:855px;height:8px;background:repeating-linear-gradient(90deg,var(--cyan) 0 3px,transparent 3px 70px)}
   .tk.b2{left:584px;top:506px;width:820px;height:8px;background:repeating-linear-gradient(90deg,var(--cyan) 0 3px,transparent 3px 70px)}
   .cy{fill:var(--cyan);filter:drop-shadow(0 0 3px rgba(63,216,255,.7))}
-  body.danger .cy{filter:none}
-  body.danger .tk{filter:none}
-  .gradbar{position:absolute;left:1491px;top:48px;width:9px;height:552px;z-index:6;opacity:.95;
+  /* 装甲上的黑色刻度（参考图）：恒为黑色、无辉光，不随警戒变色 */
+  .bk{fill:#000;filter:none}
+  /* 黑色刻度旁的黄色竖线对（参考图 STOP 左侧：黑对 + 黄对） */
+  .ye{fill:var(--amber);filter:drop-shadow(0 0 3px rgba(255,176,30,.5))}
+  .gradbar{position:absolute;left:1491px;top:0;width:9px;height:600px;z-index:6;opacity:.95;
     background:linear-gradient(180deg,#00e05a,#b8f000 28%,#ffc400 52%,#ff2020 76%,#b400ff);
     box-shadow:0 0 13px rgba(255,200,60,.45),0 0 28px rgba(180,0,255,.25);transition:background .4s}
   body.danger .gradbar{background:linear-gradient(180deg,#7a0000,#ff2020 35%,#8a0000 65%,#ff3030);box-shadow:0 0 16px rgba(255,30,20,.6)}
@@ -86,7 +106,6 @@
   .sep{position:absolute;left:1206px;width:192px;height:10px}
   .sep i{position:absolute;top:1px;width:3px;height:8px;background:var(--cyan);box-shadow:0 0 6px rgba(63,216,255,.5)}
   .sep i.l{left:0}.sep i.r{right:0}
-  body.danger .sep i{box-shadow:none}
   .mode .jp{position:absolute;left:8px;top:0;font-size:56px;font-weight:700;line-height:62px;white-space:nowrap}
   .mode .en{position:absolute;left:8px;bottom:0;font-size:24px;line-height:26px;font-family:Arial,"Helvetica Neue",sans-serif}
   .mode::after{content:"";position:absolute;top:0;bottom:0;right:0;width:40px;
@@ -96,10 +115,9 @@
   .mode{transition:opacity .3s,filter .3s}
   .mode.inactive{opacity:.34;cursor:pointer}
   .mode.active{cursor:pointer;animation:pulse 1.6s infinite}
-  /* 未接通主電源供給システム：内部 / 外部 全部熄灭——纯黑、不发光、无斑马柱，
-     只留极暗的边框轮廓指示位置 */
-  .mode.dead,.mode.dead.inactive{opacity:1;animation:none;filter:none;
-    color:#000;text-shadow:none;border-color:#3a2405;box-shadow:none}
+  /* 未接通主電源供給システム：内部 / 外部 完全不显示（含边框），通电后淡入 */
+  .mode.dead,.mode.dead.inactive{opacity:0;animation:none;filter:none;pointer-events:none;
+    color:#000;text-shadow:none;border-color:transparent;box-shadow:none}
   .mode.dead .jp,.mode.dead .en{opacity:0}
   .mode.dead::after{opacity:0}
   @keyframes pulse{0%,100%{filter:brightness(1.1)}50%{filter:brightness(1.4)}}
@@ -113,12 +131,17 @@
   .cell:hover .redbar{opacity:.22}.cell .redbar.on{opacity:1}
   .cell:active{filter:brightness(1.15)}
   /* 与按钮边缘严格对齐的浅蓝刻度 */
+  /* 按钮下方的黑色刻度：恒为黑色，不随警戒变色 */
   .cell::after{content:"";position:absolute;left:-2px;right:-2px;top:100%;margin-top:3px;height:6px;
-    background:linear-gradient(var(--cyan),var(--cyan)) left 3px top 0/3px 6px no-repeat,linear-gradient(var(--cyan),var(--cyan)) right 3px top 0/3px 6px no-repeat;filter:drop-shadow(0 0 3px rgba(63,216,255,.7))}
-  .gap{position:absolute;top:421px;width:6px;height:8px;background:linear-gradient(90deg,var(--amber) 0 2px,transparent 2px 4px,var(--amber) 4px 6px);box-shadow:0 0 5px rgba(255,176,30,.5)}
-  .gap4{position:absolute;left:1158px;top:421px;width:18px;height:9px;background:linear-gradient(90deg,var(--amber) 0 2px,transparent 2px 5px,var(--amber) 5px 7px,transparent 7px 11px,#000 11px 13px,transparent 13px 16px,#000 16px 18px)}
-  .danger-cell{position:absolute;left:1190px;top:428px;width:90px;height:48px;border:2px solid var(--red);color:var(--red);text-align:center;font:700 12px/18px Arial,sans-serif;padding-top:5px;background:#030100;transition:opacity .3s;
+    background:linear-gradient(#000,#000) left 3px top 0/3px 6px no-repeat,linear-gradient(#000,#000) right 3px top 0/3px 6px no-repeat}
+  /* 按钮间隙刻度：整列与屏幕底缘（polygon 底边 y=420）留出空隙，同 rect21 一样从 y=425 起 */
+  .gap{position:absolute;top:425px;width:6px;height:8px;background:linear-gradient(90deg,var(--amber) 0 2px,transparent 2px 4px,var(--amber) 4px 6px);box-shadow:0 0 5px rgba(255,176,30,.5)}
+  .gap4{position:absolute;left:1158px;top:425px;width:18px;height:8px;background:linear-gradient(90deg,var(--amber) 0 2px,transparent 2px 5px,var(--amber) 5px 7px,transparent 7px 11px,#000 11px 13px,transparent 13px 16px,#000 16px 18px)}
+  .danger-cell{position:absolute;left:1190px;top:428px;width:90px;height:48px;border:2px solid var(--red);color:var(--red);text-align:center;padding-top:4px;background:#030100;transition:opacity .3s;
     text-shadow:0 0 11px rgba(255,40,20,.9),0 0 31px rgba(255,20,10,.6);box-shadow:0 0 16px rgba(255,30,15,.8),inset 0 0 22px rgba(255,40,20,.25)}
+  /* 上下两行按字符均分、拉伸到同一宽度（与購読する 同一手法） */
+  .danger-cell .dstk{width:74px;margin:0 auto;display:flex;flex-direction:column;gap:3px}
+  .danger-cell .dstk>div{display:flex;justify-content:space-between;font-family:Arial,"Helvetica Neue",sans-serif;font-weight:700;font-size:12px;line-height:17px}
   .danger-cell:not(.on){opacity:.22}
   .danger-cell.on{animation:pulse .7s infinite}
   body.danger .danger-cell.on{animation:dangerblink .45s steps(1) infinite}
@@ -152,6 +175,7 @@
 <div class="bgwash"></div>
 <div id="flash"></div>
 <div class="panel" id="panel"><div class="inner">
+  <div class="charge"></div>
   <svg class="deco" viewBox="0 0 1500 600">
     <polygon class="blk0" points="410,600 525,488 1500,488 1500,600"/>
     <polygon class="blk" points="515,222 583,222 583,420 515,420 418.0,532.6 312.5,510.9"/>
@@ -159,10 +183,10 @@
     <polygon class="blk" points="488,128 513,128 513,175 488,168"/>
     <polygon class="blk" points="515,128 765,128 780,148 1405,148 1405,420 583,420 583,222 515,222"/>
     <polygon class="blk0" points="1184,422 1403,422 1403,487 1184,487"/>
-    <rect class="cy" x="487" y="116" width="3" height="7"/><rect class="cy" x="511" y="116" width="3" height="7"/><rect class="cy" x="476" y="132" width="2" height="7"/><rect class="cy" x="481" y="132" width="2" height="7"/><rect class="cy" x="476" y="162" width="2" height="7"/><rect class="cy" x="481" y="162" width="2" height="7"/><rect class="cy" x="503" y="212" width="2" height="7"/><rect class="cy" x="508" y="212" width="2" height="7"/><rect class="cy" x="519" y="228" width="3" height="7"/><rect class="cy" x="568" y="228" width="3" height="7"/><rect class="cy" x="519" y="411" width="3" height="7"/><rect class="cy" x="568" y="411" width="3" height="7"/><rect class="cy" x="519" y="425" width="3" height="7"/><rect class="cy" x="592" y="425" width="2" height="7"/><rect class="cy" x="597" y="425" width="2" height="7"/><rect class="cy" x="317.5" y="502.0" width="3" height="7" transform="rotate(30 319 505.5)"/><rect class="cy" x="411.5" y="522.5" width="3" height="7" transform="rotate(30 413 526)"/><rect class="cy" x="304.5" y="520.5" width="3" height="7" transform="rotate(30 306 524)"/><rect class="cy" x="397.5" y="540.5" width="3" height="7" transform="rotate(30 399 544)"/><line x1="296.8" y1="506.5" x2="305.5" y2="508.5" stroke="#000" stroke-width="2.2"/><line x1="291.8" y1="515" x2="300.5" y2="517" stroke="#000" stroke-width="2.2"/><line x1="420.3" y1="534.8" x2="428" y2="536.8" stroke="#000" stroke-width="2.2"/><line x1="414" y1="543" x2="421.8" y2="545" stroke="#000" stroke-width="2.2"/>
+    <rect class="bk" x="487" y="116" width="3" height="7"/><rect class="bk" x="511" y="116" width="3" height="7"/><rect class="bk" x="476" y="132" width="2" height="7"/><rect class="bk" x="481" y="132" width="2" height="7"/><rect class="bk" x="476" y="162" width="2" height="7"/><rect class="bk" x="481" y="162" width="2" height="7"/><rect class="bk" x="503" y="212" width="2" height="7"/><rect class="bk" x="508" y="212" width="2" height="7"/><rect class="cy" x="519" y="228" width="3" height="7"/><rect class="cy" x="568" y="228" width="3" height="7"/><rect class="cy" x="519" y="411" width="3" height="7"/><rect class="cy" x="568" y="411" width="3" height="7"/><rect class="bk" x="519" y="425" width="3" height="7"/><rect class="bk" x="592" y="425" width="2" height="7"/><rect class="bk" x="597" y="425" width="2" height="7"/><rect class="ye" x="603" y="425" width="2" height="7"/><rect class="ye" x="608" y="425" width="2" height="7"/><rect class="cy" x="317.5" y="502.0" width="3" height="7" transform="rotate(30 319 505.5)"/><rect class="cy" x="411.5" y="522.5" width="3" height="7" transform="rotate(30 413 526)"/><rect class="cy" x="304.5" y="520.5" width="3" height="7" transform="rotate(30 306 524)"/><rect class="cy" x="397.5" y="540.5" width="3" height="7" transform="rotate(30 399 544)"/><line x1="296.8" y1="506.5" x2="305.5" y2="508.5" stroke="#000" stroke-width="2.2"/><line x1="291.8" y1="515" x2="300.5" y2="517" stroke="#000" stroke-width="2.2"/><line x1="420.3" y1="534.8" x2="428" y2="536.8" stroke="#000" stroke-width="2.2"/><line x1="414" y1="543" x2="421.8" y2="545" stroke="#000" stroke-width="2.2"/>
   </svg>
   <div class="tk t1"></div><div class="tk t2"></div><div class="tk b1"></div><div class="tk b2"></div>
-  <div class="a gline"></div><div class="gradbar"></div>
+  <div class="chargelayer"><div class="a gline"></div></div><div class="gradbar"></div>
   <div class="a glow jpL">活動限界まで</div>
   <div class="a glow enL">ACTIVE TIME REMAINING:</div>
   <div class="a glow atoL">あと</div>
@@ -174,13 +198,17 @@
   <div class="box powerbox off" id="powerBox"><div class="jp">主電源供給システム</div><div class="en">MAIN ENERGY SUPPLY SYSTEM</div></div>
   <div class="sep" style="top:304px"><i class="l"></i><i class="r"></i></div>
   <div class="box mode inactive dead" id="modeExternal"><div class="jp">外部</div><div class="en">EXTERNAL</div></div>
+  <div class="sep" style="top:410px;height:9px"><i class="l"></i><i class="r"></i></div>
 
   <div class="cell" data-bar style="left:628px"><span class="txt">STOP</span><div class="redbar"></div></div>
   <div class="cell" data-bar style="left:768px"><span class="txt">SLOW</span><div class="redbar"></div></div>
   <div class="cell" data-bar style="left:908px"><span class="txt">NORMAL</span><div class="redbar"></div></div>
   <div class="cell" data-bar style="left:1048px"><span class="txt">RACING</span><div class="redbar"></div></div>
-  <i class="gap" style="left:745px"></i><i class="gap" style="left:885px"></i><i class="gap" style="left:1025px"></i><i class="gap4"></i><i class="gap" style="left:1285px;top:430px;height:8px"></i><i class="gap" style="left:1388px;top:430px;height:8px"></i>
-  <div class="danger-cell" id="dangerCell">DANGER<br>EMERGENCY</div>
+  <i class="gap" style="left:745px"></i><i class="gap" style="left:885px"></i><i class="gap" style="left:1025px"></i><i class="gap4"></i><i class="gap" style="left:1285px"></i><i class="gap" style="left:1388px"></i>
+  <div class="danger-cell" id="dangerCell"><div class="dstk">
+    <div><span>D</span><span>A</span><span>N</span><span>G</span><span>E</span><span>R</span></div>
+    <div><span>E</span><span>M</span><span>E</span><span>R</span><span>G</span><span>E</span><span>N</span><span>C</span><span>Y</span></div>
+  </div></div>
   <div class="subbox"><div class="stack">
     <div class="jp"><span>購</span><span>読</span><span>す</span><span>る</span></div>
     <div class="en1"><span>S</span><span>U</span><span>B</span><span>S</span><span>C</span><span>R</span><span>I</span><span>B</span><span>E</span></div>
@@ -293,6 +321,7 @@ function hitFlash(){
 }
 function applyState(){
   body.classList.remove('danger','zero');
+  body.classList.toggle('pw',powered);   /* 通电→装甲充能（左下→右上充满） */
   const ext=powered&&!internal, int=powered&&internal;
   modeExt.classList.toggle('active',ext);modeExt.classList.toggle('inactive',!ext);
   modeInt.classList.toggle('active',int);modeInt.classList.toggle('inactive',!int);
