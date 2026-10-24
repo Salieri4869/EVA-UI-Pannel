@@ -15,14 +15,14 @@
   body{
     font-family:"EVA Matisse",serif;
     user-select:none;
-    --amber:#ffb01e;
-    --glow:0 0 8px rgba(255,150,20,.9),0 0 22px rgba(255,110,10,.55),0 0 50px rgba(255,90,0,.3);
+    --amber:#ffac1e;
+    --glow:0 0 .89vmin rgba(255,150,20,.9),0 0 2.44vmin rgba(255,110,10,.55),0 0 5.56vmin rgba(255,90,0,.3);
     --red:#ff2415;
-    --frame-glow:0 0 8px rgba(255,150,20,.4),0 0 24px rgba(255,110,10,.2);
+    --frame-glow:0 0 .89vmin rgba(255,150,20,.4),0 0 2.67vmin rgba(255,110,10,.2);
     --cyan:#3fd8ff;
     /* 七段数码管专用：紧凑辉光（大扩散光晕会糊成一片） */
-    --seg-glow:0 0 5px rgba(255,165,35,.6),0 0 13px rgba(255,110,10,.28);
-    --seg-bloom:drop-shadow(0 0 4px rgba(255,170,40,.5)) drop-shadow(0 0 11px rgba(255,110,10,.28));
+    --seg-glow:0 0 .56vmin rgba(255,165,35,.6),0 0 1.44vmin rgba(255,110,10,.28);
+    --seg-bloom:drop-shadow(0 0 .44vmin rgba(255,170,40,.5)) drop-shadow(0 0 1.22vmin rgba(255,110,10,.28));
     background:
       radial-gradient(ellipse 60% 70% at -5% 30%, rgba(90,200,60,.5) 0%, rgba(40,120,30,.28) 45%, transparent 75%),
       radial-gradient(ellipse 45% 90% at 108% 45%, rgba(255,40,90,.4) 0%, rgba(160,20,40,.2) 50%, transparent 80%),
@@ -32,10 +32,10 @@
   /* ===== 最后 7 秒：整体红色警戒 ===== */
   body.danger{
     --amber:#ff2415;
-    --glow:0 0 10px rgba(255,40,20,.95),0 0 30px rgba(255,20,10,.7),0 0 70px rgba(255,10,0,.4);
-    --seg-glow:0 0 5px rgba(255,60,30,.65),0 0 13px rgba(255,20,10,.3);
-    --seg-bloom:drop-shadow(0 0 4px rgba(255,60,30,.55)) drop-shadow(0 0 11px rgba(255,20,10,.3));
-    --frame-glow:0 0 10px rgba(255,40,20,.5),0 0 28px rgba(255,20,10,.28);
+    --glow:0 0 1.11vmin rgba(255,40,20,.95),0 0 3.33vmin rgba(255,20,10,.7),0 0 7.78vmin rgba(255,10,0,.4);
+    --seg-glow:0 0 .56vmin rgba(255,60,30,.65),0 0 1.44vmin rgba(255,20,10,.3);
+    --seg-bloom:drop-shadow(0 0 .44vmin rgba(255,60,30,.55)) drop-shadow(0 0 1.22vmin rgba(255,20,10,.3));
+    --frame-glow:0 0 1.11vmin rgba(255,40,20,.5),0 0 3.11vmin rgba(255,20,10,.28);
   }
   body.danger .bgwash{opacity:1}
   .bgwash{
@@ -52,28 +52,28 @@
     display:flex;align-items:center;justify-content:center;
   }
   .panel{
-    width:min(1480px,94vw,158vh);
+    width:min(158vmin,94vw);
     aspect-ratio:16/8.6;
     position:relative;
-    filter:drop-shadow(0 30px 60px rgba(0,0,0,.85));
+    filter:drop-shadow(0 3.33vmin 6.67vmin rgba(0,0,0,.85));
   }
   /* 顶部虹彩边条（警戒时变红） */
   .gradbar{
-    position:absolute;top:0;left:0;right:0;height:6px;z-index:6;
+    position:absolute;top:0;left:0;right:0;height:.8vmin;z-index:6;
     background:linear-gradient(90deg,#00e05a,#b8f000 28%,#ffc400 52%,#ff2020 76%,#b400ff);
-    box-shadow:0 0 12px rgba(255,200,60,.35);
+    box-shadow:0 0 1.33vmin rgba(255,200,60,.35);
     opacity:.95;transition:background .4s;
   }
   body.danger .gradbar{
     background:linear-gradient(90deg,#7a0000,#ff2020 35%,#8a0000 65%,#ff3030);
-    box-shadow:0 0 14px rgba(255,30,20,.6);
+    box-shadow:0 0 1.56vmin rgba(255,30,20,.6);
   }
 
   .screen{
     position:absolute;inset:0;
     background:#030100;
-    border:1px solid var(--amber);
-    box-shadow:var(--frame-glow), inset 0 0 110px rgba(255,110,20,.06);
+    border:.11vmin solid var(--amber);
+    box-shadow:var(--frame-glow), inset 0 0 12.22vmin rgba(255,110,20,.06);
     display:flex;flex-direction:column;
     gap:1.6vmin;padding:2.2vmin 2.6vmin 1.8vmin 3vmin;
     transition:border-color .4s;
@@ -81,48 +81,37 @@
   .el{color:var(--amber);text-shadow:var(--glow)}
 
   /* 边缘刻度 */
-  .ticks{position:absolute;top:14%;bottom:14%;width:12px;display:flex;flex-direction:column;justify-content:space-between;z-index:4;pointer-events:none}
-  .ticks.l{left:6px}
-  .ticks.r{right:6px}
-  .ticks i{display:block;height:2px;width:100%;background:var(--amber);opacity:.45}
-  .ticks i.mj{height:3px;opacity:.85}
+  .ticks{position:absolute;top:14%;bottom:14%;width:1.33vmin;display:flex;flex-direction:column;justify-content:space-between;z-index:4;pointer-events:none}
+  .ticks.l{left:.67vmin}
+  .ticks.r{right:.67vmin}
+  .ticks i{display:block;height:.22vmin;width:100%;background:var(--amber);opacity:.45}
+  .ticks i.mj{height:.33vmin;opacity:.85}
   .ticks i.mn{width:55%}
   .ticks.r i{margin-left:auto}
   /* 右缘刻度为青蓝色 */
-  .ticks.cy i{background:var(--cyan);box-shadow:0 0 6px rgba(63,216,255,.65)}
+  .ticks.cy i{background:var(--cyan);box-shadow:0 0 .67vmin rgba(63,216,255,.65)}
   body.danger .ticks.cy i{background:var(--amber);box-shadow:none}
 
   /* ===== 顶部：状态旗 + 左缘凸出的梯形描边标签（无颜色填充） ===== */
   .toprow{display:flex;align-items:flex-end;justify-content:flex-end;flex:none}
-  .state-flag{font-size:clamp(10px,1.7vmin,22px);letter-spacing:.28em;opacity:.75;padding-bottom:.3vmin}
-  /* 活動限界まで + ACTIVETIME REMAINING:：紧贴屏幕顶边与左边，描边与外框融为一体 */
+  .state-flag{font-size:1.7vmin;letter-spacing:.28em;opacity:.75;padding-bottom:.3vmin}
+  /* 活動限界まで + あと + ACTIVETIME REMAINING:：连贯阶梯梯形——
+     区域内垫纯黑遮住 gradbar；描边为开放式上轮廓（无底边横线）：
+     左端斜边→高段顶（凸出 gradbar）→阶梯下降→矮段顶（贴 gradbar）→右端斜收 */
   .label-flap{
-    position:absolute;z-index:8;left:0;top:0;
-    width:36%;height:3.6%;
+    position:absolute;z-index:8;left:-1.4vmin;top:-1.8vmin;
+    width:46%;height:8vmin;
   }
-  .label-flap::before{
-    content:"";position:absolute;inset:0;background:var(--amber);
-    clip-path:polygon(0 0,100% 0,96% 100%,0 100%);
+  .label-flap .outline{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+  .label-flap .fill{fill:#050200}
+  .label-flap polyline{
+    fill:none;stroke:var(--amber);stroke-width:.22vmin;vector-effect:non-scaling-stroke;
+    filter:drop-shadow(0 0 .44vmin rgba(255,150,20,.45));
   }
-  .label-flap::after{
-    content:"";position:absolute;inset:1px;background:#060200;
-    clip-path:polygon(0 0,100% 0,96% 100%,0 100%);
-  }
-  .label-flap .inner{
-    position:absolute;inset:0;z-index:2;
-    display:flex;align-items:flex-end;gap:1.4vmin;
-    padding:0 4% .35vmin 2.4vmin;white-space:nowrap;
-    color:var(--amber);text-shadow:var(--glow);
-  }
-  .label-flap .jp{font-size:clamp(24px,5vmin,68px);letter-spacing:.02em;line-height:1}
-  .label-flap .en{font-size:clamp(11px,2.3vmin,32px);letter-spacing:.06em;padding-bottom:.1em}
-  /* あと：无边框，紧跟在标签条下方 */
-  .flap-ato{
-    position:absolute;z-index:8;left:0;top:4.6%;
-    width:14%;padding-left:2.6vmin;
-    color:var(--amber);text-shadow:var(--glow);
-    font-size:clamp(12px,2.5vmin,34px);line-height:1;
-  }
+  .label-flap .inner{position:absolute;inset:0;z-index:2;color:var(--amber);text-shadow:var(--glow)}
+  .label-flap .jp{position:absolute;left:5.5%;top:6%;font-size:4.6vmin;letter-spacing:.02em;line-height:1;white-space:nowrap}
+  .label-flap .en{position:absolute;left:51.5%;top:30.5%;font-size:2vmin;letter-spacing:.06em;line-height:1;white-space:nowrap}
+  .label-flap .ato{position:absolute;left:5.5%;bottom:4%;font-size:2.4vmin;line-height:1}
 
   /* ===== 中部：七段倒计时 + 右列 ===== */
   .mainrow{flex:1;display:flex;gap:2vmin;min-height:0}
@@ -130,14 +119,14 @@
     flex:1;display:flex;align-items:flex-end;justify-content:center;gap:1.2vmin;min-height:0;
   }
   /* 按 seg-wrap 宽度定尺寸（嵌套容器高度自适应会让 % 高度坍缩为 0） */
-  .dmain{width:70%;display:flex;align-items:center;justify-content:space-between}
-  .dcc{width:27%;display:flex;align-items:flex-end;justify-content:space-between}
+  .dmain{width:75%;display:flex;align-items:center;justify-content:space-between}
+  .dcc{width:23%;display:flex;align-items:flex-end;justify-content:space-between}
   /* 标准七段数码管：六角端头 + 紧凑辉光；末两位毫秒更小、底对齐 */
   .digit{
-    position:relative;width:29%;aspect-ratio:5/9;flex:none;
+    position:relative;width:29.5%;aspect-ratio:5/9;flex:none;
     filter:var(--seg-bloom);
   }
-  .digit.small{width:37%}
+  .digit.small{width:40%}
   .seg{position:absolute;background:var(--amber);opacity:.06;transition:opacity .04s}
   .seg.on{opacity:1}
   /* 横段：左右尖头 */
@@ -157,71 +146,78 @@
   .seg.v.b{right:0;top:6%;height:40%}
   .seg.v.e{left:0;top:54%;height:40%}
   .seg.v.c{right:0;top:54%;height:40%}
-  .colon{width:11.5%;aspect-ratio:1/5;flex:none;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:24%}
+  .colon{width:11%;aspect-ratio:1/5;flex:none;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:24%}
   .colon i{width:38%;aspect-ratio:1;border-radius:15%;background:var(--amber);box-shadow:var(--seg-glow);animation:blink 1s steps(1) infinite}
-  .dotmark{width:13%;aspect-ratio:1/9;flex:none;display:flex;align-items:flex-end;justify-content:center;padding-bottom:1%}
+  .dotmark{width:12%;aspect-ratio:1/9;flex:none;display:flex;align-items:flex-end;justify-content:center;padding-bottom:1%}
   .dotmark i{width:70%;aspect-ratio:1;border-radius:15%;background:var(--amber);box-shadow:var(--seg-glow)}
   @keyframes blink{50%{opacity:.12}}
   /* 默认（外部）状态：黄色数字不显示 */
   .seg-wrap.idle .seg{opacity:0}
   .seg-wrap.idle .colon i,.seg-wrap.idle .dotmark i{opacity:0;animation:none}
 
-  .rightcol{width:34%;display:flex;flex-direction:column;gap:1.6vmin;min-width:0}
+  .rightcol{width:32%;display:flex;flex-direction:column;min-width:0}
+  /* 方框之间的间隔条：左右两端各一组青蓝色短双竖线 */
+  .sep{flex:none;height:1.6vmin;position:relative}
+  .sep i{
+    position:absolute;top:50%;transform:translateY(-50%);width:.89vmin;height:1.15vmin;
+    background:linear-gradient(90deg,var(--cyan) 0 .22vmin,transparent .22vmin .67vmin,var(--cyan) .67vmin .89vmin);
+    opacity:.85;box-shadow:0 0 .67vmin rgba(63,216,255,.5);
+  }
+  .sep i.l{left:0}
+  .sep i.r{right:0}
+  body.danger .sep i{
+    background:linear-gradient(90deg,var(--amber) 0 .22vmin,transparent .22vmin .67vmin,var(--amber) .67vmin .89vmin);
+    box-shadow:none;
+  }
   .box{
-    border:2px solid var(--amber);box-shadow:var(--glow);
+    border:.22vmin solid var(--amber);box-shadow:var(--glow);
     color:var(--amber);text-shadow:var(--glow);
     position:relative;
   }
-  /* 内部/主電源、主電源/外部 两个方块之间的青蓝色双竖线 */
-  .rightcol .box + .box::before{
-    content:"";position:absolute;left:50%;top:-1.4vmin;transform:translateX(-50%);
-    width:8px;height:1.1vmin;
-    background:linear-gradient(90deg,var(--cyan) 0 2px,transparent 2px 6px,var(--cyan) 6px 8px);
-    opacity:.85;box-shadow:0 0 6px rgba(63,216,255,.5);
-  }
-  body.danger .rightcol .box + .box::before{
-    background:linear-gradient(90deg,var(--amber) 0 2px,transparent 2px 6px,var(--amber) 6px 8px);
-    box-shadow:none;
-  }
-  .mode{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding-left:2.4vmin;transition:opacity .3s,filter .3s}
-  .mode .jp{font-size:clamp(34px,9vmin,122px);letter-spacing:.06em;line-height:1}
-  .mode .en{font-size:clamp(13px,2.7vmin,36px);letter-spacing:.18em;margin-top:.18em}
-  /* 斑马柱：纯红黑相间、顶满整个方框（约 4 条红色斜线）；未亮起时也可见 */
+  .mode{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding-left:1.8vmin;transition:opacity .3s,filter .3s}
+  .mode .jp{font-size:12vmin;letter-spacing:.04em;line-height:.98}
+  .mode .en{font-size:3.2vmin;letter-spacing:.14em;margin-top:.08em}
+  /* 斑马柱：纯红黑相间、顶满整个方框；固定恰好 4 条红色斜线（不再随高度重复） */
   .mode::after{
     content:"";position:absolute;top:0;bottom:0;right:0;width:17%;
-    background:repeating-linear-gradient(-45deg,#e8000e 0 2vmin,#150202 2vmin 4vmin);
+    background:linear-gradient(-45deg,
+      #e8000e 0 12.5%,#150202 12.5% 25%,
+      #e8000e 25% 37.5%,#150202 37.5% 50%,
+      #e8000e 50% 62.5%,#150202 62.5% 75%,
+      #e8000e 75% 87.5%,#150202 87.5% 100%);
     opacity:.95;transition:opacity .3s;
   }
-  .mode.inactive{opacity:.34;cursor:default}
+  .mode.inactive{opacity:.34;cursor:pointer}
   .mode.inactive::after{opacity:1}
   .mode.active{cursor:pointer;animation:pulse 1.6s infinite}
   @keyframes pulse{0%,100%{filter:brightness(1.1)}50%{filter:brightness(1.4)}}
-  .powerbox{flex:.6;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding-left:2.4vmin}
-  .powerbox .jp{font-size:clamp(16px,3.4vmin,46px);letter-spacing:.05em}
-  .powerbox .en{font-size:clamp(10px,1.8vmin,24px);letter-spacing:.08em;margin-top:.2em}
+  .powerbox{flex:.6;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding-left:1.8vmin}
+  .powerbox .jp{font-size:3.8vmin;letter-spacing:.04em;line-height:1}
+  .powerbox .en{font-size:2vmin;letter-spacing:.06em;margin-top:.12em}
 
   /* ===== 底部：STOP/SLOW/NORMAL/RACING + DANGER + SUBSCRIBE ===== */
   .bottombar{flex:none;height:15%;display:flex;gap:1.6vmin;align-items:stretch}
   .cell{
-    border:2px solid var(--amber);box-shadow:var(--glow);
+    border:.22vmin solid var(--amber);box-shadow:var(--glow);
     color:var(--amber);text-shadow:var(--glow);
     flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    font-size:clamp(14px,2.9vmin,39px);letter-spacing:.12em;
+    font-size:2.9vmin;letter-spacing:.12em;
     position:relative;padding:.5vmin 0 .9vmin;cursor:pointer;
     background:linear-gradient(180deg,rgba(70,25,95,.16),rgba(120,25,45,.12));
   }
-  /* 按钮间隙顶缘的黄色双竖线（STOP|SLOW|NORMAL|RACING 之间） */
+  /* 按钮间隙正中的黄色双竖线：与两侧格子等距，底端顶格（贴按钮顶缘） */
   .bottombar .cell[data-bar]:nth-child(-n+3)::after{
-    content:"";position:absolute;right:-.95vmin;top:-1.2vmin;height:1.05vmin;width:8px;
-    background:linear-gradient(90deg,var(--amber) 0 2px,transparent 2px 6px,var(--amber) 6px 8px);
-    opacity:.85;box-shadow:0 0 5px rgba(255,176,30,.5);
+    content:"";position:absolute;right:-.8vmin;transform:translateX(50%);
+    top:-1.05vmin;height:1.05vmin;width:.89vmin;
+    background:linear-gradient(90deg,var(--amber) 0 .22vmin,transparent .22vmin .67vmin,var(--amber) .67vmin .89vmin);
+    opacity:.85;box-shadow:0 0 .56vmin rgba(255,176,30,.5);
   }
   .cell .txt{position:relative;z-index:2}
   /* 红色长条：默认熄灭，可点击点亮 / 关闭 */
   .cell .redbar{
     position:absolute;left:0;right:0;bottom:0;height:34%;
     background:var(--red);
-    box-shadow:0 0 14px var(--red),0 0 30px rgba(255,30,15,.45);
+    box-shadow:0 0 1.56vmin var(--red),0 0 3.33vmin rgba(255,30,15,.45);
     z-index:1;opacity:0;transition:opacity .16s;
   }
   .cell:hover .redbar{opacity:.22}
@@ -230,16 +226,16 @@
 
   .cell.danger-cell{
     flex:1.1;cursor:default;background:none;
-    font-size:clamp(12px,2.4vmin,32px);letter-spacing:.1em;
+    font-size:2.4vmin;letter-spacing:.1em;
     line-height:1.2;text-align:center;transition:opacity .3s;
     color:var(--red);border-color:var(--red);
-    text-shadow:0 0 10px rgba(255,40,20,.9),0 0 28px rgba(255,20,10,.6);
-    box-shadow:0 0 14px rgba(255,30,15,.8),inset 0 0 20px rgba(255,40,20,.25);
+    text-shadow:0 0 1.11vmin rgba(255,40,20,.9),0 0 3.11vmin rgba(255,20,10,.6);
+    box-shadow:0 0 1.56vmin rgba(255,30,15,.8),inset 0 0 2.22vmin rgba(255,40,20,.25);
   }
   .cell.danger-cell:not(.on){opacity:.22}
   .cell.danger-cell.on{
-    text-shadow:0 0 10px rgba(255,40,20,.95),0 0 30px rgba(255,20,10,.7);
-    box-shadow:0 0 18px rgba(255,40,20,.8),inset 0 0 20px rgba(255,40,20,.25);
+    text-shadow:0 0 1.11vmin rgba(255,40,20,.95),0 0 3.33vmin rgba(255,20,10,.7);
+    box-shadow:0 0 2vmin rgba(255,40,20,.8),inset 0 0 2.22vmin rgba(255,40,20,.25);
     animation:pulse .7s infinite;
   }
   body.danger .cell.danger-cell.on{animation:dangerblink .45s steps(1) infinite}
@@ -247,20 +243,23 @@
 
   .subbox{
     flex:1.15;
-    border:2px solid var(--red);color:var(--red);
-    box-shadow:0 0 14px rgba(255,30,15,.8),inset 0 0 18px rgba(255,30,15,.15);
-    text-shadow:0 0 10px rgba(255,40,20,.9),0 0 28px rgba(255,20,10,.6);
+    border:.22vmin solid var(--red);color:var(--red);
+    box-shadow:0 0 1.56vmin rgba(255,30,15,.8),inset 0 0 2vmin rgba(255,30,15,.15);
+    text-shadow:0 0 1.11vmin rgba(255,40,20,.9),0 0 3.11vmin rgba(255,20,10,.6);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     padding:.4vmin;line-height:1.15;text-align:center;position:relative;
   }
-  .subbox .jp{font-size:clamp(16px,3.4vmin,46px);letter-spacing:.05em}
-  .subbox .en1{font-size:clamp(11px,1.95vmin,26px);letter-spacing:.2em}
-  .subbox .en2{font-size:clamp(8px,1.15vmin,15px);letter-spacing:.12em;opacity:.85}
-  /* DANGER EMERGENCY 右侧与購読する 右侧的黄色双竖线 */
+  .subbox .stack{width:80%;display:flex;flex-direction:column;align-items:stretch;gap:.1vmin}
+  /* 三行拉成等长：字符间均分同一宽度 */
+  .subbox .stack>div{display:flex;justify-content:space-between;width:100%;letter-spacing:0}
+  .subbox .jp{font-size:3.4vmin}
+  .subbox .en1{font-size:1.95vmin}
+  .subbox .en2{font-size:1.15vmin;opacity:.85}
+  /* DANGER EMERGENCY 右侧与購読する 右侧的黄色双竖线（短，位于顶缘） */
   .cell.danger-cell::after,.subbox::after{
-    content:"";position:absolute;right:-1.15vmin;top:18%;height:64%;width:8px;
-    background:linear-gradient(90deg,var(--amber) 0 2px,transparent 2px 6px,var(--amber) 6px 8px);
-    opacity:.85;box-shadow:0 0 5px rgba(255,176,30,.5);
+    content:"";position:absolute;right:-1.15vmin;top:0;height:30%;width:.89vmin;
+    background:linear-gradient(90deg,var(--amber) 0 .22vmin,transparent .22vmin .67vmin,var(--amber) .67vmin .89vmin);
+    opacity:.85;box-shadow:0 0 .56vmin rgba(255,176,30,.5);
   }
   body.danger .cell.danger-cell::after,body.danger .subbox::after{box-shadow:none}
 
@@ -271,11 +270,11 @@
 
   /* 操作提示 */
   .hint{
-    position:fixed;left:0;right:0;bottom:10px;text-align:center;z-index:40;pointer-events:none;
+    position:fixed;left:0;right:0;bottom:1.11vmin;text-align:center;z-index:40;pointer-events:none;
     font-family:"EVA Matisse","Microsoft YaHei",sans-serif;
-    font-size:clamp(10px,1.4vmin,14px);letter-spacing:.18em;line-height:1.7;
-    color:var(--amber);opacity:.45;text-shadow:0 0 8px rgba(255,150,20,.4);
-    padding:0 12px;
+    font-size:1.4vmin;letter-spacing:.18em;line-height:1.7;
+    color:var(--amber);opacity:.45;text-shadow:0 0 .89vmin rgba(255,150,20,.4);
+    padding:0 1.33vmin;
   }
 </style>
 </head>
@@ -287,9 +286,16 @@
   <div class="panel">
     <div class="gradbar"></div>
     <div class="label-flap">
-      <div class="inner"><span class="jp">活動限界まで</span><span class="en">ACTIVETIME REMAINING:</span></div>
+      <svg class="outline" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <polygon class="fill" points="0,0 100,0 100,100 0,100"/>
+        <polyline points="0,100 0,0 50,0 50,28 100,28"/>
+      </svg>
+      <div class="inner">
+        <span class="jp">活動限界まで</span>
+        <span class="en">ACTIVETIME REMAINING:</span>
+        <span class="ato">あと</span>
+      </div>
     </div>
-    <div class="flap-ato">あと</div>
     <div class="screen">
       <div class="ticks l"><i class="mj"></i><i class="mn"></i><i class="mn"></i><i class="mj"></i><i class="mn"></i><i class="mn"></i><i class="mj"></i></div>
       <div class="ticks r cy"><i class="mj"></i><i class="mn"></i><i class="mn"></i><i class="mj"></i><i class="mn"></i><i class="mn"></i><i class="mj"></i></div>
@@ -305,10 +311,12 @@
             <div class="jp">内部</div>
             <div class="en">INTERNAL</div>
           </div>
+          <div class="sep"><i class="l"></i><i class="r"></i></div>
           <div class="box powerbox">
             <div class="jp">主電源供給システム</div>
             <div class="en">MAIN ENERGY SUPPLY SYSTEM</div>
           </div>
+          <div class="sep"><i class="l"></i><i class="r"></i></div>
           <div class="box mode active" id="modeExternal">
             <div class="jp">外部</div>
             <div class="en">EXTERNAL</div>
@@ -323,16 +331,18 @@
         <div class="cell" data-bar><span class="txt">RACING</span><div class="redbar"></div></div>
         <div class="cell danger-cell" id="dangerCell">DANGER<br>EMERGENCY</div>
         <div class="subbox">
-          <div class="jp">購読する</div>
-          <div class="en1">SUBSCRIBE</div>
-          <div class="en2">CLOCKS AND TIMERS</div>
+          <div class="stack">
+            <div class="jp"><span>購</span><span>読</span><span>す</span><span>る</span></div>
+            <div class="en1"><span>S</span><span>U</span><span>B</span><span>S</span><span>C</span><span>R</span><span>I</span><span>B</span><span>E</span></div>
+            <div class="en2"><span>C</span><span>o</span><span>d</span><span>e</span><span>.</span><span>V</span><span>i</span><span>l</span><span>l</span><span>k</span><span>i</span><span>s</span><span>s</span></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<p class="hint">点击「外部 EXTERNAL」切换至内部并开始 5 分钟倒计时 · 点击 STOP / SLOW / NORMAL / RACING 下的红色长条可点亮 / 熄灭 · 最后 7 秒进入红色警戒</p>
+<p class="hint">点击「内部 INTERNAL」切换至内部电源供给 · 点击 STOP / SLOW / NORMAL / RACING 下的红色长条可点亮 / 熄灭 · 最后 7 秒进入红色警戒</p>
 
 <script>
 /* ================= 七段数码管 ================= */
@@ -448,8 +458,8 @@ function switchMode(){
   requestAnimationFrame(()=>{flash.classList.remove('hit');flash.classList.add('fade');});
   setMode(!internal);
 }
-modeExt.addEventListener('click',e=>{e.stopPropagation();if(!internal)switchMode();});
-modeInt.addEventListener('click',e=>{e.stopPropagation();if(internal)switchMode();});
+modeExt.addEventListener('click',e=>{e.stopPropagation();if(internal)switchMode();});
+modeInt.addEventListener('click',e=>{e.stopPropagation();if(!internal)switchMode();});
 renderDisplay('5:00.00');
 </script>
 </body>
