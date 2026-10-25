@@ -9,7 +9,7 @@
 <style>
 @font-face{
   font-family:"EVA Matisse";
-  src:url("./EVA-Matisse_Classic.ttf")format("truetype");
+  src:url("./font/EVA-Matisse_Classic.ttf")format("truetype");
   font-display:swap;
 }
 
@@ -119,8 +119,9 @@ body.danger .deco .blk{filter:drop-shadow(0 0 4px rgba(255,40,20,.6))}
 body.pw .cy{opacity:1;transition-delay:var(--d,0ms)}
 /* 装甲上的黑色刻度：恒为黑色、无辉光，不随警戒变色 */
 .bk{fill:#000;filter:none}
-/* 黑色刻度旁的黄色竖线对（参考图 STOP 左侧：黑对 + 黄对）
-
+/* 黑色刻度旁的黄色竖线对（参考图 STOP 左侧：黑对 + 黄对） */
+.ye{fill:var(--amber);filter:drop-shadow(0 0 3px rgba(255,176,30,.5))}
+body.danger .ye{filter:drop-shadow(0 0 3px rgba(255,40,20,.6))}
 
 /* 下端止于底部黑区绿线（gline 顶端 y=500），与该线垂直相接 */
 .gradbar{position:absolute;left:1405px;top:148px;width:7px;height:352px;z-index:6;opacity:.95;
@@ -356,17 +357,17 @@ body.zero:not(.clk) .mode.active::after,body.zero:not(.clk) .cell .redbar.on{ani
     <div><span>E</span><span>M</span><span>E</span><span>R</span><span>G</span><span>E</span><span>N</span><span>C</span><span>Y</span></div>
   </div></div>
   <div class="subbox"><div class="stack">
-    <div class="jp"><span>購</span><span>読</span><span>す</span><span>る</span></div>
+    <div class="jp"><span>登</span><span>録</span><span>す</span><span>る</span></div>
     <div class="en1"><span>S</span><span>U</span><span>B</span><span>S</span><span>C</span><span>R</span><span>I</span><span>B</span><span>E</span></div>
     <div class="en2"><span>C</span><span>o</span><span>d</span><span>e</span><span>.</span><span>V</span><span>i</span><span>l</span><span>l</span><span>k</span><span>i</span><span>s</span><span>s</span></div>
   </div></div>
 </div></div>
-<p class="hint">自动接通主電源 · 点「主電源供給システム」 · 「内部 / 外部」切换供电模式 · 点「活動限界まで」左侧小方块循环切换 倒计时 / 24H / 12H 时钟</p>
+<p class="hint">「主電源供給システム」断电重启 · 「内部 / 外部」切换供电模式 · 「活動限界まで」左侧小方块循环切换 [倒计时 / 24H / 12H ]时钟</p>
 <script>
 (function(){
 'use strict';
 
-/* DOM 引用集中在此处，后续代码不再出现 getElementById / querySelector */
+
 const NS='http://www.w3.org/2000/svg';
 const body=document.body;
 const panel=document.getElementById('panel');
@@ -738,7 +739,7 @@ bars.forEach(({cell},i)=>onActivate(cell,()=>{
   setBars(i);
 }));
 
-/* 初始化 */
+/* 初始化：打开网页即自动接通主電源供給システム。 */
 render();
 fit();
 requestAnimationFrame(()=>requestAnimationFrame(()=>{
