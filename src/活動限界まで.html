@@ -119,8 +119,8 @@ body.danger .deco .blk{filter:drop-shadow(0 0 4px rgba(255,40,20,.6))}
 body.pw .cy{opacity:1;transition-delay:var(--d,0ms)}
 /* 装甲上的黑色刻度：恒为黑色、无辉光，不随警戒变色 */
 .bk{fill:#000;filter:none}
-/* 黑色刻度旁的黄色竖线对（参考图 STOP 左侧：黑对 + 黄对） */
-.ye{fill:var(--amber);filter:drop-shadow(0 0 3px rgba(255,176,30,.5))}
+/* 黑色刻度旁的黄色竖线对（参考图 STOP 左侧：黑对 + 黄对）
+
 
 /* 下端止于底部黑区绿线（gline 顶端 y=500），与该线垂直相接 */
 .gradbar{position:absolute;left:1405px;top:148px;width:7px;height:352px;z-index:6;opacity:.95;
@@ -216,6 +216,10 @@ body.pw .sep i{opacity:1;transition-delay:var(--d,0ms)}
   background:
     linear-gradient(#000,#000) left 3px top 0/3px 6px no-repeat,
     linear-gradient(#000,#000) right 3px top 0/3px 6px no-repeat}
+/* 未通电：STOP / SLOW / NORMAL / RACING 连边框、文字、辉光一起不显示（与 .mode.dead 同理）。
+   transition 只写在 .pw 下 —— 通电时淡入，断电时瞬间熄灭，符合 CRT 断电的观感。 */
+body:not(.pw) .cell{opacity:0;pointer-events:none}
+body.pw .cell{transition:opacity .28s}
 
 /* ============ 红色预警框（DANGER EMERGENCY / 購読する） ============ */
 .danger-cell,.subbox{position:absolute;top:428px;height:48px;border:2px solid var(--red);
@@ -247,15 +251,9 @@ body.zero:not(.clk) .jpL,body.zero:not(.clk) .enL,body.zero:not(.clk) .atoL,
 body.zero:not(.clk) .danger-cell,body.danger.zero:not(.clk) .danger-cell.on{animation:zeroA .5s steps(1) infinite}
 @keyframes zeroA{0%,100%{opacity:1}50%{opacity:.1}}
 /* B 组：内部框斑马柱 + 按钮下方红条（归零后只保留 STOP）——频率与 A 组不同 */
-body.zero .mode.active::after,body.zero .cell .redbar.on{animation:zeroB .78s steps(1) infinite}
+body.zero:not(.clk) .mode.active::after,body.zero:not(.clk) .cell .redbar.on{animation:zeroB .78s steps(1) infinite}
 @keyframes zeroB{0%,100%{opacity:1}50%{opacity:.08}}
 
-/* ============ 命中闪光 / 底部提示 ============ */
-#flash{position:fixed;inset:0;background:var(--amber);opacity:0;pointer-events:none;z-index:50}
-#flash.hit{opacity:.3;transition:none}
-#flash.fade{opacity:0;transition:opacity .45s}
-/* 视图切换的过渡：标题与数码管各淡入一次，取代整屏闪光
-   （整屏闪光取 var(--amber)，警戒态下 --amber 是红的，会把画面整个染红） */
 .vswap{animation:vswap .24s ease-out both}
 @keyframes vswap{from{opacity:0}to{opacity:1}}
 .hint{position:fixed;left:0;right:0;bottom:6px;text-align:center;z-index:40;pointer-events:none;
@@ -267,7 +265,6 @@ body.zero .mode.active::after,body.zero .cell .redbar.on{animation:zeroB .78s st
 </style>
 </head>
 <body>
-<div id="flash"></div>
 <div class="panel" id="panel"><div class="inner">
   <div class="charge"></div>
   <div class="leftbar"></div><div class="leftdash"></div>
@@ -364,7 +361,7 @@ body.zero .mode.active::after,body.zero .cell .redbar.on{animation:zeroB .78s st
     <div class="en2"><span>C</span><span>o</span><span>d</span><span>e</span><span>.</span><span>V</span><span>i</span><span>l</span><span>l</span><span>k</span><span>i</span><span>s</span><span>s</span></div>
   </div></div>
 </div></div>
-<p class="hint">点击「主電源供給システム」启动 · 「内部」切换供电模式 · 点「活動限界まで」左侧小方块循环切换 倒计时 / 24H / 12H 时钟</p>
+<p class="hint">自动接通主電源 · 点「主電源供給システム」 · 「内部 / 外部」切换供电模式 · 点「活動限界まで」左侧小方块循环切换 倒计时 / 24H / 12H 时钟</p>
 <script>
 (function(){
 'use strict';
@@ -373,7 +370,6 @@ body.zero .mode.active::after,body.zero .cell .redbar.on{animation:zeroB .78s st
 const NS='http://www.w3.org/2000/svg';
 const body=document.body;
 const panel=document.getElementById('panel');
-const flash=document.getElementById('flash');
 const segWrap=document.getElementById('segWrap');
 const clockDig=document.getElementById('clockDig');
 const powerBox=document.getElementById('powerBox');
@@ -657,16 +653,6 @@ function setBars(index,hideRest){
   }
 }
 
-function hitFlash(){
-  flash.classList.remove('fade');
-  void flash.offsetWidth;              /* 强制重排，重启动画 */
-  flash.classList.add('hit');
-  requestAnimationFrame(()=>{
-    flash.classList.remove('hit');
-    flash.classList.add('fade');
-  });
-}
-
 /* 视图切换的过渡：只让标题与数码管淡入一次（一次性重排，不是每个元素各排一次） */
 const fadeEls=[jpL,enL,atoL,segWrap];
 function crossFade(){
@@ -695,7 +681,8 @@ function render(){
   dangerCell.classList.toggle('on',int&&!clk);
   powerBox.classList.toggle('off',!powered);
   /* 关：全灭；归零：只留 STOP；内部：RACING；外部：NORMAL */
-  setBars(!powered?-1:(zero?0:(internal?3:2)),zero);
+  const zeroLook=zero&&!clk;
+  setBars(!powered?-1:(zeroLook?0:(internal?3:2)),zeroLook);
   if(clk){
     apText='';
     paintClock(view===2);      /* 24H↔12H 互切时立即重画，不等下一整秒 */
@@ -727,7 +714,6 @@ function powerSeq(){
 }
 
 onActivate(powerBox,()=>{
-  hitFlash();
   powered=!powered;
   internal=false;
   zero=false;
@@ -736,8 +722,8 @@ onActivate(powerBox,()=>{
   if(powered) powerSeq();   /* 必须在 render 之后：先把红条归零，再由序列逐个点亮 */
 });
 /* 归零态也响应：一次点击直接重开一轮 5:00.00 */
-onActivate(modeInt,()=>{ if(powered&&(zero||!internal)){ hitFlash(); internal=true; zero=false; render(); } });
-onActivate(modeExt,()=>{ if(powered&&internal){ hitFlash(); internal=false; zero=false; render(); } });
+onActivate(modeInt,()=>{ if(powered&&(zero||!internal)){ internal=true; zero=false; render(); } });
+onActivate(modeExt,()=>{ if(powered&&internal){ internal=false; zero=false; render(); } });
 
 /* 标题左侧小方块：倒计时 → 24H → 12H → 倒计时 …
    断电也能切（相当于待机表）；切换用淡入而不是整屏闪光 */
@@ -755,6 +741,11 @@ bars.forEach(({cell},i)=>onActivate(cell,()=>{
 /* 初始化 */
 render();
 fit();
+requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  powered=true;
+  render();
+  powerSeq();
+}));
 })();
 </script>
 </body>
