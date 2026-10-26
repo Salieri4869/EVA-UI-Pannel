@@ -10,7 +10,7 @@
 @font-face{
   font-family:"EVA Matisse";
   src:url("./font/EVA-Matisse_Classic.ttf")format("truetype");
-  font-display:swap;
+  font-display:block;
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -30,10 +30,6 @@ body{
   /* 背景渐变 */
   --rb:linear-gradient(180deg,#000 0 48px,transparent 48px) 0 0/1500px 600px no-repeat,
        linear-gradient(to top right,#b2403c 0,#b58a3a 14%,#8fa23c 26%,#5f9a3a 38%,#55995a 64%,#3f8aa0 80%,#3f68ae 92%,#4b4fb0 100%) 200px 0/1300px 600px no-repeat;
-  background:
-    radial-gradient(ellipse 60% 70% at -5% 30%,rgba(90,200,60,.5) 0%,rgba(40,120,30,.28) 45%,transparent 75%),
-    radial-gradient(ellipse 45% 90% at 108% 45%,rgba(255,40,90,.4) 0%,rgba(160,20,40,.2) 50%,transparent 80%),
-    radial-gradient(ellipse 50% 60% at 45% 120%,rgba(255,80,20,.22) 0%,transparent 70%),#000;
 }
 /* 最后 7 秒警戒：只改 UI 字体 / 描边 / gline / gradbar，不加整体红色滤镜，--cyan 保持青蓝 */
 body.danger{
@@ -61,12 +57,11 @@ body.danger{
 .charge{background:var(--rb)}
 body.pw .charge,body.pw .chargelayer{mask-position:-1500px -1200px}
 
-/* ============ 画面最左缘：黑色竖条 + 短划刻度列 ============
-   黑对黑故未通电时自然隐形 */
-.leftbar{position:absolute;left:250px;top:0;width:10px;height:600px;background:#000}
+/* ============ 画面最左缘：黑色竖条 + 短划刻度列 ============ */
+.leftbar{position:absolute;left:220px;top:0;width:5px;height:600px;background:#000}
 /* 短划列自 y=32 起，3px 实 + 47px 空，与 tk.t2 的黑色小竖刻度同粗 */
-.leftdash{position:absolute;left:270px;top:32px;width:15px;height:414px;
-  background:repeating-linear-gradient(180deg,#000 0 3px,transparent 3px 50px)}
+.leftdash{position:absolute;left:230px;top:32px;width:15px;height:400px;
+  background:repeating-linear-gradient(180deg,#000 0 3px,transparent 3px 40px)}
 
 /* ============ 绝对定位通用类 ============ */
 .abs{position:absolute}
@@ -213,10 +208,11 @@ body.pw .sep i{opacity:1;transition-delay:var(--d,0ms)}
 .cell.gone .txt{visibility:hidden}
 .cell:active{filter:brightness(1.15)}
 /* 按钮下方与边缘严格对齐的黑色刻度：恒为黑色，不随警戒变色 */
-.cell::after{content:"";position:absolute;left:-2px;right:-2px;top:100%;margin-top:3px;height:6px;
+.cell::after{content:"";position:absolute;left:-4px;right:-4px;top:100%;margin-top:3px;height:8px;
   background:
-    linear-gradient(#000,#000) left 3px top 0/3px 6px no-repeat,
-    linear-gradient(#000,#000) right 3px top 0/3px 6px no-repeat}
+    linear-gradient(#000,#000) left 3px top 0/3px 8px no-repeat,
+    linear-gradient(#000,#000) right 3px top 0/3px 8px no-repeat
+  }
 /* 未通电：STOP / SLOW / NORMAL / RACING 连边框、文字、辉光一起不显示（与 .mode.dead 同理）。
    transition 只写在 .pw 下 —— 通电时淡入，断电时瞬间熄灭，符合 CRT 断电的观感。 */
 body:not(.pw) .cell{opacity:0;pointer-events:none}
@@ -304,21 +300,21 @@ body.zero:not(.clk) .mode.active::after,body.zero:not(.clk) .cell .redbar.on{ani
       <use href="#tick" x="1184" y="479"/>
       <use href="#tick" x="1189" y="479"/>
     </g>
-    <g class="ye">
-      <use href="#tick" x="603" y="425"/>
-      <use href="#tick" x="608" y="425"/>
-      <use href="#tick" x="745" y="425"/>
-      <use href="#tick" x="749" y="425"/>
-      <use href="#tick" x="885" y="425"/>
-      <use href="#tick" x="889" y="425"/>
-      <use href="#tick" x="1025" y="425"/>
-      <use href="#tick" x="1029" y="425"/>
-      <use href="#tick" x="1173" y="425"/>
-      <use href="#tick" x="1178" y="425"/>
-      <use href="#tick" x="1303" y="425"/>
-      <use href="#tick" x="1307" y="425"/>
-      <use href="#tick" x="1398" y="425"/>
-      <use href="#tick" x="1402" y="425"/>
+    <g class="ye" transform="translate(0 425)">
+      <use href="#tick" x="603"/>
+      <use href="#tick" x="608"/>
+      <use href="#tick" x="745"/>
+      <use href="#tick" x="749"/>
+      <use href="#tick" x="885"/>
+      <use href="#tick" x="889"/>
+      <use href="#tick" x="1025"/>
+      <use href="#tick" x="1029"/>
+      <use href="#tick" x="1173"/>
+      <use href="#tick" x="1178"/>
+      <use href="#tick" x="1303"/>
+      <use href="#tick" x="1307"/>
+      <use href="#tick" x="1398"/>
+      <use href="#tick" x="1402"/>
     </g>
     <rect style="--d:215ms" class="cy" x="519" y="228" width="3" height="7"/>
     <rect style="--d:227ms" class="cy" x="568" y="228" width="3" height="7"/>
