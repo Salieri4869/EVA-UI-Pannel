@@ -27,6 +27,15 @@ body{
   --seg-bloom:drop-shadow(0 0 4px rgba(255,170,40,.5)) drop-shadow(0 0 12px rgba(255,110,10,.28));
   --cyan-glow:0 0 3px rgba(63,216,255,.7);
   --tick:linear-gradient(var(--cyan),var(--cyan));
+  /* 玻璃层用的"装甲环境反光"：跟着 --amber 走，警戒时自动转红 */
+  --amb-glow:rgba(255,150,20,.5);
+  --amb-glow0:rgba(255,150,20,0);
+  /* 玻璃装甲：裁剪形状 = 主屏装甲轮廓（与 SVG 主框同一组顶点） */
+  --gclip:polygon(515px 128px,765px 128px,780px 148px,1405px 148px,
+                  1405px 420px,583px 420px,583px 222px,515px 222px);
+  --gb:1.2px;   /* 磨砂强度：0=完全通透，2.5px=明显毛玻璃 */
+  --gs:.62;     /* 装甲表面反光条强度 */
+  --gt:.30;     /* 盖在数字之上那层反光的强度（越小数字越干净） */
   /* 背景渐变 */
   --rb:linear-gradient(180deg,#000 0 48px,transparent 48px) 0 0/1500px 600px no-repeat,
        linear-gradient(to top right,#b2403c 0,#b58a3a 20%,#a9be4a 30%,#81ba5d 38%,#55995a 64%,#3f8aa0 80%,#3f68ae 92%,#4b4fb0 100%) 200px 0/1300px 600px no-repeat;
@@ -34,14 +43,27 @@ body{
 /* 最后 7 秒警戒：只改 UI 字体 / 描边 / gline / gradbar，不加整体红色滤镜，--cyan 保持青蓝 */
 body.danger{
   --amber:#ff2415;
+  --amb-glow:rgba(255,40,20,.55);
+  --amb-glow0:rgba(255,40,20,0);
   --glow:0 0 11px rgba(255,40,20,.95),0 0 33px rgba(255,20,10,.7),0 0 78px rgba(255,10,0,.4);
   --seg-glow:0 0 6px rgba(255,60,30,.65),0 0 14px rgba(255,20,10,.3);
   --seg-bloom:drop-shadow(0 0 4px rgba(255,60,30,.55)) drop-shadow(0 0 12px rgba(255,20,10,.3));
 }
 
+/* ============ 3D 舞台：perspective 放在 .stage，倾斜由 JS 写在 .panel 上 ============ */
+.stage{position:absolute;left:50%;top:50%;width:1300px;height:600px;
+  transform:translate(-50%,-50%);perspective:1600px;perspective-origin:50% 40%}
+/* 装甲下方的环境光溢出：纯黑投影在黑底上看不见，"浮着"得靠溢出来的光 */
+.halo{position:absolute;left:50%;top:50%;width:1300px;height:600px;pointer-events:none;
+  transform:translate(-50%,-50%);filter:blur(24px);opacity:0;transition:opacity .6s;
+  background:radial-gradient(58% 88% at 50% 112%,var(--amb-glow),var(--amb-glow0) 70%)}
+body.pw .halo{opacity:.55}
+
 /* ============ 画布 1300×600：裁掉左侧留白，只留到装甲外一点 ============ */
-.panel{position:absolute;left:50%;top:50%;width:1300px;height:600px;transform-origin:center;overflow:hidden;
-  filter:drop-shadow(0 20px 40px rgba(0,0,0,.85))}
+.panel{position:absolute;left:0;top:0;width:1300px;height:600px;transform-origin:center;overflow:hidden;
+  filter:drop-shadow(0 24px 38px rgba(0,0,0,.9)) drop-shadow(0 0 54px rgba(255,140,30,.07));
+  transition:filter .5s}
+body.danger .panel{filter:drop-shadow(0 24px 38px rgba(0,0,0,.9)) drop-shadow(0 0 62px rgba(255,40,20,.13))}
 .inner{position:absolute;left:-200px;top:0;width:1500px;height:600px;background:#000}
 
 /* ============ 充电式装甲充能 ============
@@ -57,9 +79,11 @@ body.danger{
 .charge{background:var(--rb)}
 body.pw .charge,body.pw .chargelayer{mask-position:-1500px -1200px}
 
-/* ============ 画面最左缘：黑区（内嵌青色刻度）+ 黑色竖条 + 刻度列 ============*/
-.leftbezel{position:absolute;left:200px;top:0;width:10px;height:600px;background:#000}
+/* ============ 画面最左缘：黑色竖条 + 短划刻度列 ============ */
 .leftbar{position:absolute;left:220px;top:0;width:5px;height:600px;background:#000}
+/* 短划列自 y=32 起，3px 实 + 47px 空，与 tk.t2 的黑色小竖刻度同粗 */
+.leftdash{position:absolute;left:230px;top:32px;width:15px;height:600px;
+  background:repeating-linear-gradient(180deg,#000 0 3px,transparent 3px 40px)}
 
 /* ============ 绝对定位通用类 ============ */
 .abs{position:absolute}
@@ -71,7 +95,7 @@ body.pw .charge,body.pw .chargelayer{mask-position:-1500px -1200px}
 /* 标题左侧小方块：视图切换开关（倒计时 / 24H / 12H）
    不能用 outline —— SVG 上的 outline 会沿元素包围盒画一个矩形框（点完就留一个方框）。
    鼠标点击后不显示任何框，只有键盘 Tab 聚焦时用描边高亮。 */
-.deco .clk{cursor:pointer;outline:none;stroke:none;filter:none}
+.deco .clk{cursor:pointer;outline:none}
 .deco .clk:focus-visible{stroke:var(--cyan);stroke-width:2.5;
   filter:drop-shadow(0 0 5px rgba(63,216,255,.55))}
 body.danger .deco .blk{filter:drop-shadow(0 0 4px rgba(255,40,20,.6))}
@@ -118,23 +142,22 @@ body.pw .cy>use{opacity:1;transition-delay:var(--d,0ms)}
 body.danger .ye{filter:drop-shadow(0 0 3px rgba(255,40,20,.6))}
 
 /* 下端止于底部黑区绿线（gline 顶端 y=500），与该线垂直相接 */
-.gradbar{position:absolute;left:1405px;top:146.7px;width:3px;height:353.3px;z-index:6;opacity:.95;
+.gradbar{position:absolute;left:1405px;top:148px;width:7px;height:352px;z-index:6;opacity:.95;
   background:linear-gradient(180deg,#00e05a,#b8f000 28%,#ffc400 52%,#ff2020 76%,#b400ff);
   box-shadow:0 0 13px rgba(255,200,60,.45),0 0 28px rgba(180,0,255,.25);transition:background .4s}
 body.danger .gradbar{background:linear-gradient(180deg,#7a0000,#ff2020 35%,#8a0000 65%,#ff3030);
   box-shadow:0 0 16px rgba(255,30,20,.6)}
 /* 左端与带内第一条青色竖刻度（tk.b1 首刻度 x=568）对齐，右端止于 gradbar 左缘 1404 */
-.gline{left:568px;top:500px;width:840px;height:4px;
+.gline{left:568px;top:500px;width:844px;height:4px;
   background:linear-gradient(90deg,#ffe600,#6fcf3a);box-shadow:0 0 6px rgba(255,200,40,.45);
   transition:background .4s,box-shadow .4s}
 body.danger .gline{background:linear-gradient(90deg,#ff2a14,#ff6a2a);box-shadow:0 0 6px rgba(255,40,20,.6)}
 
 /* ============ 标题文字 ============ */
 .glow{color:var(--amber);text-shadow:var(--glow)}
-.jpL{left:522px;top:123px;font-size:38px;font-weight:700;line-height:52px;letter-spacing:-.04em;white-space:nowrap;
-  transform:scaleY(1.363);transform-origin:50% 50%}
-.enL{left:752px;top:150.5px;font-size:23px;line-height:28px;font-family:Arial,"Helvetica Neue",sans-serif;
-  white-space:nowrap;letter-spacing:normal}
+.jpL{left:522px;top:128px;font-size:38px;font-weight:700;line-height:52px;letter-spacing:.02em;white-space:nowrap}
+.enL{left:770px;top:148px;font-size:23px;line-height:28px;font-family:Arial,"Helvetica Neue",sans-serif;
+  white-space:nowrap;letter-spacing:-2px}
 .atoL{left:530px;top:178px;font-size:28px;line-height:38px;font-weight:700}
 
 /* ============ 数码管 ============
@@ -253,7 +276,88 @@ body.zero:not(.clk) .mode.active::after,body.zero:not(.clk) .cell .redbar.on{ani
 
 body.zero:not(.clk) .subbox{opacity:0 !important;visibility:hidden;}
 
-.vswap{animation:vswap .24s ease-out both}
+/* ==================================================================
+   立体玻璃装甲
+   ① 装甲整块缓慢浮沉 ② 数字/标题浮在装甲之上 ③ 装甲表面的玻璃质感
+   键盘开关：G=玻璃层  F=浮起  3=立体倾斜  M=鼠标视差
+   ================================================================== */
+
+/* ---- ① 装甲浮沉（周期 7.6s）---- */
+body.fx-float .stage{animation:armorFloat 7.6s ease-in-out infinite}
+@keyframes armorFloat{
+  0%,100%{transform:translate(-50%,-50%) translate3d(0,0,0)}
+  50%    {transform:translate(-50%,-50%) translate3d(0,-6px,0)}
+}
+/* ---- ② 数字 / 标题浮在装甲之上：幅度更小、周期不同 → 与装甲形成相对运动 ---- */
+body.fx-float .seg-wrap{animation:digFloat 5.3s ease-in-out infinite}
+@keyframes digFloat{
+  0%,100%{transform:translate3d(0,0,0)}
+  50%    {transform:translate3d(0,-2.8px,0)}
+}
+body.fx-float .jpL,body.fx-float .enL,body.fx-float .atoL{animation:txtFloat 6.4s ease-in-out infinite}
+@keyframes txtFloat{
+  0%,100%{transform:translate3d(0,0,0)}
+  50%    {transform:translate3d(0,-1.6px,0)}
+}
+/* 离面感：贴着装甲的近投影 + 更远的软投影 + 溢到装甲上的辉光 */
+body.fx-float .seg-wrap .digit{filter:var(--seg-bloom)
+  drop-shadow(0 9px 11px rgba(0,0,0,.8)) drop-shadow(0 0 20px rgba(255,150,20,.16))}
+body.danger.fx-float .seg-wrap .digit{filter:var(--seg-bloom)
+  drop-shadow(0 9px 11px rgba(0,0,0,.8)) drop-shadow(0 0 22px rgba(255,40,20,.22))}
+body.fx-float .seg-wrap .dot{box-shadow:var(--seg-glow),0 9px 12px rgba(0,0,0,.8)}
+body.fx-float .jpL,body.fx-float .enL,body.fx-float .atoL{
+  text-shadow:var(--glow),0 7px 10px rgba(0,0,0,.85)}
+
+/* ---- ③ 玻璃层：.glass 在数字之下（装甲表面），.glasstop 在数字之上（极淡反光）---- */
+.glass,.glasstop{position:absolute;left:0;top:0;width:1500px;height:600px;
+  pointer-events:none;display:none;clip-path:var(--gclip)}
+body.fx-glass .glass,body.fx-glass .glasstop{display:block}
+.glass{z-index:5}
+.glasstop{z-index:20}
+
+/* ① 磨砂：隔着一层玻璃看底下的数码管与刻度 */
+.glass .frost{position:absolute;inset:0;background:rgba(255,255,255,.014);
+  backdrop-filter:blur(var(--gb)) saturate(118%) brightness(1.05);
+  -webkit-backdrop-filter:blur(var(--gb)) saturate(118%) brightness(1.05)}
+/* ② 斜向反光条 —— 玻璃的灵魂；两条一宽一窄，缓慢横扫 */
+.spec{position:absolute;inset:0;
+  background:
+    linear-gradient(114deg,
+      rgba(255,255,255,0)    0   17%,
+      rgba(255,255,255,.11)  21%,
+      rgba(255,255,255,.022) 26%,
+      rgba(255,255,255,0)    30% 51%,
+      rgba(255,255,255,.06)  55%,
+      rgba(255,255,255,.012) 59%,
+      rgba(255,255,255,0)    63%),
+    linear-gradient(158deg,rgba(255,255,255,.055) 0 11%,rgba(255,255,255,0) 32%);
+  background-size:230% 100%,100% 100%;
+  animation:specSweep 12s ease-in-out infinite}
+@keyframes specSweep{
+  0%,100%{background-position:-34% 0,0 0}
+  50%    {background-position: 34% 0,0 0}
+}
+.glass .spec{opacity:var(--gs)}
+.glasstop .spec{opacity:var(--gt)}
+/* ③ 玻璃边缘：上/左受光、下/右出厚度 */
+.edge{position:absolute;inset:0;
+  box-shadow:inset 1px 1px 0 rgba(255,255,255,.11),
+             inset -1px -1px 0 rgba(0,0,0,.5),
+             inset 0 0 26px rgba(255,255,255,.03)}
+.glass .edge{opacity:var(--gs)}
+.glasstop .edge{opacity:calc(var(--gt) * .8)}
+/* ④ 装甲自身颜色的环境反光，随警戒转红 */
+.glass .tint{position:absolute;inset:0;opacity:.12;
+  background:radial-gradient(130% 90% at 50% 116%,var(--amb-glow),var(--amb-glow0) 64%)}
+
+/* 系统开了"减少动态效果"就别晃了 */
+@media (prefers-reduced-motion:reduce){
+  body.fx-float .stage,body.fx-float .seg-wrap,body.fx-float .jpL,
+  body.fx-float .enL,body.fx-float .atoL,.spec{animation:none}
+}
+
+/* 视图切换淡入必须压过浮起动画（!important 才能赢过 body.fx-float .seg-wrap 这类选择器） */
+.vswap{animation:vswap .24s ease-out both !important}
 @keyframes vswap{from{opacity:0}to{opacity:1}}
 .hint{position:fixed;left:0;right:0;bottom:6px;text-align:center;z-index:40;pointer-events:none;
   font-family:"Microsoft YaHei",sans-serif;font-size:12px;letter-spacing:.14em;
@@ -263,53 +367,36 @@ body.zero:not(.clk) .subbox{opacity:0 !important;visibility:hidden;}
 .box:focus-visible,.cell:focus-visible{outline:2px solid currentColor;outline-offset:4px}
 </style>
 </head>
-<body>
+<body class="fx-glass fx-float">
+<div class="stage" id="stage"><div class="halo" id="halo"></div>
 <div class="panel" id="panel"><div class="inner">
   <div class="charge"></div>
-  <div class="leftbezel"></div><div class="leftbar"></div>
+  <div class="leftbar"></div><div class="leftdash"></div>
   <svg class="deco" viewBox="0 0 1500 600" aria-hidden="true">
     <!-- 刻度形状：定义一次，下方所有 <use href="#bar"> 共用（defs 不渲染） -->
     <defs>
       <rect id="bar" width="2" height="7"/>
-      <rect id="barY" width="2" height="10"/>
-      <rect id="barH" width="7" height="2"/>
       <rect id="barR" x="-1.5" y="-3.5" width="2" height="7" transform="rotate(30)"/>
     </defs>
     <polygon class="blk0" points="440,600 560,488 1500,488 1500,600"/>
     <polygon class="blk" points="515,222 583,222 583,420 515,420 437,530.5 352,502.5"/>
     <polygon class="blk" points="348,509.5 433,537.5 388.9,600 295.4,600"/>
-    <path id="clockHot" class="blk clk" d="M488 122A4 4 0 0 1 492 118L514 118L514 170L490.96 163.8A4 4 0 0 1 488 159.93Z" role="button" tabindex="0" aria-label="切换视图：倒计时 / 24H / 12H"/>
-    <polygon class="blk" points="515,118 742,118 759.4,146.7 1405,146.7 1405,420 583,420 583,222 515,222"/>
+    <polygon id="clockHot" class="blk clk" points="488,128 513,128 513,175 488,168" role="button" tabindex="0" aria-label="切换视图：倒计时 / 24H / 12H"/>
+    <polygon class="blk" points="515,128 765,128 780,148 1405,148 1405,420 583,420 583,222 515,222"/>
     <polygon class="blk0" points="1202,422 1405,422 1405,489 1202,489"/>
     <!-- 黑色竖条 -->
     <g class="bk">
-      <!-- 最左黑色刻度列-->
-      <use href="#barH" x="230" y="32"/>
-      <use href="#barH" x="230" y="72"/>
-      <use href="#barH" x="230" y="112"/>
-      <use href="#barH" x="230" y="152"/>
-      <use href="#barH" x="230" y="192"/>
-      <use href="#barH" x="230" y="232"/>
-      <use href="#barH" x="230" y="272"/>
-      <use href="#barH" x="230" y="312"/>
-      <use href="#barH" x="230" y="352"/>
-      <use href="#barH" x="230" y="392"/>
-      <use href="#barH" x="230" y="432"/>
-      <use href="#barH" x="230" y="472"/>
-      <use href="#barH" x="230" y="512"/>
-      <use href="#barH" x="230" y="552"/>
-      <use href="#barH" x="230" y="592"/>
-      <use href="#bar" x="488" y="108"/>
-      <use href="#bar" x="511" y="108"/>
-      <use href="#bar" x="740" y="108"/>
-      <use href="#bar" x="476" y="120"/>
-      <use href="#bar" x="481" y="120"/>
-      <use href="#bar" x="760" y="136"/>
+      <use href="#bar" x="487" y="116"/>
+      <use href="#bar" x="511" y="116"/>
+      <use href="#bar" x="763" y="116"/>
+      <use href="#bar" x="476" y="132"/>
+      <use href="#bar" x="481" y="132"/>
+      <use href="#bar" x="782" y="136"/>
       <use href="#bar" x="1011" y="136"/>
       <use href="#bar" x="1216" y="136"/>
       <use href="#bar" x="1396" y="136"/>
-      <use href="#bar" x="476" y="152"/>
-      <use href="#bar" x="481" y="152"/>
+      <use href="#bar" x="476" y="162"/>
+      <use href="#bar" x="481" y="162"/>
       <use href="#bar" x="503" y="212"/>
       <use href="#bar" x="508" y="212"/>
       <use href="#bar" x="519" y="425"/>
@@ -320,21 +407,21 @@ body.zero:not(.clk) .subbox{opacity:0 !important;visibility:hidden;}
       <use href="#bar" x="1184" y="479"/>
       <use href="#bar" x="1189" y="479"/>
     </g>
-    <g class="ye" transform="translate(0 424)">
-      <use href="#barY" x="603"/>
-      <use href="#barY" x="608"/>
-      <use href="#barY" x="745"/>
-      <use href="#barY" x="749"/>
-      <use href="#barY" x="885"/>
-      <use href="#barY" x="889"/>
-      <use href="#barY" x="1025"/>
-      <use href="#barY" x="1029"/>
-      <use href="#barY" x="1173"/>
-      <use href="#barY" x="1178"/>
-      <use href="#barY" x="1303"/>
-      <use href="#barY" x="1307"/>
-      <use href="#barY" x="1398"/>
-      <use href="#barY" x="1402"/>
+    <g class="ye" transform="translate(0 425)">
+      <use href="#bar" x="603"/>
+      <use href="#bar" x="608"/>
+      <use href="#bar" x="745"/>
+      <use href="#bar" x="749"/>
+      <use href="#bar" x="885"/>
+      <use href="#bar" x="889"/>
+      <use href="#bar" x="1025"/>
+      <use href="#bar" x="1029"/>
+      <use href="#bar" x="1173"/>
+      <use href="#bar" x="1178"/>
+      <use href="#bar" x="1303"/>
+      <use href="#bar" x="1307"/>
+      <use href="#bar" x="1398"/>
+      <use href="#bar" x="1402"/>
     </g>
     <g class="cy">
       <!-- 青色竖线 -->
@@ -342,21 +429,6 @@ body.zero:not(.clk) .subbox{opacity:0 !important;visibility:hidden;}
       <use style="--d:227ms" href="#bar"  x="568" y="228"/>
       <use style="--d:70ms"  href="#bar"  x="519" y="411"/>
       <use style="--d:82ms"  href="#bar"  x="568" y="411"/>
-      <!-- 最左黑区里的青色横刻度：与右侧黑横刻度同形状同方向 -->
-      <use style="--d:78ms" href="#barH" x="201.5" y="72"/>
-      <use style="--d:72ms" href="#barH" x="201.5" y="112"/>
-      <use style="--d:66ms" href="#barH" x="201.5" y="152"/>
-      <use style="--d:60ms" href="#barH" x="201.5" y="192"/>
-      <use style="--d:54ms" href="#barH" x="201.5" y="232"/>
-      <use style="--d:48ms" href="#barH" x="201.5" y="272"/>
-      <use style="--d:42ms" href="#barH" x="201.5" y="312"/>
-      <use style="--d:36ms" href="#barH" x="201.5" y="352"/>
-      <use style="--d:30ms" href="#barH" x="201.5" y="392"/>
-      <use style="--d:24ms" href="#barH" x="201.5" y="432"/>
-      <use style="--d:18ms" href="#barH" x="201.5" y="472"/>
-      <use style="--d:12ms" href="#barH" x="201.5" y="512"/>
-      <use style="--d:6ms"  href="#barH" x="201.5" y="552"/>
-      <use style="--d:0ms"  href="#barH" x="201.5" y="592"/>
       <!-- 斜槽四角内的青色刻度 -->
       <use style="--d:12ms" href="#barR" x="360.05" y="498.83"/>
       <use style="--d:36ms" href="#barR" x="432.7"  y="522.77"/>
@@ -370,6 +442,9 @@ body.zero:not(.clk) .subbox{opacity:0 !important;visibility:hidden;}
     <line x1="435.08" y1="540.61" x2="443.35" y2="543.33" stroke="#000" stroke-width="2"/>
   </svg>
   <div class="chargelayer"><div class="abs gline"></div><div class="tk t1"></div><div class="tk t2"></div><div class="tk b1"></div><div class="tk b2"></div></div><div class="gradbar"></div>
+
+  <!-- 玻璃：装甲表面那层，压在数字 / 文字之下 -->
+  <div class="glass"><i class="frost"></i><i class="spec"></i><i class="edge"></i><i class="tint"></i></div>
 
   <div class="abs glow jpL">活動限界まで</div>
   <div class="abs glow enL">ACTIVE TIME REMAINING:</div>
@@ -397,8 +472,12 @@ body.zero:not(.clk) .subbox{opacity:0 !important;visibility:hidden;}
     <div class="en1"><span>S</span><span>U</span><span>B</span><span>S</span><span>C</span><span>R</span><span>I</span><span>B</span><span>E</span></div>
     <div class="en2"><span>C</span><span>o</span><span>d</span><span>e</span><span>.</span><span>V</span><span>i</span><span>l</span><span>l</span><span>k</span><span>i</span><span>s</span><span>s</span></div>
   </div></div>
-</div></div>
-<p class="hint">「主電源供給システム」断电重启 · 「内部 / 外部」切换供电模式 · 「活動限界まで」左侧小方块循环切换 [倒计时 / 24H / 12H ]时钟</p>
+
+  <!-- 玻璃：盖在数字之上那层，只留极淡反光与边缘，保证数字仍然干净 -->
+  <div class="glasstop"><i class="spec"></i><i class="edge"></i></div>
+</div></div></div>
+<p class="hint">「主電源供給システム」断电重启 · 「内部 / 外部」切换供电模式 · 「活動限界まで」左侧小方块循环切换 [倒计时 / 24H / 12H ]时钟<br>
+玻璃装甲特效：G=玻璃层 · F=浮起 · 3=立体倾斜 · M=鼠标视差（磨砂强度 --gb，数字上反光 --gt）</p>
 <script>
 (function(){
 'use strict';
@@ -407,6 +486,7 @@ body.zero:not(.clk) .subbox{opacity:0 !important;visibility:hidden;}
 const NS='http://www.w3.org/2000/svg';
 const body=document.body;
 const panel=document.getElementById('panel');
+const halo=document.getElementById('halo');
 const segWrap=document.getElementById('segWrap');
 const clockDig=document.getElementById('clockDig');
 const powerBox=document.getElementById('powerBox');
@@ -554,18 +634,56 @@ let powered=false, internal=false, zero=false, view=0;
 let remain=DURATION, endAt=0, danger=false, running=false, frozen=false;
 let rafLoop=0, rafScramble=0, holdTimer=0, clockTimer=0;
 
+/* 自适应缩放 + 立体倾斜：perspective 在 .stage 上，倾斜写在 .panel 上 */
+const TILT={x:3.4,y:-8.6,z:.5};      /* 基础倾角：微俯视 + 侧转，贴近"倾斜特写"构图 */
+const PAR ={x:4.6,y:3.2,z:.9};       /* 鼠标视差幅度（度），越小越稳 */
+let scale=1, tiltOn=true, parOn=true, mx=0, my=0;
+
+function applyTilt(){
+  const rx=tiltOn?(TILT.x+my*PAR.y):0;
+  const ry=tiltOn?(TILT.y+mx*PAR.x):0;
+  const rz=tiltOn?(TILT.z+mx*PAR.z):0;
+  panel.style.transform=
+    `scale(${scale}) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg)`;
+}
+
 /* 自适应缩放：rAF 合并同一帧内的多次 resize */
 let fitQueued=false;
 function fit(){
   fitQueued=false;
-  const s=Math.min(innerWidth/1300,(innerHeight-28)/600);
-  panel.style.transform=`translate(-50%,-50%) scale(${s})`;
+  scale=Math.min((innerWidth-80)/1300,(innerHeight-64)/600);
+  halo.style.transform=`translate(-50%,-50%) scale(${scale})`;
+  applyTilt();
 }
 addEventListener('resize',()=>{
   if(fitQueued) return;
   fitQueued=true;
   requestAnimationFrame(fit);
 },{passive:true});
+
+/* 鼠标视差：整块装甲跟着指针轻微转，强化"悬在空中" */
+let tiltQueued=false;
+addEventListener('pointermove',e=>{
+  if(!parOn||!tiltOn) return;
+  mx=(e.clientX/innerWidth -.5)*2;
+  my=(e.clientY/innerHeight-.5)*2;
+  if(tiltQueued) return;
+  tiltQueued=true;
+  requestAnimationFrame(()=>{tiltQueued=false;applyTilt();});
+},{passive:true});
+
+/* 特效开关：G=玻璃  F=浮起  3=倾斜  M=鼠标视差 */
+addEventListener('keydown',e=>{
+  if(e.metaKey||e.ctrlKey||e.altKey) return;
+  switch(e.key.toLowerCase()){
+    case 'g': body.classList.toggle('fx-glass'); break;
+    case 'f': body.classList.toggle('fx-float'); break;
+    case '3': tiltOn=!tiltOn; applyTilt(); break;
+    case 'm': parOn=!parOn; if(!parOn){mx=my=0;applyTilt();} break;
+    default: return;
+  }
+  e.preventDefault();
+});
 
 /* 最后 7 秒警戒：缓存状态，避免每帧都调 classList。
    警戒色只在倒计时视图落地 —— 时钟视图没有剩余时间可言，不该被染红。 */
@@ -692,6 +810,9 @@ function setBars(index,hideRest){
 
 /* 视图切换的过渡：只让标题与数码管淡入一次（一次性重排，不是每个元素各排一次） */
 const fadeEls=[jpL,enL,atoL,segWrap];
+/* 淡入结束后必须摘掉 .vswap —— 它带 !important，会永久顶掉浮起动画 */
+for(const el of fadeEls)
+  el.addEventListener('animationend',e=>{ if(e.animationName==='vswap') el.classList.remove('vswap'); });
 function crossFade(){
   for(const el of fadeEls) el.classList.remove('vswap');
   void panel.offsetWidth;
