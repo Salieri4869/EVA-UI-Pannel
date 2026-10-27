@@ -7,18 +7,23 @@
 <meta name="theme-color" content="#000000">
 <title>ACTIVE TIME REMAINING // EVA TIMER — FRONT VIEW</title>
 <style>
+/* ══════════════════════════════════════════════════════════════
+   EVA 活动限界倒计时面板 · 样式
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── 01 字体 ─────────────────────────────────────────────── */
 @font-face{
   font-family:"EVA Matisse";
   src:url("./font/EVA-Matisse_Classic.ttf")format("truetype");
   font-display:block;
 }
 
+/* ── 02 重置 ─────────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:#000;overflow:hidden}
 
-/* ============ 主题变量 ============ */
+/* ── 03 设计令牌 ─────────────────────────────────────────── */
 body{
-  font-family:"EVA Matisse",serif;user-select:none;
   --amber:#ffac1e;
   --red:#ff2415;
   --cyan:#3fd8ff;
@@ -27,11 +32,13 @@ body{
   --seg-bloom:drop-shadow(0 0 4px rgba(255,170,40,.5)) drop-shadow(0 0 12px rgba(255,110,10,.28));
   --cyan-glow:0 0 3px rgba(63,216,255,.7);
   --tick:linear-gradient(var(--cyan),var(--cyan));
-  /* 背景渐变 */
   --rb:linear-gradient(180deg,#000 0 48px,transparent 48px) 0 0/1500px 600px no-repeat,
        linear-gradient(to top right,#b2403c 0,#b58a3a 20%,#a9be4a 30%,#81ba5d 38%,#55995a 64%,#3f8aa0 80%,#3f68ae 92%,#4b4fb0 100%) 200px 0/1300px 600px no-repeat;
+  font-family:"EVA Matisse",serif;
+  user-select:none;
 }
-/* 最后 7 秒警戒：只改 UI 字体 / 描边 / gline / gradbar --cyan 保持青蓝 */
+
+/* 最后 7 秒警戒：只改 UI 字体 / 描边 / gline / gradbar，--cyan 保持青蓝 */
 body.danger{
   --amber:#ff2415;
   --glow:0 0 11px rgba(255,40,20,.95),0 0 33px rgba(255,20,10,.7),0 0 78px rgba(255,10,0,.4);
@@ -39,13 +46,21 @@ body.danger{
   --seg-bloom:drop-shadow(0 0 4px rgba(255,60,30,.55)) drop-shadow(0 0 12px rgba(255,20,10,.3));
 }
 
-/* ============ 画布 1300×600：裁掉左侧留白，只留到装甲外一点 ============ */
-.panel{position:absolute;left:50%;top:50%;width:1300px;height:600px;transform-origin:center;overflow:hidden;
-  filter:drop-shadow(0 20px 40px rgba(0,0,0,.85))}
+/* ── 04 舞台 画布 1300×600───────────────────────────────────── */
+.panel{
+  position:absolute;left:50%;top:50%;
+  width:1300px;height:600px;
+  transform-origin:center;
+  overflow:hidden;
+  filter:drop-shadow(0 20px 40px rgba(0,0,0,.85));
+}
 .inner{position:absolute;left:-200px;top:0;width:1500px;height:600px;background:#000}
 
-/* ============ 充电式装甲充能 ============
-   未通电时纯黑，通电后装甲沿渐变方向（左下→右上）充满。
+/* 通用定位工具 */
+.abs{position:absolute}
+
+/* ── 05 充能层 ───────────────────────────────────────────── */
+/* 未通电时纯黑，通电后装甲沿渐变方向（左下→右上）充满。
    mask 等色线平行于反对角线（斜率 H/W=0.4），固定 X、动画 Y 即可让分界线
    恰好从面板左下角扫到右上角。
    .chargelayer 与装甲共用同一套扫掠遮罩：gline / 刻度随充能扫过才显现。 */
@@ -53,140 +68,195 @@ body.danger{
   position:absolute;inset:0;pointer-events:none;
   mask-image:linear-gradient(to top right,#000 0 50%,transparent 52%);
   mask-repeat:no-repeat;mask-size:6000px 2400px;mask-position:-1500px 0;
-  transition:mask-position .5s cubic-bezier(.35,.1,.25,1)}
+  transition:mask-position .5s cubic-bezier(.35,.1,.25,1);
+}
 .charge{background:var(--rb)}
 body.pw .charge,body.pw .chargelayer{mask-position:-1500px -1200px}
 
-/* ============ 画面最左缘：黑区（内嵌青色刻度）+ 黑色竖条 + 刻度列 ============*/
+/* ── 06 左侧黑边 ─────────────────────────────────────────── */
+/* 画面最左缘：黑区（内嵌青色刻度）+ 黑色竖条 + 刻度列 */
 .leftbezel{position:absolute;left:200px;top:0;width:10px;height:600px;background:#000}
 .leftbar{position:absolute;left:220px;top:0;width:5px;height:600px;background:#000}
 
-/* ============ 绝对定位通用类 ============ */
-.abs{position:absolute}
-
-/* ============ 装甲 SVG ============ */
+/* ── 07 装甲 SVG ─────────────────────────────────────────── */
 .deco{position:absolute;inset:0;width:1500px;height:600px;overflow:visible}
-.deco .blk{fill:#000;stroke:var(--amber);stroke-width:2;stroke-linejoin:miter;filter:drop-shadow(0 0 4px rgba(255,150,20,.5))}
+.deco .blk{
+  fill:#000;stroke:var(--amber);stroke-width:2;stroke-linejoin:miter;
+  filter:drop-shadow(0 0 4px rgba(255,150,20,.5));
+}
 .deco .blk0{fill:#000;stroke:none}
+body.danger .deco .blk{filter:drop-shadow(0 0 4px rgba(255,40,20,.6))}
+
 /* 标题左侧小方块：视图切换开关（倒计时 / 24H / 12H）
    不能用 outline —— SVG 上的 outline 会沿元素包围盒画一个矩形框（点完就留一个方框）。
    鼠标点击后不显示任何框，只有键盘 Tab 聚焦时用描边高亮。 */
 .deco .clk{cursor:pointer;outline:none;stroke:none;filter:none}
-.deco .clk:focus-visible{stroke:var(--cyan);stroke-width:2.5;
-  filter:drop-shadow(0 0 5px rgba(63,216,255,.55))}
-body.danger .deco .blk{filter:drop-shadow(0 0 4px rgba(255,40,20,.6))}
+.deco .clk:focus-visible{stroke:var(--cyan);stroke-width:2.5;filter:drop-shadow(0 0 5px rgba(63,216,255,.55))}
 
-/* ============ 刻度 ============ */
+/* ── 08 刻度 ─────────────────────────────────────────────── */
 .tk{position:absolute;pointer-events:none;filter:drop-shadow(0 0 3px rgba(63,216,255,.7))}
-.tk.t1{left:70px;top:36px;width:1430px;height:9px;background:
-  repeating-linear-gradient(90deg,var(--cyan) 0 3px,transparent 3px 12px,var(--cyan) 12px 15px,transparent 15px 100px)}
-.tk.t2{left:76px;top:50px;width:1424px;height:11px;filter:none;
-  background:repeating-linear-gradient(90deg,#000 0 3px,transparent 3px 100px)}
+.tk.t1{
+  left:70px;top:36px;width:1430px;height:9px;
+  background:repeating-linear-gradient(90deg,var(--cyan) 0 3px,transparent 3px 12px,var(--cyan) 12px 15px,transparent 15px 100px);
+}
+.tk.t2{
+  left:76px;top:50px;width:1424px;height:11px;filter:none;
+  background:repeating-linear-gradient(90deg,#000 0 3px,transparent 3px 100px);
+}
 /* 底部刻度：下排与上排全部同位对齐，另只在短间距（45px，即按钮间隔处）的中点加一根；
    长间距中点不放。上排 = 568(屏底青刻度) + 按钮黑竖线 8 根 + 1216(DANGER 框左缘) + 1303/1398(右端 gap) */
-.tk.b1{left:0;top:490px;width:1500px;height:8px;background:
-  var(--tick) 568px 0/3px 100% no-repeat,
-  var(--tick) 629px 0/3px 100% no-repeat,
-  var(--tick) 724px 0/3px 100% no-repeat,
-  var(--tick) 769px 0/3px 100% no-repeat,
-  var(--tick) 864px 0/3px 100% no-repeat,
-  var(--tick) 909px 0/3px 100% no-repeat,
-  var(--tick) 1004px 0/3px 100% no-repeat,
-  var(--tick) 1049px 0/3px 100% no-repeat,
-  var(--tick) 1144px 0/3px 100% no-repeat,
-  var(--tick) 1216px 0/3px 100% no-repeat,
-  var(--tick) 1303px 0/3px 100% no-repeat,
-  var(--tick) 1398px 0/3px 100% no-repeat}
-.tk.b2{left:0;top:506px;width:1500px;height:8px;background:
-  var(--tick) 568px 0/3px 100% no-repeat,
-  var(--tick) 629px 0/3px 100% no-repeat,
-  var(--tick) 746.5px 0/3px 100% no-repeat,
-  var(--tick) 886.5px 0/3px 100% no-repeat,
-  var(--tick) 1026.5px 0/3px 100% no-repeat,
-  var(--tick) 1180px 0/3px 100% no-repeat,
-  var(--tick) 1303px 0/3px 100% no-repeat,
-  var(--tick) 1398px 0/3px 100% no-repeat}
+.tk.b1{
+  left:0;top:490px;width:1500px;height:8px;
+  background:
+    var(--tick) 568px 0/3px 100% no-repeat,
+    var(--tick) 629px 0/3px 100% no-repeat,
+    var(--tick) 724px 0/3px 100% no-repeat,
+    var(--tick) 769px 0/3px 100% no-repeat,
+    var(--tick) 864px 0/3px 100% no-repeat,
+    var(--tick) 909px 0/3px 100% no-repeat,
+    var(--tick) 1004px 0/3px 100% no-repeat,
+    var(--tick) 1049px 0/3px 100% no-repeat,
+    var(--tick) 1144px 0/3px 100% no-repeat,
+    var(--tick) 1216px 0/3px 100% no-repeat,
+    var(--tick) 1303px 0/3px 100% no-repeat,
+    var(--tick) 1398px 0/3px 100% no-repeat;
+}
+.tk.b2{
+  left:0;top:506px;width:1500px;height:8px;
+  background:
+    var(--tick) 568px 0/3px 100% no-repeat,
+    var(--tick) 629px 0/3px 100% no-repeat,
+    var(--tick) 746.5px 0/3px 100% no-repeat,
+    var(--tick) 886.5px 0/3px 100% no-repeat,
+    var(--tick) 1026.5px 0/3px 100% no-repeat,
+    var(--tick) 1180px 0/3px 100% no-repeat,
+    var(--tick) 1303px 0/3px 100% no-repeat,
+    var(--tick) 1398px 0/3px 100% no-repeat;
+}
 
 /* 青蓝竖线：接通主電源供給システム 后随背景扫掠（左下→右上）逐个亮起，--d 为延迟 */
 .cy{fill:var(--cyan)}
 .cy>use{filter:drop-shadow(0 0 3px rgba(63,216,255,.7));opacity:0;transition:opacity .14s linear}
 body.pw .cy>use{opacity:1;transition-delay:var(--d,0ms)}
+
 /* 装甲上的黑色刻度：恒为黑色、无辉光，不随警戒变色 */
 .bk{fill:#000;filter:none}
+
 /* 黑色刻度旁的黄色竖线对（参考图 STOP 左侧：黑对 + 黄对） */
 .ye{fill:var(--amber);filter:drop-shadow(0 0 3px rgba(255,176,30,.5))}
 body.danger .ye{filter:drop-shadow(0 0 3px rgba(255,40,20,.6))}
 
+/* ── 09 分界彩条 ─────────────────────────────────────────── */
 /* 下端止于底部黑区绿线（gline 顶端 y=500），与该线垂直相接 */
-.gradbar{position:absolute;left:1405px;top:146.7px;width:3px;height:353.3px;z-index:6;opacity:.95;
+.gradbar{
+  position:absolute;left:1405px;top:146.7px;width:3px;height:353.3px;z-index:6;opacity:.95;
   background:linear-gradient(180deg,#00e05a,#b8f000 28%,#ffc400 52%,#ff2020 76%,#b400ff);
-  box-shadow:0 0 13px rgba(255,200,60,.45),0 0 28px rgba(180,0,255,.25);transition:background .4s}
-body.danger .gradbar{background:linear-gradient(180deg,#7a0000,#ff2020 35%,#8a0000 65%,#ff3030);
-  box-shadow:0 0 16px rgba(255,30,20,.6)}
+  box-shadow:0 0 13px rgba(255,200,60,.45),0 0 28px rgba(180,0,255,.25);
+  transition:background .4s;
+}
+body.danger .gradbar{
+  background:linear-gradient(180deg,#7a0000,#ff2020 35%,#8a0000 65%,#ff3030);
+  box-shadow:0 0 16px rgba(255,30,20,.6);
+}
 /* 左端与带内第一条青色竖刻度（tk.b1 首刻度 x=568）对齐，右端止于 gradbar 左缘 1404 */
-.gline{left:568px;top:500px;width:840px;height:4px;
-  background:linear-gradient(90deg,#ffe600,#6fcf3a);box-shadow:0 0 6px rgba(255,200,40,.45);
-  transition:background .4s,box-shadow .4s}
+.gline{
+  left:568px;top:500px;width:840px;height:4px;
+  background:linear-gradient(90deg,#ffe600,#6fcf3a);
+  box-shadow:0 0 6px rgba(255,200,40,.45);
+  transition:background .4s,box-shadow .4s;
+}
 body.danger .gline{background:linear-gradient(90deg,#ff2a14,#ff6a2a);box-shadow:0 0 6px rgba(255,40,20,.6)}
 
-/* ============ 标题文字 ============ */
+/* ── 10 标题 ─────────────────────────────────────────────── */
 .glow{color:var(--amber);text-shadow:var(--glow)}
-.jpL{left:522px;top:123px;font-size:38px;font-weight:700;line-height:52px;letter-spacing:-.04em;white-space:nowrap;
-  transform:scaleY(1.363);transform-origin:50% 50%}
-.enL{left:752px;top:150.5px;font-size:23px;line-height:28px;font-family:Arial,"Helvetica Neue",sans-serif;
-  white-space:nowrap;letter-spacing:normal}
+.jpL{
+  left:522px;top:123px;
+  font-size:38px;font-weight:700;line-height:52px;letter-spacing:-.04em;white-space:nowrap;
+  transform:scaleY(1.363);transform-origin:50% 50%;
+}
+.enL{
+  left:752px;top:150.5px;
+  font-family:Arial,"Helvetica Neue",sans-serif;
+  font-size:23px;line-height:28px;letter-spacing:normal;white-space:nowrap;
+}
 .atoL{left:530px;top:178px;font-size:28px;line-height:38px;font-weight:700}
 
-/* ============ 数码管 ============
-   left 591：数位墨迹 591–1208，与左邻屏内缘(583)、右邻方框(1216)的黑色均为 8px；
+/* ── 11 数码管 ───────────────────────────────────────────── */
+/* left 591：数位墨迹 591–1208，与左邻屏内缘(583)、右邻方框(1216)的黑色均为 8px；
    top 185：字形顶与「あと」字形顶（y≈185）齐平；高度 229。 */
 .seg-wrap{left:591px;top:185px;width:618px;height:229px}
 .digit{position:absolute;overflow:visible;filter:var(--seg-bloom)}
 .seg{fill:var(--amber);opacity:0}
 .seg.on{opacity:1}
 .dot{position:absolute;width:15px;height:13px;background:var(--amber);box-shadow:var(--seg-glow)}
+
+/* 外部待機（idle）：倒计时位只剩 7% 幽灵段 —— 未通电点亮的数码管的样子 */
 body.pw:not(.clk):not(.zero) .seg-wrap.idle .cd .seg:not(.on){opacity:.07}
 .seg-wrap.idle .dot{opacity:0}
+
 /* 未接通主電源供給システム：屏幕灭 —— 任何视图下数码管都不亮。
    开关只认 .pw 一个条件，不再让 .clk 把它顶开（否则断电就能看到时钟）。
-   通电后才出内容：外部待機是"熄屏 + 幽灵段"，点「内部」才乱码 → 5:00.00 → 走秒；时钟视图出 HH:MM:SS。 */
+   通电后才出内容：外部待機是"熄屏 + 幽灵段"，点「内部」才乱码 → 5:00.00 → 走秒；
+   时钟视图出 HH:MM:SS。 */
 body:not(.pw) .seg-wrap{visibility:hidden}
 
-/* ============ 时钟视图（点击「活動限界まで」左侧小方块循环切换） ============
+/* 时钟视图（点击「活動限界まで」左侧小方块循环切换）
    6 位 HH:MM:SS：时·分 97×198、秒 62×127，两组冒号。
    断电时仍可切（标题跟着换），但屏幕是黑的，不跑秒。 */
 .clock-dig{position:absolute;inset:0;display:none}
 body.clk .clock-dig{display:block}
 body.clk .cd{display:none}
 
-/* ============ 右列方框 ============ */
-.box{position:absolute;left:1216px;width:182px;border:2px solid var(--amber);background:#000;
-  box-shadow:var(--glow);color:var(--amber);text-shadow:var(--glow)}
+/* ── 12 右列信息框 ───────────────────────────────────────── */
+.box{
+  position:absolute;left:1216px;width:182px;
+  border:2px solid var(--amber);background:#000;
+  color:var(--amber);box-shadow:var(--glow);text-shadow:var(--glow);
+}
 #modeInternal{top:182px;height:84px}
-.powerbox{top:276px;height:42px}
 #modeExternal{top:328px;height:84px}
-.mode .jp{position:absolute;left:8px;top:0;font-size:56px;font-weight:700;line-height:62px;white-space:nowrap}
-.mode .en{position:absolute;left:8px;bottom:0;font-size:24px;line-height:26px;font-family:Arial,"Helvetica Neue",sans-serif}
-.mode::after{content:"";position:absolute;top:0;bottom:0;right:0;width:40px;
-  background:linear-gradient(-45deg,#e8000e 0 12.5%,#150202 12.5% 25%,#e8000e 25% 37.5%,#150202 37.5% 50%,#e8000e 50% 62.5%,#150202 62.5% 75%,#e8000e 75% 87.5%,#150202 87.5%)}
-.powerbox{cursor:pointer}
-.powerbox.off{animation:pulse 1.6s infinite}
-.powerbox .jp{position:absolute;left:6px;top:1px;font-size:19px;font-weight:700;line-height:22px;white-space:nowrap}
-.powerbox .en{position:absolute;left:6px;bottom:2px;font-size:10.5px;line-height:13px;font-family:Arial,sans-serif;white-space:nowrap}
+.powerbox{top:276px;height:42px;cursor:pointer}
+
 .mode{transition:opacity .3s,filter .3s}
+.mode .jp{position:absolute;left:8px;top:0;font-size:56px;font-weight:700;line-height:62px;white-space:nowrap}
+.mode .en{
+  position:absolute;left:8px;bottom:0;
+  font-family:Arial,"Helvetica Neue",sans-serif;
+  font-size:24px;line-height:26px;
+}
+/* 右缘红色斑马条 */
+.mode::after{
+  content:"";position:absolute;top:0;bottom:0;right:0;width:40px;
+  background:linear-gradient(-45deg,#e8000e 0 12.5%,#150202 12.5% 25%,#e8000e 25% 37.5%,#150202 37.5% 50%,#e8000e 50% 62.5%,#150202 62.5% 75%,#e8000e 75% 87.5%,#150202 87.5%);
+}
+
+.powerbox .jp{position:absolute;left:6px;top:1px;font-size:19px;font-weight:700;line-height:22px;white-space:nowrap}
+.powerbox .en{
+  position:absolute;left:6px;bottom:2px;
+  font-family:Arial,sans-serif;
+  font-size:10.5px;line-height:13px;white-space:nowrap;
+}
+.powerbox.off{animation:pulse 1.6s infinite}
+
 .mode.inactive{opacity:.34;cursor:pointer}
 .mode.active{cursor:pointer;animation:pulse 1.6s infinite}
-/* 未通电：内部 / 外部 完全不显示（含边框），通电后淡入 */
-.mode.dead,.mode.dead.inactive{opacity:0;animation:none;filter:none;pointer-events:none;
-  color:#000;text-shadow:none;border-color:transparent;box-shadow:none}
-.mode.dead .jp,.mode.dead .en{opacity:0}
-.mode.dead::after{opacity:0}
 @keyframes pulse{0%,100%{filter:brightness(1.1)}50%{filter:brightness(1.4)}}
 
-/* ============ 连接处的青色分隔刻度 ============ */
+/* 未通电：内部 / 外部 完全不显示（含边框），通电后淡入。
+   必须排在 .active / .inactive 之后才能压住它们。 */
+.mode.dead,.mode.dead.inactive{
+  opacity:0;animation:none;filter:none;pointer-events:none;
+  color:#000;text-shadow:none;border-color:transparent;box-shadow:none;
+}
+.mode.dead .jp,.mode.dead .en{opacity:0}
+.mode.dead::after{opacity:0}
+
+/* 连接处的青色分隔刻度 */
 .sep{position:absolute;left:1216px;width:182px;height:10px}
-.sep i{position:absolute;top:1px;width:3px;height:8px;background:var(--cyan);
-  box-shadow:0 0 6px rgba(63,216,255,.5);opacity:0;transition:opacity .14s linear}
+.sep i{
+  position:absolute;top:1px;width:3px;height:8px;background:var(--cyan);
+  box-shadow:0 0 6px rgba(63,216,255,.5);opacity:0;transition:opacity .14s linear;
+}
 .sep i.l{left:0}
 .sep i.r{right:0}
 /* 屏幕最下一条：贴屏底黄线之上但不得压线（方框底 412 / 黄线起于 419） */
@@ -194,110 +264,150 @@ body.clk .cd{display:none}
 .sep.sm i{height:5px;top:0}
 body.pw .sep i{opacity:1;transition-delay:var(--d,0ms)}
 
-/* ============ 按钮 ============ */
-.cell{position:absolute;top:428px;width:100px;height:48px;border:2px solid var(--amber);
-  box-shadow:var(--glow);color:var(--amber);text-shadow:var(--glow);cursor:pointer;text-align:center;
-  background:linear-gradient(180deg,rgba(70,25,95,.16),rgba(120,25,45,.12)),#030100}
-.cell .txt{position:relative;z-index:2;display:block;font-family:Arial,"Helvetica Neue",sans-serif;
-  font-size:21px;line-height:24px}
-.cell .redbar{position:absolute;left:0;right:0;bottom:0;height:50%;background:var(--red);
-  box-shadow:0 0 16px var(--red),0 0 33px rgba(255,30,15,.45);z-index:1;opacity:0;transition:opacity .16s}
+/* ── 13 功能按钮 ─────────────────────────────────────────── */
+.cell{
+  position:absolute;top:428px;width:100px;height:48px;
+  border:2px solid var(--amber);
+  background:linear-gradient(180deg,rgba(70,25,95,.16),rgba(120,25,45,.12)),#030100;
+  color:var(--amber);box-shadow:var(--glow);text-shadow:var(--glow);
+  text-align:center;cursor:pointer;
+}
+.cell .txt{
+  position:relative;z-index:2;display:block;
+  font-family:Arial,"Helvetica Neue",sans-serif;
+  font-size:21px;line-height:24px;
+}
+.cell .redbar{
+  position:absolute;left:0;right:0;bottom:0;height:50%;z-index:1;
+  background:var(--red);
+  box-shadow:0 0 16px var(--red),0 0 33px rgba(255,30,15,.45);
+  opacity:0;transition:opacity .16s;
+}
 .cell:hover .redbar{opacity:.22}
 .cell .redbar.on{opacity:1}
 /* 归零（活動限界到達）：SLOW / NORMAL / RACING 只隐藏文字，黑框与下方黑竖线保留，只留 STOP 红条 */
 .cell.gone .txt{visibility:hidden}
 .cell:active{filter:brightness(1.15)}
 /* 按钮下方与边缘严格对齐的黑色刻度：恒为黑色，不随警戒变色 */
-.cell::after{content:"";position:absolute;left:-4px;right:-4px;top:100%;margin-top:3.5px;height:8px;
+.cell::after{
+  content:"";position:absolute;left:-4px;right:-4px;top:100%;margin-top:3.5px;height:8px;
   background:
     linear-gradient(#000,#000) left 3px top 0/3px 8px no-repeat,
-    linear-gradient(#000,#000) right 3px top 0/3px 8px no-repeat
-  }
+    linear-gradient(#000,#000) right 3px top 0/3px 8px no-repeat;
+}
 /* 未通电：STOP / SLOW / NORMAL / RACING 连边框、文字、辉光一起不显示（与 .mode.dead 同理）。
    transition 只写在 .pw 下 —— 通电时淡入，断电时瞬间熄灭，符合 CRT 断电的观感。 */
 body:not(.pw) .cell{opacity:0;pointer-events:none}
 body.pw .cell{transition:opacity .28s}
 
-/* ============ 红色预警框（DANGER EMERGENCY / 購読する） ============ */
-.danger-cell,.subbox{position:absolute;top:428px;height:48px;border:2px solid var(--red);
-  color:var(--red);background:#030100;text-align:center;
+/* ── 14 红色预警框 ───────────────────────────────────────── */
+/* DANGER EMERGENCY / 購読する 两枚红框 */
+.danger-cell,.subbox{
+  position:absolute;top:428px;height:48px;
+  border:2px solid var(--red);background:#030100;
+  color:var(--red);text-align:center;
   text-shadow:0 0 11px rgba(255,40,20,.9),0 0 31px rgba(255,20,10,.6);
-  box-shadow:0 0 16px rgba(255,30,15,.8),inset 0 0 22px rgba(255,40,20,.25)}
+  box-shadow:0 0 16px rgba(255,30,15,.8),inset 0 0 22px rgba(255,40,20,.25);
+}
 .danger-cell{left:1216px;width:84px;padding-top:4px;transition:opacity .3s}
-.subbox{left:1312px;width:84px;cursor:pointer;box-shadow:0 0 16px rgba(255,30,15,.8),inset 0 0 20px rgba(255,30,15,.15)}
-/* 未通电：不显示 */
+.subbox{
+  left:1312px;width:84px;
+  cursor:pointer;
+  box-shadow:0 0 16px rgba(255,30,15,.8),inset 0 0 20px rgba(255,30,15,.15);
+}
 body:not(.pw) .danger-cell,body:not(.pw) .subbox{visibility:hidden}
+
 /* 上下两行按字符均分、拉伸到同一宽度（与購読する 同一手法） */
 .danger-cell .dstk{width:74px;margin:0 auto;display:flex;flex-direction:column;gap:3px}
-.danger-cell .dstk>div{display:flex;justify-content:space-between;
-  font-family:Arial,"Helvetica Neue",sans-serif;font-weight:700;font-size:12px;line-height:17px}
+.danger-cell .dstk>div{
+  display:flex;justify-content:space-between;
+  font-family:Arial,"Helvetica Neue",sans-serif;font-weight:700;font-size:12px;line-height:17px;
+}
 .danger-cell:not(.on){opacity:.22}
 .danger-cell.on{animation:pulse .7s infinite}
 body.danger .danger-cell.on{animation:dangerblink .45s steps(1) infinite}
 @keyframes dangerblink{50%{opacity:.25}}
+
 .subbox .stack{width:92%;margin:0 auto;display:flex;flex-direction:column}
 .subbox .stack>div{display:flex;justify-content:space-between;font-family:Arial,sans-serif;font-weight:700}
 .subbox .stack>div.jp{font-family:"EVA Matisse",serif;font-size:17px;line-height:20px;font-weight:700}
 .subbox .en1{font-size:11px;line-height:12px}
 .subbox .en2{font-size:6px;line-height:8px}
 
-/* ============ 归零（活動限界到達）：两组各自同频、彼此不同频的闪烁 ============ */
-/* A 组：活動限界まで / ACTIVE TIME REMAINING: / あと / DANGER EMERGENCY
+/* ── 15 状态动画 ─────────────────────────────────────────── */
+/* 归零（活動限界到達）：两组各自同频、彼此不同频的闪烁。
+   A 组：活動限界まで / ACTIVE TIME REMAINING: / あと / DANGER EMERGENCY
    只在倒计时视图闪 —— 时钟视图是"看时间"，不该有警报闪动 */
-body.zero:not(.clk) .jpL,body.zero:not(.clk) .enL,body.zero:not(.clk) .atoL,
-body.zero:not(.clk) .danger-cell,body.danger.zero:not(.clk) .danger-cell.on{animation:zeroA .39s steps(1) infinite}
+body.zero:not(.clk) .jpL,
+body.zero:not(.clk) .enL,
+body.zero:not(.clk) .atoL,
+body.zero:not(.clk) .danger-cell,
+body.danger.zero:not(.clk) .danger-cell.on{animation:zeroA .39s steps(1) infinite}
 @keyframes zeroA{0%{opacity:1}20%{opacity:1}20.01%{opacity:.1}100%{opacity:.1}}
+
 /* B 组：内部框斑马柱 + 按钮下方红条（归零后只保留 STOP）——频率与 A 组不同 */
-body.zero:not(.clk) .mode.active::after,body.zero:not(.clk) .cell .redbar.on{animation:zeroB .25s steps(1) infinite}
+body.zero:not(.clk) .mode.active::after,
+body.zero:not(.clk) .cell .redbar.on{animation:zeroB .25s steps(1) infinite}
 @keyframes zeroB{0%,100%{opacity:1}50%{opacity:.08}}
 
 body.zero:not(.clk) .subbox{opacity:0 !important;visibility:hidden;}
 
-/* ============ 予備（AUXILIARY）：外部电源的备用态 ============
-   在「活動限界まで」视图里再点一次「外部」→ 切「予備」：
-   · 外部框**只有右侧斑马条**按归零 B 组同样的频率（.25s steps(1)）高频闪烁，
-     文字与琥珀边框保持常亮（整框仍走 .mode.active 的 1.6s 呼吸，与「内部」一致）；
-   · 倒计时停在 0:00:00（不再走秒）；
-   · 屏幕「亮着停一拍 → 缓慢熄灭 → 黑一瞬 → 瞬间点亮」**无限循环**；
-   · STOP / SLOW / NORMAL / RACING 四条红条全灭。 */
+/* 予備（AUXILIARY）：外部电源的备用态*/
 #modeExternal.resv::after{animation:resvBlink .25s steps(1) infinite}
 @keyframes resvBlink{0%,100%{opacity:1}50%{opacity:.12}}
+
 /* 循环周期 3s：0.66s 亮定 → 1.44s 缓灭 → 0.24s 全黑 → 0.12s 瞬亮 → 0.54s 亮定，
    首尾都是 opacity:1，所以接缝处的两段亮定会连成 1.2s 的可读停留。 */
 body.reserve .seg-wrap{animation:resvFade 3s ease-in-out infinite}
 @keyframes resvFade{0%,22%{opacity:1}70%{opacity:0}78%{opacity:0}82%,100%{opacity:1}}
 
+/* 视图切换的淡入 */
 .vswap{animation:vswap .24s ease-out both}
 @keyframes vswap{from{opacity:0}to{opacity:1}}
-.hint{position:fixed;left:0;right:0;bottom:6px;text-align:center;z-index:40;pointer-events:none;
-  font-family:"Microsoft YaHei",sans-serif;font-size:12px;letter-spacing:.14em;
-  color:var(--amber);opacity:.45;text-shadow:0 0 8px rgba(255,150,20,.4)}
 
+/* ── 16 辅助 ─────────────────────────────────────────────── */
+.hint{
+  position:fixed;left:0;right:0;bottom:6px;z-index:40;
+  pointer-events:none;text-align:center;
+  font-family:"Microsoft YaHei",sans-serif;font-size:12px;letter-spacing:.14em;
+  color:var(--amber);opacity:.45;text-shadow:0 0 8px rgba(255,150,20,.4);
+}
 /* 键盘可达性：仅键盘聚焦时显示描边 */
 .box:focus-visible,.cell:focus-visible{outline:2px solid currentColor;outline-offset:4px}
 </style>
 </head>
 <body>
+
 <div class="panel" id="panel"><div class="inner">
+
+  <!-- ═══ 底层：充能 + 左侧黑边 ═══ -->
   <div class="charge"></div>
-  <div class="leftbezel"></div><div class="leftbar"></div>
+  <div class="leftbezel"></div>
+  <div class="leftbar"></div>
+
+  <!-- ═══ 装甲：黑色多边形 + 全部刻度 ═══ -->
   <svg class="deco" viewBox="0 0 1500 600" aria-hidden="true">
     <!-- 刻度形状：定义一次，下方所有 <use href="#bar"> 共用（defs 不渲染） -->
     <defs>
-      <rect id="bar" width="2" height="7"/>
+      <rect id="bar"  width="2" height="7"/>
       <rect id="barY" width="2" height="10"/>
       <rect id="barH" width="7" height="2"/>
       <rect id="barR" x="-1.5" y="-3.5" width="2" height="7" transform="rotate(30)"/>
     </defs>
+
+    <!-- 装甲板（黑色填充 + 琥珀描边）；blk0 = 同色无描边的垫底块 -->
     <polygon class="blk0" points="440,600 560,488 1500,488 1500,600"/>
-    <polygon class="blk" points="515,222 583,222 583,420 515,420 437,530.5 352,502.5"/>
-    <polygon class="blk" points="348,509.5 433,537.5 388.9,600 295.4,600"/>
-    <path id="clockHot" class="blk clk" d="M488 122A4 4 0 0 1 492 118L514 118L514 170L490.96 163.8A4 4 0 0 1 488 159.93Z" role="button" tabindex="0" aria-label="切换视图：倒计时 / 24H / 12H"/>
-    <polygon class="blk" points="515,118 742,118 759.4,146.7 1405,146.7 1405,420 583,420 583,222 515,222"/>
+    <polygon class="blk"  points="515,222 583,222 583,420 515,420 437,530.5 352,502.5"/>
+    <polygon class="blk"  points="348,509.5 433,537.5 388.9,600 295.4,600"/>
+    <!-- 标题左侧小方块 = 视图切换开关 -->
+    <path id="clockHot" class="blk clk" d="M488 122A4 4 0 0 1 492 118L514 118L514 170L490.96 163.8A4 4 0 0 1 488 159.93Z"
+          role="button" tabindex="0" aria-label="切换视图：倒计时 / 24H / 12H"/>
+    <polygon class="blk"  points="515,118 742,118 759.4,146.7 1405,146.7 1405,420 583,420 583,222 515,222"/>
     <polygon class="blk0" points="1202,422 1405,422 1405,489 1202,489"/>
-    <!-- 黑色竖条 -->
+
+    <!-- 黑色刻度：恒为黑色、无辉光、不随警戒变色 -->
     <g class="bk">
-      <!-- 最左黑色刻度列-->
+      <!-- 最左黑色刻度列 -->
       <use href="#barH" x="230" y="32"/>
       <use href="#barH" x="230" y="72"/>
       <use href="#barH" x="230" y="112"/>
@@ -313,6 +423,7 @@ body.reserve .seg-wrap{animation:resvFade 3s ease-in-out infinite}
       <use href="#barH" x="230" y="512"/>
       <use href="#barH" x="230" y="552"/>
       <use href="#barH" x="230" y="592"/>
+      <!-- 标题带与屏框交界处的竖刻度 -->
       <use href="#bar" x="488" y="108"/>
       <use href="#bar" x="511" y="108"/>
       <use href="#bar" x="740" y="108"/>
@@ -334,6 +445,8 @@ body.reserve .seg-wrap{animation:resvFade 3s ease-in-out infinite}
       <use href="#bar" x="1184" y="479"/>
       <use href="#bar" x="1189" y="479"/>
     </g>
+
+    <!-- 黑色刻度旁的黄色竖线对（参考图 STOP 左侧：黑对 + 黄对） -->
     <g class="ye" transform="translate(0 424)">
       <use href="#barY" x="603"/>
       <use href="#barY" x="608"/>
@@ -350,8 +463,9 @@ body.reserve .seg-wrap{animation:resvFade 3s ease-in-out infinite}
       <use href="#barY" x="1398"/>
       <use href="#barY" x="1402"/>
     </g>
+
+    <!-- 青色刻度：接通主電源供給システム 后随背景扫掠逐个亮起，--d 为延迟 -->
     <g class="cy">
-      <!-- 青色竖线 -->
       <use style="--d:215ms" href="#bar"  x="519" y="228"/>
       <use style="--d:227ms" href="#bar"  x="568" y="228"/>
       <use style="--d:70ms"  href="#bar"  x="519" y="411"/>
@@ -377,494 +491,626 @@ body.reserve .seg-wrap{animation:resvFade 3s ease-in-out infinite}
       <use style="--d:0ms"  href="#barR" x="352.3"  y="517.23"/>
       <use style="--d:24ms" href="#barR" x="424.95" y="541.17"/>
     </g>
-    
+
+    <!-- 斜槽四角的黑色短切线 -->
     <line x1="342.03" y1="495.74" x2="350.29" y2="498.46" stroke="#000" stroke-width="2"/>
     <line x1="335.16" y1="507.69" x2="343.42" y2="510.41" stroke="#000" stroke-width="2"/>
     <line x1="442.47" y1="528.83" x2="450.73" y2="531.55" stroke="#000" stroke-width="2"/>
     <line x1="435.08" y1="540.61" x2="443.35" y2="543.33" stroke="#000" stroke-width="2"/>
   </svg>
-  <div class="chargelayer"><div class="abs gline"></div><div class="tk t1"></div><div class="tk t2"></div><div class="tk b1"></div><div class="tk b2"></div></div><div class="gradbar"></div>
 
+  <!-- ═══ 分界线（随充能扫掠显现）═══ -->
+  <div class="chargelayer">
+    <div class="abs gline"></div>
+    <div class="tk t1"></div>
+    <div class="tk t2"></div>
+    <div class="tk b1"></div>
+    <div class="tk b2"></div>
+  </div>
+  <div class="gradbar"></div>
+
+  <!-- ═══ 标题 ═══ -->
   <div class="abs glow jpL">活動限界まで</div>
   <div class="abs glow enL">ACTIVE TIME REMAINING:</div>
   <div class="abs glow atoL">あと</div>
+
+  <!-- ═══ 数码管屏幕（数位由 JS 生成）═══ -->
   <div class="abs seg-wrap idle" id="segWrap"><div class="clock-dig" id="clockDig"></div></div>
 
+  <!-- ═══ 右列信息框 ═══ -->
   <div class="sep" style="top:172px;--d:380ms"><i class="l"></i><i class="r"></i></div>
-  <div class="box mode inactive dead" id="modeInternal" role="button" tabindex="0"><div class="jp">内部</div><div class="en">INTERNAL</div></div>
+  <div class="box mode inactive dead" id="modeInternal" role="button" tabindex="0">
+    <div class="jp">内部</div><div class="en">INTERNAL</div>
+  </div>
   <div class="sep" style="top:266px;--d:340ms"><i class="l"></i><i class="r"></i></div>
-  <div class="box powerbox off" id="powerBox" role="button" tabindex="0"><div class="jp">主電源供給システム</div><div class="en">MAIN ENERGY SUPPLY SYSTEM</div></div>
+  <div class="box powerbox off" id="powerBox" role="button" tabindex="0">
+    <div class="jp">主電源供給システム</div><div class="en">MAIN ENERGY SUPPLY SYSTEM</div>
+  </div>
   <div class="sep" style="top:318px;--d:300ms"><i class="l"></i><i class="r"></i></div>
-  <div class="box mode inactive dead" id="modeExternal" role="button" tabindex="0"><div class="jp">外部</div><div class="en">EXTERNAL</div></div>
+  <div class="box mode inactive dead" id="modeExternal" role="button" tabindex="0">
+    <div class="jp">外部</div><div class="en">EXTERNAL</div>
+  </div>
   <div class="sep sm" style="top:413px;--d:260ms"><i class="l"></i><i class="r"></i></div>
 
+  <!-- ═══ 功能按钮 ═══ -->
   <div class="cell" data-bar="0" style="left:628px"  role="button" tabindex="0"><span class="txt">STOP</span><div class="redbar"></div></div>
   <div class="cell" data-bar="1" style="left:768px"  role="button" tabindex="0"><span class="txt">SLOW</span><div class="redbar"></div></div>
   <div class="cell" data-bar="2" style="left:908px"  role="button" tabindex="0"><span class="txt">NORMAL</span><div class="redbar"></div></div>
   <div class="cell" data-bar="3" style="left:1048px" role="button" tabindex="0"><span class="txt">RACING</span><div class="redbar"></div></div>
+
+  <!-- ═══ 红色预警框 ═══ -->
   <div class="danger-cell" id="dangerCell"><div class="dstk">
     <div><span>D</span><span>A</span><span>N</span><span>G</span><span>E</span><span>R</span></div>
     <div><span>E</span><span>M</span><span>E</span><span>R</span><span>G</span><span>E</span><span>N</span><span>C</span><span>Y</span></div>
   </div></div>
-  <div class="subbox"><div class="stack">
+  <div class="subbox" onclick="window.open('https://www.bilibili.com/video/BV1HAHF6oEdi','_blank')">
     <div class="jp"><span>登</span><span>録</span><span>す</span><span>る</span></div>
     <div class="en1"><span>S</span><span>U</span><span>B</span><span>S</span><span>C</span><span>R</span><span>I</span><span>B</span><span>E</span></div>
     <div class="en2"><span>C</span><span>o</span><span>d</span><span>e</span><span>.</span><span>V</span><span>i</span><span>l</span><span>l</span><span>k</span><span>i</span><span>s</span><span>s</span></div>
   </div></div>
+
 </div></div>
+
 <p class="hint">「主電源供給システム」断电重启 · 「内部 / 外部」切换供电模式 · 「外部」再点一次切「予備」· 「活動限界まで」左侧小方块循环切换 [倒计时 / 24H / 12H ]时钟</p>
+
 <script>
+/* ══════════════════════════════════════════════════════════════
+   EVA 活动限界倒计时面板 · 脚本
+   ══════════════════════════════════════════════════════════════ */
 (function(){
 'use strict';
 
+/* ══ 01 · 常量 ══════════════════════════════════════════════ */
+const SVG_NS = 'http://www.w3.org/2000/svg';
 
-const NS='http://www.w3.org/2000/svg';
-const body=document.body;
-const panel=document.getElementById('panel');
-const segWrap=document.getElementById('segWrap');
-const clockDig=document.getElementById('clockDig');
-const powerBox=document.getElementById('powerBox');
-const modeInt=document.getElementById('modeInternal');
-const modeExt=document.getElementById('modeExternal');
-const dangerCell=document.getElementById('dangerCell');
-const jpL=document.querySelector('.jpL');
-const enL=document.querySelector('.enL');
-const atoL=document.querySelector('.atoL');
-const clockHot=document.getElementById('clockHot');            /* 标题左侧小方块：三态视图切换 */
-const bars=[...document.querySelectorAll('.cell[data-bar]')].map(cell=>({cell,bar:cell.querySelector('.redbar')}));
-const extJP=modeExt.querySelector('.jp'), extEN=modeExt.querySelector('.en');  /* 外部 ⇄ 予備 的两种文案 */
+/* 舞台设计尺寸（与 CSS .panel / .inner 保持一致） */
+const STAGE_W = 1300;
+const STAGE_H = 600;
+const STAGE_V_MARGIN = 28;      /* 上下留给 .hint 的空间 */
 
-/* ===================== 1. 七段数码管 ===================== */
-/* 数字 → 段掩码（bit0=a … bit6=g），避免每帧做字符串 includes */
-const MASK=['abcdef','bc','abged','abgcd','fgbc','afgcd','afgedc','abc','abcdefg','abfgcd'].map(s=>{
-  let m=0;
-  for(let i=0;i<s.length;i++) m|=1<<(s.charCodeAt(i)-97);
-  return m;
-});
+/* 计时参数 */
+const DURATION_MS   = 5 * 60 * 1000;  /* 一轮恰好 5 分钟 */
+const DANGER_AT_MS  = 7000;           /* 最后 7 秒进入警戒色 */
+const SCRAMBLE_MS   = 400;            /* 切入内部时的乱码时长 */
+const SCRAMBLE_HOLD = 75;             /* 乱码帧间隔 */
+const HOLD_MS       = 700;            /* 定格 5:00.00 让眼睛看清 */
 
-/* 屏上 5 位：3 位大字（分 / 秒十 / 秒个）+ 2 位小字（百分秒十 / 个）
-   l=left  top=顶边  w/h=尺寸  th=笔画粗细  g=段间缝隙 */
-const DIGIT_SPECS=[
-  {l:0,  top:0, w:117,h:229,th:26,g:4},
-  {l:153,top:0, w:117,h:229,th:26,g:4},
-  {l:284,top:0, w:117,h:229,th:26,g:4},
-  {l:443,top:64,w:79, h:165,th:20,g:3},
-  {l:538,top:64,w:79, h:165,th:20,g:3}
+/* 视图模式 */
+const VIEW_COUNTDOWN = 0;
+const VIEW_CLOCK_24  = 1;
+const VIEW_CLOCK_12  = 2;
+const VIEW_COUNT     = 3;
+
+const TITLE_JP = ['活動限界まで', '現在の時間は'];
+const TITLE_EN = ['ACTIVE TIME REMAINING:', 'CURRENT TIME COUNTING:'];
+
+/* 段位布局：l=left  top=顶边  w/h=尺寸  th=笔画粗细  g=段间缝隙 */
+/* 倒计时 5 位：3 位大字（分 / 秒十 / 秒个）+ 2 位小字（百分秒十 / 个） */
+const COUNTDOWN_LAYOUT = [
+  {l:0,   top:0,  w:117, h:229, th:26, g:4},
+  {l:153, top:0,  w:117, h:229, th:26, g:4},
+  {l:284, top:0,  w:117, h:229, th:26, g:4},
+  {l:443, top:64, w:79,  h:165, th:20, g:3},
+  {l:538, top:64, w:79,  h:165, th:20, g:3}
 ];
-const DOT_POS=[[128,60],[128,166],[414,109],[414,177]];
+const COUNTDOWN_DOTS = [[128, 60], [128, 166], [414, 109], [414, 177]];
 
 /* 时钟 6 位 HH:MM:SS，沿用倒计时"大位 / 小位"的层级：时·分大，秒小
    横向 618 = 时组 206 + 冒号 36 + 分组 206 + 冒号 36 + 秒组 134
        时组 = 97 + 12 + 97        秒组 = 62 + 10 + 62
    大位 97×198（比值 0.49，与倒计时大字 117:229≈0.51 同调），纵向在 229 里居中 top 15.5
    小位 62×127（比值 0.49），与大位底部对齐 → top 15.5+198-127 = 86.5，和倒计时的百分秒一样坐基线 */
-const CLOCK_SPECS=[
-  {l:0,  top:15.5,w:97,h:198,th:22,g:3.5},   /* 时十 */
-  {l:109,top:15.5,w:97,h:198,th:22,g:3.5},   /* 时个 */
-  {l:242,top:15.5,w:97,h:198,th:22,g:3.5},   /* 分十 */
-  {l:351,top:15.5,w:97,h:198,th:22,g:3.5},   /* 分个 */
-  {l:484,top:86.5,w:62,h:127,th:15,g:2.5},   /* 秒十 */
-  {l:556,top:86.5,w:62,h:127,th:15,g:2.5}    /* 秒个 */
+const CLOCK_LAYOUT = [
+  {l:0,   top:15.5, w:97, h:198, th:22, g:3.5},   /* 时十 */
+  {l:109, top:15.5, w:97, h:198, th:22, g:3.5},   /* 时个 */
+  {l:242, top:15.5, w:97, h:198, th:22, g:3.5},   /* 分十 */
+  {l:351, top:15.5, w:97, h:198, th:22, g:3.5},   /* 分个 */
+  {l:484, top:86.5, w:62, h:127, th:15, g:2.5},   /* 秒十 */
+  {l:556, top:86.5, w:62, h:127, th:15, g:2.5}    /* 秒个 */
 ];
 /* 冒号柱心 224 / 466（各自所在 36px 间隔区的正中），点宽 15 → left 216.5 / 458.5
    纵向沿用倒计时冒号在字高上的比例落点（0.26 / 0.72） */
-const CLOCK_DOTS=[[216.5,67],[216.5,159],[458.5,67],[458.5,159]];
+const CLOCK_DOTS = [[216.5, 67], [216.5, 159], [458.5, 67], [458.5, 159]];
 
+/* 数字 → 段掩码（bit0=a … bit6=g），避免每帧做字符串 includes */
+const SEG_MASK = ['abcdef', 'bc', 'abged', 'abgcd', 'fgbc', 'afgcd', 'afgedc', 'abc', 'abcdefg', 'abfgcd']
+  .map(letters => {
+    let mask = 0;
+    for (let i = 0; i < letters.length; i++) mask |= 1 << (letters.charCodeAt(i) - 97);
+    return mask;
+  });
+
+/* ══ 02 · DOM ═══════════════════════════════════════════════ */
+const ui = {
+  panel:      document.getElementById('panel'),
+  segWrap:    document.getElementById('segWrap'),
+  clockDig:   document.getElementById('clockDig'),
+  powerBox:   document.getElementById('powerBox'),
+  modeInt:    document.getElementById('modeInternal'),
+  modeExt:    document.getElementById('modeExternal'),
+  dangerCell: document.getElementById('dangerCell'),
+  clockHot:   document.getElementById('clockHot'),
+  titleJP:    document.querySelector('.jpL'),
+  titleEN:    document.querySelector('.enL'),
+  titleAto:   document.querySelector('.atoL'),
+  extJP:      null,
+  extEN:      null,
+  bars:       [...document.querySelectorAll('.cell[data-bar]')]
+                .map(cell => ({ cell, barEl: cell.querySelector('.redbar') }))
+};
+/* 外部 ⇄ 予備 的两种文案 */
+ui.extJP = ui.modeExt.querySelector('.jp');
+ui.extEN = ui.modeExt.querySelector('.en');
+
+/* 视图切换的淡入目标（一次性批处理，避免只逐元素重排） */
+const FADE_TARGETS = [ui.titleJP, ui.titleEN, ui.titleAto, ui.segWrap];
+
+/* ══ 03 · 七段引擎 ══════════════════════════════════════════ */
 /* 七段几何：中心线 + 45° 斜接，相邻段共用斜边并留等宽缝隙；返回按 a..g 索引 */
-function segGeom(W,H,t,g){
-  const d=g*0.7071,h=t/2,xl=h,xr=W-h,yt=h,ym=H/2,yb=H-h;
-  const HZ=(x1,x2,y)=>[[x1+d,y],[x1+d+h,y-h],[x2-d-h,y-h],[x2-d,y],[x2-d-h,y+h],[x1+d+h,y+h]];
-  const VT=(x,y1,y2)=>[[x,y1+d],[x+h,y1+d+h],[x+h,y2-d-h],[x,y2-d],[x-h,y2-d-h],[x-h,y1+d+h]];
-  return {a:HZ(xl,xr,yt),b:VT(xr,yt,ym),c:VT(xr,ym,yb),d:HZ(xl,xr,yb),e:VT(xl,ym,yb),f:VT(xl,yt,ym),g:HZ(xl,xr,ym)};
+function buildSegGeometry(width, height, thickness, gap){
+  const d = gap * 0.7071;
+  const h = thickness / 2;
+  const xl = h, xr = width - h;
+  const yt = h, ym = height / 2, yb = height - h;
+  const horizontal = (x1, x2, y) => [
+    [x1 + d, y], [x1 + d + h, y - h], [x2 - d - h, y - h],
+    [x2 - d, y], [x2 - d - h, y + h], [x1 + d + h, y + h]
+  ];
+  const vertical = (x, y1, y2) => [
+    [x, y1 + d], [x + h, y1 + d + h], [x + h, y2 - d - h],
+    [x, y2 - d], [x - h, y2 - d - h], [x - h, y1 + d + h]
+  ];
+  return {
+    a: horizontal(xl, xr, yt),
+    b: vertical(xr, yt, ym),
+    c: vertical(xr, ym, yb),
+    d: horizontal(xl, xr, yb),
+    e: vertical(xl, ym, yb),
+    f: vertical(xl, yt, ym),
+    g: horizontal(xl, xr, ym)
+  };
 }
 
-/* 单个七段位；extra 用来标记所属视图（cd = 倒计时位） */
-function makeDigit(spec,extra){
-  const P=segGeom(spec.w,spec.h,spec.th,spec.g);
-  const svg=document.createElementNS(NS,'svg');
-  svg.setAttribute('class','digit'+(extra?' '+extra:''));
-  svg.setAttribute('viewBox',`0 0 ${spec.w} ${spec.h}`);
-  svg.setAttribute('aria-hidden','true');
-  svg.style.cssText=`left:${spec.l}px;top:${spec.top}px;width:${spec.w}px;height:${spec.h}px`;
-  const els=new Array(7);
-  for(let i=0;i<7;i++){
-    const k=String.fromCharCode(97+i);
-    const pg=document.createElementNS(NS,'polygon');
-    pg.setAttribute('class','seg');
-    pg.setAttribute('points',P[k].map(p=>p[0].toFixed(2)+','+p[1].toFixed(2)).join(' '));
-    svg.appendChild(pg);
-    els[i]=pg;
+/* 单个七段位；extraClass 用来标记所属视图（cd = 倒计时位） */
+function createDigit(spec, extraClass){
+  const geometry = buildSegGeometry(spec.w, spec.h, spec.th, spec.g);
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('class', 'digit' + (extraClass ? ' ' + extraClass : ''));
+  svg.setAttribute('viewBox', `0 0 ${spec.w} ${spec.h}`);
+  svg.setAttribute('aria-hidden', 'true');
+  svg.style.cssText = `left:${spec.l}px;top:${spec.top}px;width:${spec.w}px;height:${spec.h}px`;
+
+  const segs = new Array(7);
+  for (let i = 0; i < 7; i++){
+    const key = String.fromCharCode(97 + i);
+    const polygon = document.createElementNS(SVG_NS, 'polygon');
+    polygon.setAttribute('class', 'seg');
+    polygon.setAttribute('points', geometry[key].map(p => p[0].toFixed(2) + ',' + p[1].toFixed(2)).join(' '));
+    svg.appendChild(polygon);
+    segs[i] = polygon;
   }
   /* mask 必须与真实 DOM 初始态一致（全灭 = 0），否则增量翻转会算错 */
-  return {el:svg,els,mask:0};
+  return { el: svg, segs, mask: 0 };
 }
 
 /* 把一组数位 + 间隔点挂到容器上 */
-function mountDigits(host,refs,dots,dotCls){
-  const frag=document.createDocumentFragment();
-  for(const r of refs) frag.appendChild(r.el);
-  for(const [x,y] of dots){
-    const el=document.createElement('i');
-    el.className=dotCls;
-    el.style.cssText=`left:${x}px;top:${y}px`;
-    frag.appendChild(el);
+function mountDigits(host, digits, dots, dotClass){
+  const fragment = document.createDocumentFragment();
+  for (const digit of digits) fragment.appendChild(digit.el);
+  for (const [x, y] of dots){
+    const dot = document.createElement('i');
+    dot.className = dotClass;
+    dot.style.cssText = `left:${x}px;top:${y}px`;
+    fragment.appendChild(dot);
   }
-  host.appendChild(frag);
-}
-
-const digitRefs=DIGIT_SPECS.map(s=>makeDigit(s,'cd'));
-const clockRefs=CLOCK_SPECS.map(s=>makeDigit(s,''));
-mountDigits(segWrap,digitRefs,DOT_POS,'dot cd');
-mountDigits(clockDig,clockRefs,CLOCK_DOTS,'dot');
-
-/* 倒计时那 4 个小数点：乱码时跟着随机明灭 */
-const dotEls=[...segWrap.querySelectorAll('.dot')];
-let dotsDithered=false;
-function clearDots(){
-  if(!dotsDithered) return;
-  dotsDithered=false;
-  for(const d of dotEls) d.style.opacity='';
+  host.appendChild(fragment);
 }
 
 /* 只翻转真正变化的段：某位掩码未变则完全不碰 DOM（分钟位一秒才变一次） */
-function flip(refs,i,m){
-  const r=refs[i];
-  if(r.mask===m) return;
-  const diff=r.mask^m;
-  r.mask=m;
-  for(let b=0;b<7;b++) if((diff>>b)&1) r.els[b].classList.toggle('on',!!((m>>b)&1));
+function setDigitMask(digits, index, mask){
+  const digit = digits[index];
+  if (digit.mask === mask) return;
+  const changed = digit.mask ^ mask;
+  digit.mask = mask;
+  for (let bit = 0; bit < 7; bit++){
+    if ((changed >> bit) & 1) digit.segs[bit].classList.toggle('on', !!((mask >> bit) & 1));
+  }
 }
 
-/* 倒计时：直接由毫秒数算位，不再走"拼字符串 → 再拆字符" */
-function paint(ms){
-  clearDots();                               /* 乱码留下的小数点抖动，走正常读数时收回去 */
-  const cs=Math.floor((ms>0?ms:0)/10);       /* 百分秒 */
-  const sec=Math.floor(cs/100)%60;
-  flip(digitRefs,0,MASK[Math.min(Math.floor(cs/6000),9)]);   /* 分（≤9） */
-  flip(digitRefs,1,MASK[(sec/10)|0]);                        /* 秒十 */
-  flip(digitRefs,2,MASK[sec%10]);                            /* 秒个 */
-  flip(digitRefs,3,MASK[Math.floor(cs/10)%10]);              /* 百分秒十 */
-  flip(digitRefs,4,MASK[cs%10]);                             /* 百分秒个 */
+/* ══ 04 · 屏幕绘制 ══════════════════════════════════════════ */
+const countdownDigits = COUNTDOWN_LAYOUT.map(spec => createDigit(spec, 'cd'));
+const clockDigits = CLOCK_LAYOUT.map(spec => createDigit(spec, ''));
+mountDigits(ui.segWrap, countdownDigits, COUNTDOWN_DOTS, 'dot cd');
+mountDigits(ui.clockDig, clockDigits, CLOCK_DOTS, 'dot');
+
+/* 倒计时那 4 个小数点：乱码时跟着随机明灭，走正常读数时收回 */
+const countdownDotEls = [...ui.segWrap.querySelectorAll('.dot')];
+let dotsDithered = false;
+
+function clearDotDither(){
+  if (!dotsDithered) return;
+  dotsDithered = false;
+  for (const dot of countdownDotEls) dot.style.opacity = '';
 }
 
-/* ===================== 乱码 ===================== */
-function bitCount(m){let n=0;while(m){m&=m-1;n++;}return n;}
-function glitchMask(){
-  const r=Math.random();
-  if(r<0.16) return MASK[(Math.random()*10)|0];          /* 完整数字，混进去当真读数 */
-  if(r<0.88){
-    let m=MASK[Math.random()<0.42?8:(Math.random()*10)|0];  /* 数字骨架 */
-    let cuts=1+((Math.random()*3)|0);                      /* 抠 1~3 段 */
-    for(let guard=0;cuts>0&&guard<16;guard++){
-      const b=1<<((Math.random()*7)|0);
-      if(m&b){ m&=~b; cuts--; }
-    }
-    return m;
-  }
-  let m;
-  do{ m=(Math.random()*128)|0; }while(bitCount(m)<2||bitCount(m)>6);
-  return m;
+/* 倒计时：直接由毫秒数算位，不走"拼字符串 → 再拆字符" */
+function drawCountdown(ms){
+  clearDotDither();
+  const centis = Math.floor((ms > 0 ? ms : 0) / 10);          /* 百分秒总数 */
+  const seconds = Math.floor(centis / 100) % 60;
+  setDigitMask(countdownDigits, 0, SEG_MASK[Math.min(Math.floor(centis / 6000), 9)]);  /* 分（≤9） */
+  setDigitMask(countdownDigits, 1, SEG_MASK[(seconds / 10) | 0]);                      /* 秒十 */
+  setDigitMask(countdownDigits, 2, SEG_MASK[seconds % 10]);                             /* 秒个 */
+  setDigitMask(countdownDigits, 3, SEG_MASK[Math.floor(centis / 10) % 10]);             /* 百分秒十 */
+  setDigitMask(countdownDigits, 4, SEG_MASK[centis % 10]);                              /* 百分秒个 */
 }
-function paintRandom(){
-  const dead=1<<((Math.random()*7)|0);        /* 本轮共模坏段 */
-  for(let i=0;i<5;i++){
-    let m=glitchMask();
-    if(Math.random()<0.3) m&=~dead;           /* 三成的位跟着缺同一段 */
-    /* 兜底：最少留两段（就是一根"1"），别让整位彻底空掉 —— 补亮可能重复同一段，循环补到够为止 */
-    for(let guard=0;bitCount(m)<2&&guard<8;guard++) m|=1<<((Math.random()*7)|0);
-    flip(digitRefs,i,m);
-  }
-  /* 小数点也跟着随机明灭：整块屏在抽的感觉 */
-  for(const d of dotEls) d.style.opacity=Math.random()<0.45?'0':'';
-  dotsDithered=true;
-}
+
 /* 待機（外部）：所有段熄灭 —— 屏上只剩 CSS 给的 7% 幽灵段，不出任何数字。
    这就是「未通电点亮的数码管」的样子，内部倒计时的乱码 / 定格 / 走秒都从这里接。 */
-function blank(){
-  clearDots();
-  for(let i=0;i<digitRefs.length;i++) flip(digitRefs,i,0);
+function clearCountdown(){
+  clearDotDither();
+  for (let i = 0; i < countdownDigits.length; i++) setDigitMask(countdownDigits, i, 0);
 }
 
 /* 时钟：HH:MM:SS；12 小时制取 1–12，AM/PM 落在「あと」的位置 */
-let apText='';
-function paintClock(is12){
-  const d=new Date();
-  let h=d.getHours();
-  const ap=h<12?'AM':'PM';
-  if(is12){ h%=12; if(h===0) h=12; }
-  const mm=d.getMinutes(), ss=d.getSeconds();
-  flip(clockRefs,0,MASK[(h/10)|0]);
-  flip(clockRefs,1,MASK[h%10]);
-  flip(clockRefs,2,MASK[(mm/10)|0]);
-  flip(clockRefs,3,MASK[mm%10]);
-  flip(clockRefs,4,MASK[(ss/10)|0]);
-  flip(clockRefs,5,MASK[ss%10]);
-  const t=is12?ap:'24';                      /* 24 小时制时该位置显示 24 */
-  if(t!==apText){ apText=t; atoL.textContent=t; }
+let timeMarker = '';
+function drawClock(is12Hour){
+  const now = new Date();
+  let hour = now.getHours();
+  const meridiem = hour < 12 ? 'AM' : 'PM';
+  if (is12Hour){ hour %= 12; if (hour === 0) hour = 12; }
+  const minute = now.getMinutes();
+  const second = now.getSeconds();
+
+  setDigitMask(clockDigits, 0, SEG_MASK[(hour / 10) | 0]);
+  setDigitMask(clockDigits, 1, SEG_MASK[hour % 10]);
+  setDigitMask(clockDigits, 2, SEG_MASK[(minute / 10) | 0]);
+  setDigitMask(clockDigits, 3, SEG_MASK[minute % 10]);
+  setDigitMask(clockDigits, 4, SEG_MASK[(second / 10) | 0]);
+  setDigitMask(clockDigits, 5, SEG_MASK[second % 10]);
+
+  const marker = is12Hour ? meridiem : '24';   /* 24 小时制时该位置显示 24 */
+  if (marker !== timeMarker){ timeMarker = marker; ui.titleAto.textContent = marker; }
 }
 
-/* ===================== 2. 状态与倒计时 ===================== */
-const DURATION=5*60*1000;   /* 恰好 5 分钟 */
-const DANGER_AT=7000;       /* 最后 7 秒变色 */
-const SCRAMBLE_MS=400, SCRAMBLE_HOLD=75, HOLD_MS=700;
-
-/* 唯一真相源：powered / internal / zero / view。
-   交互只改这四个变量，再由 render() 推导出全部 DOM；不再从 class 反读状态。
-   reserve 是 external 的子状态（备用电源）：屏上归零、红条全灭、外部框高频闪。 */
-let powered=false, internal=false, zero=false, view=0, reserve=false;
-let remain=DURATION, endAt=0, danger=false, running=false, frozen=false;
-let rafLoop=0, rafScramble=0, holdTimer=0, clockTimer=0;
-
-/* 自适应缩放：rAF 合并同一帧内的多次 resize */
-let fitQueued=false;
-function fit(){
-  fitQueued=false;
-  const s=Math.min(innerWidth/1300,(innerHeight-28)/600);
-  panel.style.transform=`translate(-50%,-50%) scale(${s})`;
-}
-addEventListener('resize',()=>{
-  if(fitQueued) return;
-  fitQueued=true;
-  requestAnimationFrame(fit);
-},{passive:true});
-
-/* 最后 7 秒警戒：缓存状态，避免每帧都调 classList。
-   警戒色只在倒计时视图落地 —— 时钟视图没有剩余时间可言，不该被染红。 */
-function applyDanger(){
-  body.classList.toggle('danger',danger&&view===0);
-}
-function setDanger(on){
-  if(danger===on) return;
-  danger=on;
-  applyDanger();
+/* ── 切换内部乱码 ───── */
+function countSegs(mask){
+  let n = 0;
+  while (mask){ mask &= mask - 1; n++; }
+  return n;
 }
 
+function makeGlitchMask(){
+  const roll = Math.random();
+  if (roll < 0.16) return SEG_MASK[(Math.random() * 10) | 0];   /* 完整数字，混进去当真读数 */
+
+  if (roll < 0.88){
+    let mask = SEG_MASK[Math.random() < 0.42 ? 8 : (Math.random() * 10) | 0];  /* 数字骨架 */
+    let cuts = 1 + ((Math.random() * 3) | 0);                                  /* 抠 1~3 段 */
+    for (let guard = 0; cuts > 0 && guard < 16; guard++){
+      const bit = 1 << ((Math.random() * 7) | 0);
+      if (mask & bit){ mask &= ~bit; cuts--; }
+    }
+    return mask;
+  }
+
+  /* 纯随机段组合：段数夹在 2~6，避开全黑（空白）与全 8（完整）；
+     2 段是刻意留的 —— b+c 就是一根"1"，坏管里出现 1 完全正常 */
+  let random;
+  do { random = (Math.random() * 128) | 0; } while (countSegs(random) < 2 || countSegs(random) > 6);
+  return random;
+}
+
+function drawScramble(){
+  const deadSeg = 1 << ((Math.random() * 7) | 0);          /* 本轮共模坏段 */
+  for (let i = 0; i < countdownDigits.length; i++){
+    let mask = makeGlitchMask();
+    if (Math.random() < 0.3) mask &= ~deadSeg;             /* 三成的位跟着缺同一段 */
+    /* 兜底：最少留两段（就是一根"1"），别让整位彻底空掉 —— 补亮可能重复同一段，循环补到够为止 */
+    for (let guard = 0; countSegs(mask) < 2 && guard < 8; guard++) mask |= 1 << ((Math.random() * 7) | 0);
+    setDigitMask(countdownDigits, i, mask);
+  }
+  /* 小数点也跟着随机明灭：整块屏在抽的感觉 */
+  for (const dot of countdownDotEls) dot.style.opacity = Math.random() < 0.45 ? '0' : '';
+  dotsDithered = true;
+}
+
+/* ══ 05 · 运行时状态 ════════════════════════════════════════ */
+/* 唯一真相源。交互只改这几个变量，再由 render() 推导出全部 DOM。
+   reserve 是「外部」的子状态（备用电源）：屏上归零、红条全灭、外部框高频闪。 */
+let powered  = false;
+let internal = false;
+let zero     = false;
+let reserve  = false;
+let viewMode = VIEW_COUNTDOWN;
+
+let remainingMs = DURATION_MS;   /* 剩余时间（冻结时保留进度） */
+let endTime     = 0;             /* 本轮的截止时刻 */
+let isDanger    = false;
+let isRunning   = false;
+let isFrozen    = false;
+
+let countdownRaf = 0;
+let scrambleRaf  = 0;
+let holdTimeout  = 0;
+let clockTimeout = 0;
+
+/* ══ 06 · 倒计时 ════════════════════════════════════════════ */
 /* 主循环：以"截止时刻"为基准，避免逐帧累加造成的漂移 */
-function loop(now){
-  if(!running) return;                /* 防住停表后残留的一帧 */
-  remain=endAt-now;
-  if(remain<0) remain=0;
-  paint(remain);
-  setDanger(remain<=DANGER_AT);
-  if(remain===0){ trip(); return; }
-  rafLoop=requestAnimationFrame(loop);
+function tick(now){
+  if (!isRunning) return;                 /* 防住停表后残留的一帧 */
+  remainingMs = endTime - now;
+  if (remainingMs < 0) remainingMs = 0;
+  drawCountdown(remainingMs);
+  setDanger(remainingMs <= DANGER_AT_MS);
+  if (remainingMs === 0){ triggerZero(); return; }
+  countdownRaf = requestAnimationFrame(tick);
 }
 
 /* 活動限界到達：停表并置 zero，视觉（闪烁 / 只留 STOP）由 render() 统一落地 */
-function trip(){
-  running=false;
-  rafLoop=0;
-  zero=true;
+function triggerZero(){
+  isRunning = false;
+  countdownRaf = 0;
+  zero = true;
   render();
 }
 
 /* 切到内部：数码管乱码 0.4s → 定格 5:00.00 停 0.7s → 开始倒计时 */
-function startTimer(){
-  stopTimer();
-  remain=DURATION;
-  running=true;               /* 先置位，防外部重复触发 */
-  setDanger(false);           /* 全新一轮从 5:00 起，不能带着上一轮的警戒色 */
-  paintRandom();
-  const t0=performance.now();
-  let due=SCRAMBLE_HOLD;
-  const step=()=>{
-    const e=performance.now()-t0;
-    if(e>=SCRAMBLE_MS){
-      rafScramble=0;
-      paint(DURATION);        /* 定格 5:00.00，停 HOLD_MS 供看清 */
-      holdTimer=setTimeout(()=>{
-        holdTimer=0;
-        endAt=performance.now()+remain;
-        rafLoop=requestAnimationFrame(loop);
-      },HOLD_MS);
+function startCountdown(){
+  stopCountdown();
+  remainingMs = DURATION_MS;
+  isRunning = true;          /* 先置位，防外部重复触发 */
+  setDanger(false);          /* 全新一轮从 5:00 起，不能带着上一轮的警戒色 */
+  drawScramble();
+
+  const startedAt = performance.now();
+  let nextFrameAt = SCRAMBLE_HOLD;
+
+  const step = () => {
+    const elapsed = performance.now() - startedAt;
+    if (elapsed >= SCRAMBLE_MS){
+      scrambleRaf = 0;
+      drawCountdown(DURATION_MS);          /* 定格 5:00.00，停 HOLD_MS 供看清 */
+      holdTimeout = setTimeout(() => {
+        holdTimeout = 0;
+        endTime = performance.now() + remainingMs;
+        countdownRaf = requestAnimationFrame(tick);
+      }, HOLD_MS);
       return;
     }
-    if(e>=due){ paintRandom(); due+=SCRAMBLE_HOLD; }
-    rafScramble=requestAnimationFrame(step);
+    if (elapsed >= nextFrameAt){ drawScramble(); nextFrameAt += SCRAMBLE_HOLD; }
+    scrambleRaf = requestAnimationFrame(step);
   };
-  rafScramble=requestAnimationFrame(step);
+  scrambleRaf = requestAnimationFrame(step);
 }
 
-function stopTimer(){
-  running=false; frozen=false;
-  if(rafLoop){cancelAnimationFrame(rafLoop);rafLoop=0;}
-  if(rafScramble){cancelAnimationFrame(rafScramble);rafScramble=0;}
-  if(holdTimer){clearTimeout(holdTimer);holdTimer=0;}
+function stopCountdown(){
+  isRunning = false;
+  isFrozen = false;
+  if (countdownRaf){ cancelAnimationFrame(countdownRaf); countdownRaf = 0; }
+  if (scrambleRaf){ cancelAnimationFrame(scrambleRaf); scrambleRaf = 0; }
+  if (holdTimeout){ clearTimeout(holdTimeout); holdTimeout = 0; }
 }
 
-/* 切到时钟视图：停表并保住剩余时间，切回来从原处接着走。
-   rafLoop 非空才说明真正在走（此时 endAt 有效）；若还停在乱码 / 定格阶段，
-   remain 仍是 5:00，切回来直接开始走。 */
-function freezeTimer(){
-  if(!running) return;
-  if(rafLoop) remain=Math.max(0,endAt-performance.now());
-  stopTimer();
-  frozen=true;
-}
-function resumeTimer(){
-  endAt=performance.now()+remain;
-  running=true; frozen=false;
-  setDanger(remain<=DANGER_AT);
-  rafLoop=requestAnimationFrame(loop);
+/* 切到时钟视图：停表并保住剩余时间，切回来从原处接着走。 */
+function freezeCountdown(){
+  if (!isRunning) return;
+  if (countdownRaf) remainingMs = Math.max(0, endTime - performance.now());
+  stopCountdown();
+  isFrozen = true;
 }
 
-/* 倒计时的目标态由 (powered, internal, zero, view, reserve) 推出，幂等可反复调用 */
+function resumeCountdown(){
+  endTime = performance.now() + remainingMs;
+  isRunning = true;
+  isFrozen = false;
+  setDanger(remainingMs <= DANGER_AT_MS);
+  countdownRaf = requestAnimationFrame(tick);
+}
+
+/* 倒计时的目标态由 (powered, internal, zero, viewMode, reserve) 推出，幂等可反复调用 */
 function syncCountdown(){
-  if(!powered||!internal||zero||reserve){
-    stopTimer();
-    if(zero){
-      /* 归零保持 0:00.00 与警戒色 */
-    }else if(reserve&&powered&&!internal){
+  if (!powered || !internal || zero || reserve){
+    stopCountdown();
+    if (zero){
+      /* 归零：保持 0:00.00 与警戒色，什么都不用重画 */
+    } else if (reserve && powered && !internal){
       /* 予備：屏上停在 0:00:00，不跑秒、不带警戒色 */
-      setDanger(false); remain=0; paint(0);
-    }else{
+      setDanger(false); remainingMs = 0; drawCountdown(0);
+    } else {
       /* 其余终止路径（外部待機）回到"熄屏待机"：不出数字，只留幽灵段 */
-      setDanger(false); remain=DURATION; blank();
+      setDanger(false); remainingMs = DURATION_MS; clearCountdown();
     }
     return;
   }
-  if(view!==0) freezeTimer();
-  else if(frozen) resumeTimer();
-  else if(!running) startTimer();
+  if (viewMode !== VIEW_COUNTDOWN) freezeCountdown();
+  else if (isFrozen) resumeCountdown();
+  else if (!isRunning) startCountdown();
 }
 
-/* ===================== 3. 视图三态切换 =====================
-   0 倒计时 → 1 二十四小时制时钟 → 2 十二小时制时钟 → 0 …
-   时钟按整秒对齐推进（不必每帧读 Date），切换瞬间立即出一帧不空屏。
-   切到时钟视图会冻结倒计时（进度保留），切回倒计时视图接着走。 */
-const TITLE_JP=['活動限界まで','現在の時間は'];
-const TITLE_EN=['ACTIVE TIME REMAINING:','CURRENT TIME COUNTING:'];
-
+/* ══ 07 · 时钟 ══════════════════════════════════════════════ */
+/* 时钟按整秒对齐推进（不必每帧读 Date），切换瞬间立即出一帧不空屏。 */
 function startClock(){
-  if(clockTimer) return;
-  const step=()=>{
-    clockTimer=0;
-    if(view===0) return;
-    paintClock(view===2);
-    clockTimer=setTimeout(step,1000-(Date.now()%1000)+10);   /* 对齐到下一个整秒 */
+  if (clockTimeout) return;
+  const step = () => {
+    clockTimeout = 0;
+    if (viewMode === VIEW_COUNTDOWN) return;
+    drawClock(viewMode === VIEW_CLOCK_12);
+    clockTimeout = setTimeout(step, 1000 - (Date.now() % 1000) + 10);   /* 对齐到下一个整秒 */
   };
   step();
 }
+
 function stopClock(){
-  if(clockTimer){clearTimeout(clockTimer);clockTimer=0;}
-  apText='';
+  if (clockTimeout){ clearTimeout(clockTimeout); clockTimeout = 0; }
+  timeMarker = '';
+}
+
+/* ══ 08 · 渲染 ══════════════════════════════════════════════ */
+/* 最后 7 秒警戒：缓存状态，避免每帧都调 classList。
+   警戒色只在倒计时视图落地 —— 时钟视图没有剩余时间可言，不该被染红。 */
+function applyDangerClass(){
+  document.body.classList.toggle('danger', isDanger && viewMode === VIEW_COUNTDOWN);
+}
+
+function setDanger(on){
+  if (isDanger === on) return;
+  isDanger = on;
+  applyDangerClass();
 }
 
 /* 红色长条：同一时间只亮一个；hideRest=true 时其余按钮整体隐藏（归零态） */
-function setBars(index,hideRest){
-  for(let k=0;k<bars.length;k++){
-    bars[k].bar.classList.toggle('on',k===index);
-    bars[k].cell.classList.toggle('gone',!!hideRest&&k!==index);
+function setActiveBar(index, hideRest){
+  for (let i = 0; i < ui.bars.length; i++){
+    ui.bars[i].barEl.classList.toggle('on', i === index);
+    ui.bars[i].cell.classList.toggle('gone', !!hideRest && i !== index);
   }
-}
-
-/* 视图切换的过渡：只让标题与数码管淡入一次（一次性重排，不是每个元素各排一次） */
-const fadeEls=[jpL,enL,atoL,segWrap];
-function crossFade(){
-  for(const el of fadeEls) el.classList.remove('vswap');
-  void panel.offsetWidth;
-  for(const el of fadeEls) el.classList.add('vswap');
-}
-
-/* 唯一的渲染入口：把四个状态变量推导成全部 DOM。幂等 ——
-   同一状态调两次结果一致，所以任何交互都可以无脑调它，不必关心上一步是什么。 */
-function render(){
-  const clk=view!==0, int=powered&&internal, resv=powered&&!internal&&reserve;
-  body.classList.toggle('pw',powered);           /* 通电→装甲充能（左下→右上充满） */
-  body.classList.toggle('clk',clk);
-  body.classList.toggle('zero',zero);
-  body.classList.toggle('reserve',resv);         /* 予備：外部框高频闪 + 屏幕熄灭再亮 */
-  applyDanger();                                 /* 切到时钟视图时把警戒色摘掉，切回去再恢复 */
-  jpL.textContent=TITLE_JP[clk?1:0];
-  enL.textContent=TITLE_EN[clk?1:0];
-  extJP.textContent=resv?'予備':'外部';
-  extEN.textContent=resv?'AUXILIARY':'EXTERNAL';
-  for(const [el,on] of [[modeExt,powered&&!internal],[modeInt,int]]){
-    el.classList.toggle('active',on);
-    el.classList.toggle('inactive',!on);
-    el.classList.toggle('dead',!powered);        /* 未通电：内外部连边框一起不显示 */
-    el.tabIndex=powered?0:-1;                    /* 不可见时移出 Tab 序列 */
-  }
-  modeExt.classList.toggle('resv',resv);         /* 予備态：外部框按 .25s 高频闪 */
-  segWrap.classList.toggle('idle',!clk&&!int&&!resv);   /* idle 只压倒计时位（CSS 已收窄到 .cd） */
-  dangerCell.classList.toggle('on',int&&!clk);
-  powerBox.classList.toggle('off',!powered);
-  /* 关：全灭；归零：只留 STOP；内部：RACING；外部：NORMAL；予備：全灭 */
-  const zeroLook=zero&&!clk;
-  setBars(!powered||resv?-1:(zeroLook?0:(internal?3:2)),zeroLook);
-  if(clk){
-    apText='';
-    paintClock(view===2);      /* 24H↔12H 互切时立即重画，不等下一整秒 */
-    /* 未通电屏幕是灭的：只画这一帧（把 24 / AM·PM 标记摆对），不点秒表 */
-    if(powered) startClock(); else stopClock();
-  }else{
-    atoL.textContent='あと';
-    stopClock();
-  }
-  syncCountdown();          /* 两个视图都要对齐：时钟视图冻结，倒计时视图启动或恢复 */
-}
-
-/* 点击 + 键盘（Enter / Space）统一激活 */
-function onActivate(el,fn){
-  el.addEventListener('click',fn);
-  el.addEventListener('keydown',e=>{
-    if(e.key==='Enter'||e.key===' '){e.preventDefault();fn(e);}
-  });
 }
 
 /* 通电瞬间：STOP→SLOW→NORMAL 逐个点亮，最终停在 NORMAL（≈0.5s，与背景充能同步）。
    不记 timer 句柄、不设 in-flight 标志：点亮前复查"仍是通电且外部"即可让过期序列自然失效，
    所以断电 / 立刻切内部都不必回头取消定时器。 */
-function powerSeq(){
-  setBars(-1);
-  [120,220,320].forEach((ms,k)=>setTimeout(()=>{
-    if(powered&&!internal&&!zero) setBars(k);
-  },ms));
+function runPowerSequence(){
+  setActiveBar(-1);
+  [120, 220, 320].forEach((delay, index) => setTimeout(() => {
+    if (powered && !internal && !zero) setActiveBar(index);
+  }, delay));
 }
 
-onActivate(powerBox,()=>{
-  powered=!powered;
-  internal=false;
-  zero=false;
-  reserve=false;            /* 断电重启后不留在予備态 */
-  view=0;                   /* 开与关都回到倒计时视图：断电时的待机表不能带进新一轮 */
+/* 视图切换的过渡：只让标题与数码管淡入一次（一次性重排，不是每个元素各排一次） */
+function crossFade(){
+  for (const el of FADE_TARGETS) el.classList.remove('vswap');
+  void ui.panel.offsetWidth;
+  for (const el of FADE_TARGETS) el.classList.add('vswap');
+}
+
+/* 唯一的渲染入口：把状态变量推导成全部 DOM。幂等 ——
+   同一状态调两次结果一致，所以任何交互都可以无脑调它，不必关心上一步是什么。 */
+function render(){
+  const isClock = viewMode !== VIEW_COUNTDOWN;
+  const isInternal = powered && internal;
+  const isReserve = powered && !internal && reserve;
+
+  document.body.classList.toggle('pw', powered);
+  document.body.classList.toggle('clk', isClock);
+  document.body.classList.toggle('zero', zero);
+  document.body.classList.toggle('reserve', isReserve);   /* 予備：外部框高频闪 + 屏幕熄灭再亮 */
+  applyDangerClass();                                     /* 切到时钟视图时摘掉警戒色，切回去再恢复 */
+
+  ui.titleJP.textContent = TITLE_JP[isClock ? 1 : 0];
+  ui.titleEN.textContent = TITLE_EN[isClock ? 1 : 0];
+  ui.extJP.textContent = isReserve ? '予備' : '外部';
+  ui.extEN.textContent = isReserve ? 'AUXILIARY' : 'EXTERNAL';
+
+  for (const [el, isOn] of [[ui.modeExt, powered && !internal], [ui.modeInt, isInternal]]){
+    el.classList.toggle('active', isOn);
+    el.classList.toggle('inactive', !isOn);
+    el.classList.toggle('dead', !powered);        /* 未通电：内外部连边框一起不显示 */
+    el.tabIndex = powered ? 0 : -1;               /* 不可见时移出 Tab 序列 */
+  }
+  ui.modeExt.classList.toggle('resv', isReserve); /* 予備态：外部框按 .25s 高频闪 */
+  ui.segWrap.classList.toggle('idle', !isClock && !isInternal && !isReserve);  /* idle 只压倒计时位 */
+  ui.dangerCell.classList.toggle('on', isInternal && !isClock);
+  ui.powerBox.classList.toggle('off', !powered);
+
+  /* 关：全灭；归零：只留 STOP；内部：RACING；外部：NORMAL；予備：全灭 */
+  const zeroLook = zero && !isClock;
+  setActiveBar(!powered || isReserve ? -1 : (zeroLook ? 0 : (internal ? 3 : 2)), zeroLook);
+
+  if (isClock){
+    timeMarker = '';
+    drawClock(viewMode === VIEW_CLOCK_12);   /* 24H↔12H 互切时立即重画，不等下一整秒 */
+    if (powered) startClock(); else stopClock();   /* 未通电只画这一帧，不点秒表 */
+  } else {
+    ui.titleAto.textContent = 'あと';
+    stopClock();
+  }
+
+  syncCountdown();   /* 两个视图都要对齐：时钟视图冻结，倒计时视图启动或恢复 */
+}
+
+/* ══ 09 · 交互 ══════════════════════════════════════════════ */
+/* 点击 + 键盘（Enter / Space）统一激活 */
+function bindActivate(el, handler){
+  el.addEventListener('click', handler);
+  el.addEventListener('keydown', event => {
+    if (event.key === 'Enter' || event.key === ' '){ event.preventDefault(); handler(event); }
+  });
+}
+
+/* 主電源：开 / 关都回到倒计时视图，断电重启后不留在予備态 */
+bindActivate(ui.powerBox, () => {
+  powered = !powered;
+  internal = false;
+  zero = false;
+  reserve = false;
+  viewMode = VIEW_COUNTDOWN;
   render();
-  if(powered) powerSeq();   /* 必须在 render 之后：先把红条归零，再由序列逐个点亮 */
+  if (powered) runPowerSequence();   /* 必须在 render 之后：先把红条归零，再由序列逐个点亮 */
 });
-/* 归零态也响应：一次点击直接重开一轮 5:00.00 */
-onActivate(modeInt,()=>{ if(powered&&(zero||!internal)){ internal=true; zero=false; reserve=false; render(); } });
+
+/* 内部：归零态也响应，一次点击直接重开一轮 5:00.00 */
+bindActivate(ui.modeInt, () => {
+  if (!powered || (internal && !zero)) return;
+  internal = true; zero = false; reserve = false;
+  render();
+});
+
 /* 外部：内部 → 外部（正常供电）；已经在外部时，再点一次在 外部 / 予備 之间切换 */
-onActivate(modeExt,()=>{
-  if(!powered) return;
-  if(internal){ internal=false; zero=false; reserve=false; render(); return; }
-  if(view!==0) return;      /* 予備只在「活動限界まで」倒计时视图里切 */
-  zero=false;
-  reserve=!reserve;
+bindActivate(ui.modeExt, () => {
+  if (!powered) return;
+  if (internal){
+    internal = false; zero = false; reserve = false;
+    render();
+    return;
+  }
+  if (viewMode !== VIEW_COUNTDOWN) return;   /* 予備只在「活動限界まで」倒计时视图里切 */
+  zero = false;
+  reserve = !reserve;
   render();
 });
 
 /* 标题左侧小方块：倒计时 → 24H → 12H → 倒计时 …
    断电也能切（相当于待机表）；切换用淡入而不是整屏闪光 */
-onActivate(clockHot,()=>{
-  view=(view+1)%3;
-  if(view!==0) reserve=false;   /* 予備是倒计时屏幕的状态，离开就退回外部 */
+bindActivate(ui.clockHot, () => {
+  viewMode = (viewMode + 1) % VIEW_COUNT;
+  if (viewMode !== VIEW_COUNTDOWN) reserve = false;   /* 予備是倒计时屏幕的状态，离开就退回外部 */
   render();
   crossFade();
 });
 
-bars.forEach(({cell},i)=>onActivate(cell,()=>{
-  if(!powered||zero||reserve) return;
-  setBars(i);
+/* 功能按钮：只改红条位置，不动屏幕 */
+ui.bars.forEach(({ cell }, index) => bindActivate(cell, () => {
+  if (!powered || zero || reserve) return;
+  setActiveBar(index);
 }));
 
-/* 初始化：打开网页即自动接通主電源供給システム。 */
+/* ══ 10 · 启动 ══════════════════════════════════════════════ */
+/* 自适应缩放：rAF 合并同一帧内的多次 resize */
+let fitQueued = false;
+function fitPanel(){
+  fitQueued = false;
+  const scale = Math.min(
+    innerWidth / STAGE_W,
+    (innerHeight - STAGE_V_MARGIN) / STAGE_H
+  );
+  ui.panel.style.transform = `translate(-50%,-50%) scale(${scale})`;
+}
+addEventListener('resize', () => {
+  if (fitQueued) return;
+  fitQueued = true;
+  requestAnimationFrame(fitPanel);
+}, { passive: true });
+
+/* 打开网页即自动接通主電源供給システム */
 render();
-fit();
-requestAnimationFrame(()=>requestAnimationFrame(()=>{
-  powered=true;
+fitPanel();
+requestAnimationFrame(() => requestAnimationFrame(() => {
+  powered = true;
   render();
-  powerSeq();
+  runPowerSequence();
 }));
+
 })();
 </script>
 </body>
