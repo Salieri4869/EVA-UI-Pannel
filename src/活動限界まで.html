@@ -29,7 +29,7 @@ body{
   --tick:linear-gradient(var(--cyan),var(--cyan));
   /* 背景渐变 */
   --rb:linear-gradient(180deg,#000 0 48px,transparent 48px) 0 0/1500px 600px no-repeat,
-       linear-gradient(to top right,#b2403c 0,#b58a3a 14%,#8fa23c 26%,#5f9a3a 38%,#55995a 64%,#3f8aa0 80%,#3f68ae 92%,#4b4fb0 100%) 200px 0/1300px 600px no-repeat;
+       linear-gradient(to top right,#b2403c 0,#b58a3a 20%,#a9be4a 30%,#81ba5d 38%,#55995a 64%,#3f8aa0 80%,#3f68ae 92%,#4b4fb0 100%) 200px 0/1300px 600px no-repeat;
 }
 /* 最后 7 秒警戒：只改 UI 字体 / 描边 / gline / gradbar，不加整体红色滤镜，--cyan 保持青蓝 */
 body.danger{
@@ -110,8 +110,9 @@ body.danger .deco .blk{filter:drop-shadow(0 0 4px rgba(255,40,20,.6))}
   var(--tick) 1398px 0/3px 100% no-repeat}
 
 /* 青蓝竖线：接通主電源供給システム 后随背景扫掠（左下→右上）逐个亮起，--d 为延迟 */
-.cy{fill:var(--cyan);filter:drop-shadow(0 0 3px rgba(63,216,255,.7));opacity:0;transition:opacity .14s linear}
-body.pw .cy{opacity:1;transition-delay:var(--d,0ms)}
+.cy{fill:var(--cyan)}
+.cy>use{filter:drop-shadow(0 0 3px rgba(63,216,255,.7));opacity:0;transition:opacity .14s linear}
+body.pw .cy>use{opacity:1;transition-delay:var(--d,0ms)}
 /* 装甲上的黑色刻度：恒为黑色、无辉光，不随警戒变色 */
 .bk{fill:#000;filter:none}
 /* 黑色刻度旁的黄色竖线对（参考图 STOP 左侧：黑对 + 黄对） */
@@ -208,7 +209,7 @@ body.pw .sep i{opacity:1;transition-delay:var(--d,0ms)}
 .cell.gone .txt{visibility:hidden}
 .cell:active{filter:brightness(1.15)}
 /* 按钮下方与边缘严格对齐的黑色刻度：恒为黑色，不随警戒变色 */
-.cell::after{content:"";position:absolute;left:-4px;right:-4px;top:100%;margin-top:3px;height:8px;
+.cell::after{content:"";position:absolute;left:-4px;right:-4px;top:100%;margin-top:3.5px;height:8px;
   background:
     linear-gradient(#000,#000) left 3px top 0/3px 8px no-repeat,
     linear-gradient(#000,#000) right 3px top 0/3px 8px no-repeat
@@ -266,69 +267,73 @@ body.zero:not(.clk) .mode.active::after,body.zero:not(.clk) .cell .redbar.on{ani
   <div class="charge"></div>
   <div class="leftbar"></div><div class="leftdash"></div>
   <svg class="deco" viewBox="0 0 1500 600" aria-hidden="true">
-    <!-- 刻度形状：定义一次，下方所有 <use href="#tick"> 共用（defs 不渲染） -->
-    <defs><rect id="tick" width="2" height="7"/></defs>
+    <!-- 刻度形状：定义一次，下方所有 <use href="#bar"> 共用（defs 不渲染） -->
+    <defs>
+      <rect id="bar" width="2" height="7"/>
+      <rect id="barR" x="-1.5" y="-3.5" width="2" height="7" transform="rotate(30)"/>
+    </defs>
     <polygon class="blk0" points="440,600 560,488 1500,488 1500,600"/>
     <polygon class="blk" points="515,222 583,222 583,420 515,420 437,530.5 352,502.5"/>
     <polygon class="blk" points="348,509.5 433,537.5 388.9,600 295.4,600"/>
     <polygon id="clockHot" class="blk clk" points="488,128 513,128 513,175 488,168" role="button" tabindex="0" aria-label="切换视图：倒计时 / 24H / 12H"/>
     <polygon class="blk" points="515,128 765,128 780,148 1405,148 1405,420 583,420 583,222 515,222"/>
     <polygon class="blk0" points="1202,422 1405,422 1405,489 1202,489"/>
-    <!-- 刻度：34 根形状完全一样（2×7 竖条），所以形状在 <defs> 里只定义一次，这里只写坐标。
-         加一根 = 加一行 <use href="#tick" x="1189" y="479"/>（x,y 就是左上角）；
-         顺序按 y 再按 x，同 y 的自然连成一组。
-         cy 那 8 根各带充能延迟 --d，仍是独立 rect，不能并进来。 -->
+    <!-- 黑色竖条 -->
     <g class="bk">
-      <use href="#tick" x="487" y="116"/>
-      <use href="#tick" x="511" y="116"/>
-      <use href="#tick" x="763" y="116"/>
-      <use href="#tick" x="476" y="132"/>
-      <use href="#tick" x="481" y="132"/>
-      <use href="#tick" x="782" y="136"/>
-      <use href="#tick" x="1011" y="136"/>
-      <use href="#tick" x="1216" y="136"/>
-      <use href="#tick" x="1396" y="136"/>
-      <use href="#tick" x="476" y="162"/>
-      <use href="#tick" x="481" y="162"/>
-      <use href="#tick" x="503" y="212"/>
-      <use href="#tick" x="508" y="212"/>
-      <use href="#tick" x="519" y="425"/>
-      <use href="#tick" x="592" y="425"/>
-      <use href="#tick" x="597" y="425"/>
-      <use href="#tick" x="1184" y="425"/>
-      <use href="#tick" x="1189" y="425"/>
-      <use href="#tick" x="1184" y="479"/>
-      <use href="#tick" x="1189" y="479"/>
+      <use href="#bar" x="487" y="116"/>
+      <use href="#bar" x="511" y="116"/>
+      <use href="#bar" x="763" y="116"/>
+      <use href="#bar" x="476" y="132"/>
+      <use href="#bar" x="481" y="132"/>
+      <use href="#bar" x="782" y="136"/>
+      <use href="#bar" x="1011" y="136"/>
+      <use href="#bar" x="1216" y="136"/>
+      <use href="#bar" x="1396" y="136"/>
+      <use href="#bar" x="476" y="162"/>
+      <use href="#bar" x="481" y="162"/>
+      <use href="#bar" x="503" y="212"/>
+      <use href="#bar" x="508" y="212"/>
+      <use href="#bar" x="519" y="425"/>
+      <use href="#bar" x="592" y="425"/>
+      <use href="#bar" x="597" y="425"/>
+      <use href="#bar" x="1184" y="425"/>
+      <use href="#bar" x="1189" y="425"/>
+      <use href="#bar" x="1184" y="479"/>
+      <use href="#bar" x="1189" y="479"/>
     </g>
     <g class="ye" transform="translate(0 425)">
-      <use href="#tick" x="603"/>
-      <use href="#tick" x="608"/>
-      <use href="#tick" x="745"/>
-      <use href="#tick" x="749"/>
-      <use href="#tick" x="885"/>
-      <use href="#tick" x="889"/>
-      <use href="#tick" x="1025"/>
-      <use href="#tick" x="1029"/>
-      <use href="#tick" x="1173"/>
-      <use href="#tick" x="1178"/>
-      <use href="#tick" x="1303"/>
-      <use href="#tick" x="1307"/>
-      <use href="#tick" x="1398"/>
-      <use href="#tick" x="1402"/>
+      <use href="#bar" x="603"/>
+      <use href="#bar" x="608"/>
+      <use href="#bar" x="745"/>
+      <use href="#bar" x="749"/>
+      <use href="#bar" x="885"/>
+      <use href="#bar" x="889"/>
+      <use href="#bar" x="1025"/>
+      <use href="#bar" x="1029"/>
+      <use href="#bar" x="1173"/>
+      <use href="#bar" x="1178"/>
+      <use href="#bar" x="1303"/>
+      <use href="#bar" x="1307"/>
+      <use href="#bar" x="1398"/>
+      <use href="#bar" x="1402"/>
     </g>
-    <rect style="--d:215ms" class="cy" x="519" y="228" width="3" height="7"/>
-    <rect style="--d:227ms" class="cy" x="568" y="228" width="3" height="7"/>
-    <rect style="--d:70ms" class="cy" x="519" y="411" width="3" height="7"/>
-    <rect style="--d:82ms" class="cy" x="568" y="411" width="3" height="7"/>
-    <!-- 斜槽四角内的青色刻度：四条到梯形轮廓（含 2px 描边）的净距一律 1.27-->
-    <rect style="--d:12ms" class="cy" x="358.55" y="495.33" width="3" height="7" transform="rotate(30 360.05 498.83)"/>
-    <rect style="--d:36ms" class="cy" x="431.2" y="519.27" width="3" height="7" transform="rotate(30 432.7 522.77)"/>
-    <rect style="--d:0ms" class="cy" x="350.8" y="513.73" width="3" height="7" transform="rotate(30 352.3 517.23)"/>
-    <rect style="--d:24ms" class="cy" x="423.45" y="537.67" width="3" height="7" transform="rotate(30 424.95 541.17)"/>
-    <line x1="342.03" y1="495.74" x2="350.29" y2="498.46" stroke="#000" stroke-width="2.2"/>
-    <line x1="335.16" y1="507.69" x2="343.42" y2="510.41" stroke="#000" stroke-width="2.2"/>
-    <line x1="442.47" y1="528.83" x2="450.73" y2="531.55" stroke="#000" stroke-width="2.2"/>
-    <line x1="435.08" y1="540.61" x2="443.35" y2="543.33" stroke="#000" stroke-width="2.2"/>
+    <g class="cy">
+      <!-- 青色竖线 -->
+      <use style="--d:215ms" href="#bar"  x="519" y="228"/>
+      <use style="--d:227ms" href="#bar"  x="568" y="228"/>
+      <use style="--d:70ms"  href="#bar"  x="519" y="411"/>
+      <use style="--d:82ms"  href="#bar"  x="568" y="411"/>
+      <!-- 斜槽四角内的青色刻度 -->
+      <use style="--d:12ms" href="#barR" x="360.05" y="498.83"/>
+      <use style="--d:36ms" href="#barR" x="432.7"  y="522.77"/>
+      <use style="--d:0ms"  href="#barR" x="352.3"  y="517.23"/>
+      <use style="--d:24ms" href="#barR" x="424.95" y="541.17"/>
+    </g>
+    
+    <line x1="342.03" y1="495.74" x2="350.29" y2="498.46" stroke="#000" stroke-width="2"/>
+    <line x1="335.16" y1="507.69" x2="343.42" y2="510.41" stroke="#000" stroke-width="2"/>
+    <line x1="442.47" y1="528.83" x2="450.73" y2="531.55" stroke="#000" stroke-width="2"/>
+    <line x1="435.08" y1="540.61" x2="443.35" y2="543.33" stroke="#000" stroke-width="2"/>
   </svg>
   <div class="chargelayer"><div class="abs gline"></div><div class="tk t1"></div><div class="tk t2"></div><div class="tk b1"></div><div class="tk b2"></div></div><div class="gradbar"></div>
 
