@@ -328,11 +328,14 @@ body:not(.pw) .danger-cell,body:not(.pw) .subbox{visibility:hidden}
 body.danger .danger-cell.on{animation:dangerblink .45s steps(1) infinite}
 @keyframes dangerblink{50%{opacity:.25}}
 
-.subbox .stack{width:92%;margin:0 auto;display:flex;flex-direction:column}
-.subbox .stack>div{display:flex;justify-content:space-between;font-family:Arial,sans-serif;font-weight:700}
-.subbox .stack>div.jp{font-family:"EVA Matisse",serif;font-size:17px;line-height:20px;font-weight:700}
-.subbox .en1{font-size:11px;line-height:12px}
-.subbox .en2{font-size:6px;line-height:8px}
+.subbox>.jp,.subbox>.en1,.subbox>.en2{
+  width:92%;margin:0 auto;
+  display:flex;justify-content:space-between;
+  font-family:Arial,sans-serif;font-weight:700;
+}
+.subbox>.jp{font-family:"EVA Matisse",serif;font-size:17px;line-height:20px}
+.subbox>.en1{font-size:11px;line-height:12px}
+.subbox>.en2{font-size:6px;line-height:8px}
 
 /* ── 15 状态动画 ─────────────────────────────────────────── */
 /* 归零（活動限界到達）：两组各自同频、彼此不同频的闪烁。
