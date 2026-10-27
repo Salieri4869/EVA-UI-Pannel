@@ -517,6 +517,15 @@ const clockRefs=CLOCK_SPECS.map(s=>makeDigit(s,''));
 mountDigits(segWrap,digitRefs,DOT_POS,'dot cd');
 mountDigits(clockDig,clockRefs,CLOCK_DOTS,'dot');
 
+/* 倒计时那 4 个小数点：乱码时跟着随机明灭 */
+const dotEls=[...segWrap.querySelectorAll('.dot')];
+let dotsDithered=false;
+function clearDots(){
+  if(!dotsDithered) return;
+  dotsDithered=false;
+  for(const d of dotEls) d.style.opacity='';
+}
+
 /* 只翻转真正变化的段：某位掩码未变则完全不碰 DOM（分钟位一秒才变一次） */
 function flip(refs,i,m){
   const r=refs[i];
@@ -528,6 +537,7 @@ function flip(refs,i,m){
 
 /* 倒计时：直接由毫秒数算位，不再走"拼字符串 → 再拆字符" */
 function paint(ms){
+  clearDots();                               /* 乱码留下的小数点抖动，走正常读数时收回去 */
   const cs=Math.floor((ms>0?ms:0)/10);       /* 百分秒 */
   const sec=Math.floor(cs/100)%60;
   flip(digitRefs,0,MASK[Math.min(Math.floor(cs/6000),9)]);   /* 分（≤9） */
@@ -536,12 +546,42 @@ function paint(ms){
   flip(digitRefs,3,MASK[Math.floor(cs/10)%10]);              /* 百分秒十 */
   flip(digitRefs,4,MASK[cs%10]);                             /* 百分秒个 */
 }
+
+/* ===================== 乱码 ===================== */
+function bitCount(m){let n=0;while(m){m&=m-1;n++;}return n;}
+function glitchMask(){
+  const r=Math.random();
+  if(r<0.16) return MASK[(Math.random()*10)|0];          /* 完整数字，混进去当真读数 */
+  if(r<0.88){
+    let m=MASK[Math.random()<0.42?8:(Math.random()*10)|0];  /* 数字骨架 */
+    let cuts=1+((Math.random()*3)|0);                      /* 抠 1~3 段 */
+    for(let guard=0;cuts>0&&guard<16;guard++){
+      const b=1<<((Math.random()*7)|0);
+      if(m&b){ m&=~b; cuts--; }
+    }
+    return m;
+  }
+  let m;
+  do{ m=(Math.random()*128)|0; }while(bitCount(m)<2||bitCount(m)>6);
+  return m;
+}
 function paintRandom(){
-  for(let i=0;i<5;i++) flip(digitRefs,i,MASK[(Math.random()*10)|0]);
+  const dead=1<<((Math.random()*7)|0);        /* 本轮共模坏段 */
+  for(let i=0;i<5;i++){
+    let m=glitchMask();
+    if(Math.random()<0.3) m&=~dead;           /* 三成的位跟着缺同一段 */
+    /* 兜底：最少留两段（就是一根"1"），别让整位彻底空掉 —— 补亮可能重复同一段，循环补到够为止 */
+    for(let guard=0;bitCount(m)<2&&guard<8;guard++) m|=1<<((Math.random()*7)|0);
+    flip(digitRefs,i,m);
+  }
+  /* 小数点也跟着随机明灭：整块屏在抽的感觉 */
+  for(const d of dotEls) d.style.opacity=Math.random()<0.45?'0':'';
+  dotsDithered=true;
 }
 /* 待機（外部）：所有段熄灭 —— 屏上只剩 CSS 给的 7% 幽灵段，不出任何数字。
    这就是「未通电点亮的数码管」的样子，内部倒计时的乱码 / 定格 / 走秒都从这里接。 */
 function blank(){
+  clearDots();
   for(let i=0;i<digitRefs.length;i++) flip(digitRefs,i,0);
 }
 
