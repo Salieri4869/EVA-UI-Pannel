@@ -246,10 +246,10 @@ body.danger .danger-cell.on{animation:dangerblink .45s steps(1) infinite}
 /* A 组：活動限界まで / ACTIVE TIME REMAINING: / あと / DANGER EMERGENCY
    只在倒计时视图闪 —— 时钟视图是"看时间"，不该有警报闪动 */
 body.zero:not(.clk) .jpL,body.zero:not(.clk) .enL,body.zero:not(.clk) .atoL,
-body.zero:not(.clk) .danger-cell,body.danger.zero:not(.clk) .danger-cell.on{animation:zeroA .5s steps(1) infinite}
+body.zero:not(.clk) .danger-cell,body.danger.zero:not(.clk) .danger-cell.on{animation:zeroA .25s steps(1) infinite}
 @keyframes zeroA{0%,100%{opacity:1}50%{opacity:.1}}
 /* B 组：内部框斑马柱 + 按钮下方红条（归零后只保留 STOP）——频率与 A 组不同 */
-body.zero:not(.clk) .mode.active::after,body.zero:not(.clk) .cell .redbar.on{animation:zeroB .78s steps(1) infinite}
+body.zero:not(.clk) .mode.active::after,body.zero:not(.clk) .cell .redbar.on{animation:zeroB .39s steps(1) infinite}
 @keyframes zeroB{0%,100%{opacity:1}50%{opacity:.08}}
 
 .vswap{animation:vswap .24s ease-out both}
