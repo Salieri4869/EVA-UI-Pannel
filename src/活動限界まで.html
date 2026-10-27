@@ -142,14 +142,14 @@ body.danger .gline{background:linear-gradient(90deg,#ff2a14,#ff6a2a);box-shadow:
    top 185：字形顶与「あと」字形顶（y≈185）齐平；高度 229。 */
 .seg-wrap{left:591px;top:185px;width:618px;height:229px}
 .digit{position:absolute;overflow:visible;filter:var(--seg-bloom)}
-.seg{fill:var(--amber);opacity:.07}
+.seg{fill:var(--amber);opacity:0}
 .seg.on{opacity:1}
 .dot{position:absolute;width:15px;height:13px;background:var(--amber);box-shadow:var(--seg-glow)}
-.seg-wrap.idle .cd .seg{opacity:.07}
+body.pw:not(.clk):not(.zero) .seg-wrap.idle .cd .seg:not(.on){opacity:.07}
 .seg-wrap.idle .dot{opacity:0}
 /* 未接通主電源供給システム：屏幕灭 —— 任何视图下数码管都不亮。
    开关只认 .pw 一个条件，不再让 .clk 把它顶开（否则断电就能看到时钟）。
-   通电后才出时间：倒计时出 5:00.00，时钟视图出 HH:MM:SS。 */
+   通电后才出内容：外部待機是"熄屏 + 幽灵段"，点「内部」才乱码 → 5:00.00 → 走秒；时钟视图出 HH:MM:SS。 */
 body:not(.pw) .seg-wrap{visibility:hidden}
 
 /* ============ 时钟视图（点击「活動限界まで」左侧小方块循环切换） ============
@@ -252,6 +252,20 @@ body.zero:not(.clk) .mode.active::after,body.zero:not(.clk) .cell .redbar.on{ani
 @keyframes zeroB{0%,100%{opacity:1}50%{opacity:.08}}
 
 body.zero:not(.clk) .subbox{opacity:0 !important;visibility:hidden;}
+
+/* ============ 予備（AUXILIARY）：外部电源的备用态 ============
+   在「活動限界まで」视图里再点一次「外部」→ 切「予備」：
+   · 外部框**只有右侧斑马条**按归零 B 组同样的频率（.25s steps(1)）高频闪烁，
+     文字与琥珀边框保持常亮（整框仍走 .mode.active 的 1.6s 呼吸，与「内部」一致）；
+   · 倒计时停在 0:00:00（不再走秒）；
+   · 屏幕「亮着停一拍 → 缓慢熄灭 → 黑一瞬 → 瞬间点亮」**无限循环**；
+   · STOP / SLOW / NORMAL / RACING 四条红条全灭。 */
+#modeExternal.resv::after{animation:resvBlink .25s steps(1) infinite}
+@keyframes resvBlink{0%,100%{opacity:1}50%{opacity:.12}}
+/* 循环周期 3s：0.66s 亮定 → 1.44s 缓灭 → 0.24s 全黑 → 0.12s 瞬亮 → 0.54s 亮定，
+   首尾都是 opacity:1，所以接缝处的两段亮定会连成 1.2s 的可读停留。 */
+body.reserve .seg-wrap{animation:resvFade 3s ease-in-out infinite}
+@keyframes resvFade{0%,22%{opacity:1}70%{opacity:0}78%{opacity:0}82%,100%{opacity:1}}
 
 .vswap{animation:vswap .24s ease-out both}
 @keyframes vswap{from{opacity:0}to{opacity:1}}
@@ -398,7 +412,7 @@ body.zero:not(.clk) .subbox{opacity:0 !important;visibility:hidden;}
     <div class="en2"><span>C</span><span>o</span><span>d</span><span>e</span><span>.</span><span>V</span><span>i</span><span>l</span><span>l</span><span>k</span><span>i</span><span>s</span><span>s</span></div>
   </div></div>
 </div></div>
-<p class="hint">「主電源供給システム」断电重启 · 「内部 / 外部」切换供电模式 · 「活動限界まで」左侧小方块循环切换 [倒计时 / 24H / 12H ]时钟</p>
+<p class="hint">「主電源供給システム」断电重启 · 「内部 / 外部」切换供电模式 · 「外部」再点一次切「予備」· 「活動限界まで」左侧小方块循环切换 [倒计时 / 24H / 12H ]时钟</p>
 <script>
 (function(){
 'use strict';
@@ -418,6 +432,7 @@ const enL=document.querySelector('.enL');
 const atoL=document.querySelector('.atoL');
 const clockHot=document.getElementById('clockHot');            /* 标题左侧小方块：三态视图切换 */
 const bars=[...document.querySelectorAll('.cell[data-bar]')].map(cell=>({cell,bar:cell.querySelector('.redbar')}));
+const extJP=modeExt.querySelector('.jp'), extEN=modeExt.querySelector('.en');  /* 外部 ⇄ 予備 的两种文案 */
 
 /* ===================== 1. 七段数码管 ===================== */
 /* 数字 → 段掩码（bit0=a … bit6=g），避免每帧做字符串 includes */
@@ -524,6 +539,11 @@ function paint(ms){
 function paintRandom(){
   for(let i=0;i<5;i++) flip(digitRefs,i,MASK[(Math.random()*10)|0]);
 }
+/* 待機（外部）：所有段熄灭 —— 屏上只剩 CSS 给的 7% 幽灵段，不出任何数字。
+   这就是「未通电点亮的数码管」的样子，内部倒计时的乱码 / 定格 / 走秒都从这里接。 */
+function blank(){
+  for(let i=0;i<digitRefs.length;i++) flip(digitRefs,i,0);
+}
 
 /* 时钟：HH:MM:SS；12 小时制取 1–12，AM/PM 落在「あと」的位置 */
 let apText='';
@@ -549,8 +569,9 @@ const DANGER_AT=7000;       /* 最后 7 秒变色 */
 const SCRAMBLE_MS=400, SCRAMBLE_HOLD=75, HOLD_MS=700;
 
 /* 唯一真相源：powered / internal / zero / view。
-   交互只改这四个变量，再由 render() 推导出全部 DOM；不再从 class 反读状态。 */
-let powered=false, internal=false, zero=false, view=0;
+   交互只改这四个变量，再由 render() 推导出全部 DOM；不再从 class 反读状态。
+   reserve 是 external 的子状态（备用电源）：屏上归零、红条全灭、外部框高频闪。 */
+let powered=false, internal=false, zero=false, view=0, reserve=false;
 let remain=DURATION, endAt=0, danger=false, running=false, frozen=false;
 let rafLoop=0, rafScramble=0, holdTimer=0, clockTimer=0;
 
@@ -647,12 +668,19 @@ function resumeTimer(){
   rafLoop=requestAnimationFrame(loop);
 }
 
-/* 倒计时的目标态由 (powered, internal, zero, view) 推出，幂等可反复调用 */
+/* 倒计时的目标态由 (powered, internal, zero, view, reserve) 推出，幂等可反复调用 */
 function syncCountdown(){
-  if(!powered||!internal||zero){
+  if(!powered||!internal||zero||reserve){
     stopTimer();
-    /* 归零保持 0:00.00 与警戒色；其余终止路径回到待机定格 5:00.00 */
-    if(!zero){ setDanger(false); remain=DURATION; paint(DURATION); }
+    if(zero){
+      /* 归零保持 0:00.00 与警戒色 */
+    }else if(reserve&&powered&&!internal){
+      /* 予備：屏上停在 0:00:00，不跑秒、不带警戒色 */
+      setDanger(false); remain=0; paint(0);
+    }else{
+      /* 其余终止路径（外部待機）回到"熄屏待机"：不出数字，只留幽灵段 */
+      setDanger(false); remain=DURATION; blank();
+    }
     return;
   }
   if(view!==0) freezeTimer();
@@ -701,25 +729,29 @@ function crossFade(){
 /* 唯一的渲染入口：把四个状态变量推导成全部 DOM。幂等 ——
    同一状态调两次结果一致，所以任何交互都可以无脑调它，不必关心上一步是什么。 */
 function render(){
-  const clk=view!==0, int=powered&&internal;
+  const clk=view!==0, int=powered&&internal, resv=powered&&!internal&&reserve;
   body.classList.toggle('pw',powered);           /* 通电→装甲充能（左下→右上充满） */
   body.classList.toggle('clk',clk);
   body.classList.toggle('zero',zero);
+  body.classList.toggle('reserve',resv);         /* 予備：外部框高频闪 + 屏幕熄灭再亮 */
   applyDanger();                                 /* 切到时钟视图时把警戒色摘掉，切回去再恢复 */
   jpL.textContent=TITLE_JP[clk?1:0];
   enL.textContent=TITLE_EN[clk?1:0];
+  extJP.textContent=resv?'予備':'外部';
+  extEN.textContent=resv?'AUXILIARY':'EXTERNAL';
   for(const [el,on] of [[modeExt,powered&&!internal],[modeInt,int]]){
     el.classList.toggle('active',on);
     el.classList.toggle('inactive',!on);
     el.classList.toggle('dead',!powered);        /* 未通电：内外部连边框一起不显示 */
     el.tabIndex=powered?0:-1;                    /* 不可见时移出 Tab 序列 */
   }
-  segWrap.classList.toggle('idle',!clk&&!int);   /* idle 只压倒计时位（CSS 已收窄到 .cd） */
+  modeExt.classList.toggle('resv',resv);         /* 予備态：外部框按 .25s 高频闪 */
+  segWrap.classList.toggle('idle',!clk&&!int&&!resv);   /* idle 只压倒计时位（CSS 已收窄到 .cd） */
   dangerCell.classList.toggle('on',int&&!clk);
   powerBox.classList.toggle('off',!powered);
-  /* 关：全灭；归零：只留 STOP；内部：RACING；外部：NORMAL */
+  /* 关：全灭；归零：只留 STOP；内部：RACING；外部：NORMAL；予備：全灭 */
   const zeroLook=zero&&!clk;
-  setBars(!powered?-1:(zeroLook?0:(internal?3:2)),zeroLook);
+  setBars(!powered||resv?-1:(zeroLook?0:(internal?3:2)),zeroLook);
   if(clk){
     apText='';
     paintClock(view===2);      /* 24H↔12H 互切时立即重画，不等下一整秒 */
@@ -754,24 +786,34 @@ onActivate(powerBox,()=>{
   powered=!powered;
   internal=false;
   zero=false;
+  reserve=false;            /* 断电重启后不留在予備态 */
   view=0;                   /* 开与关都回到倒计时视图：断电时的待机表不能带进新一轮 */
   render();
   if(powered) powerSeq();   /* 必须在 render 之后：先把红条归零，再由序列逐个点亮 */
 });
 /* 归零态也响应：一次点击直接重开一轮 5:00.00 */
-onActivate(modeInt,()=>{ if(powered&&(zero||!internal)){ internal=true; zero=false; render(); } });
-onActivate(modeExt,()=>{ if(powered&&internal){ internal=false; zero=false; render(); } });
+onActivate(modeInt,()=>{ if(powered&&(zero||!internal)){ internal=true; zero=false; reserve=false; render(); } });
+/* 外部：内部 → 外部（正常供电）；已经在外部时，再点一次在 外部 / 予備 之间切换 */
+onActivate(modeExt,()=>{
+  if(!powered) return;
+  if(internal){ internal=false; zero=false; reserve=false; render(); return; }
+  if(view!==0) return;      /* 予備只在「活動限界まで」倒计时视图里切 */
+  zero=false;
+  reserve=!reserve;
+  render();
+});
 
 /* 标题左侧小方块：倒计时 → 24H → 12H → 倒计时 …
    断电也能切（相当于待机表）；切换用淡入而不是整屏闪光 */
 onActivate(clockHot,()=>{
   view=(view+1)%3;
+  if(view!==0) reserve=false;   /* 予備是倒计时屏幕的状态，离开就退回外部 */
   render();
   crossFade();
 });
 
 bars.forEach(({cell},i)=>onActivate(cell,()=>{
-  if(!powered||zero) return;
+  if(!powered||zero||reserve) return;
   setBars(i);
 }));
 
