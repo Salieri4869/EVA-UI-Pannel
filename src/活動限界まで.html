@@ -31,7 +31,7 @@ body{
   --rb:linear-gradient(180deg,#000 0 48px,transparent 48px) 0 0/1500px 600px no-repeat,
        linear-gradient(to top right,#b2403c 0,#b58a3a 20%,#a9be4a 30%,#81ba5d 38%,#55995a 64%,#3f8aa0 80%,#3f68ae 92%,#4b4fb0 100%) 200px 0/1300px 600px no-repeat;
 }
-/* 最后 7 秒警戒：只改 UI 字体 / 描边 / gline / gradbar，不加整体红色滤镜，--cyan 保持青蓝 */
+/* 最后 7 秒警戒：只改 UI 字体 / 描边 / gline / gradbar --cyan 保持青蓝 */
 body.danger{
   --amber:#ff2415;
   --glow:0 0 11px rgba(255,40,20,.95),0 0 33px rgba(255,20,10,.7),0 0 78px rgba(255,10,0,.4);
@@ -224,7 +224,7 @@ body.pw .cell{transition:opacity .28s}
   text-shadow:0 0 11px rgba(255,40,20,.9),0 0 31px rgba(255,20,10,.6);
   box-shadow:0 0 16px rgba(255,30,15,.8),inset 0 0 22px rgba(255,40,20,.25)}
 .danger-cell{left:1216px;width:84px;padding-top:4px;transition:opacity .3s}
-.subbox{left:1312px;width:84px;box-shadow:0 0 16px rgba(255,30,15,.8),inset 0 0 20px rgba(255,30,15,.15)}
+.subbox{left:1312px;width:84px;cursor:pointer;box-shadow:0 0 16px rgba(255,30,15,.8),inset 0 0 20px rgba(255,30,15,.15)}
 /* 未通电：不显示 */
 body:not(.pw) .danger-cell,body:not(.pw) .subbox{visibility:hidden}
 /* 上下两行按字符均分、拉伸到同一宽度（与購読する 同一手法） */
