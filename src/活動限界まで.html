@@ -57,11 +57,9 @@ body.danger{
 .charge{background:var(--rb)}
 body.pw .charge,body.pw .chargelayer{mask-position:-1500px -1200px}
 
-/* ============ 画面最左缘：黑色竖条 + 短划刻度列 ============ */
+/* ============ 画面最左缘：黑区（内嵌青色刻度）+ 黑色竖条 + 刻度列 ============*/
+.leftbezel{position:absolute;left:200px;top:0;width:10px;height:600px;background:#000}
 .leftbar{position:absolute;left:220px;top:0;width:5px;height:600px;background:#000}
-/* 短划列自 y=32 起，3px 实 + 47px 空，与 tk.t2 的黑色小竖刻度同粗 */
-.leftdash{position:absolute;left:230px;top:32px;width:15px;height:600px;
-  background:repeating-linear-gradient(180deg,#000 0 3px,transparent 3px 40px)}
 
 /* ============ 绝对定位通用类 ============ */
 .abs{position:absolute}
@@ -73,7 +71,7 @@ body.pw .charge,body.pw .chargelayer{mask-position:-1500px -1200px}
 /* 标题左侧小方块：视图切换开关（倒计时 / 24H / 12H）
    不能用 outline —— SVG 上的 outline 会沿元素包围盒画一个矩形框（点完就留一个方框）。
    鼠标点击后不显示任何框，只有键盘 Tab 聚焦时用描边高亮。 */
-.deco .clk{cursor:pointer;outline:none}
+.deco .clk{cursor:pointer;outline:none;stroke:none;filter:none}
 .deco .clk:focus-visible{stroke:var(--cyan);stroke-width:2.5;
   filter:drop-shadow(0 0 5px rgba(63,216,255,.55))}
 body.danger .deco .blk{filter:drop-shadow(0 0 4px rgba(255,40,20,.6))}
@@ -120,13 +118,13 @@ body.pw .cy>use{opacity:1;transition-delay:var(--d,0ms)}
 body.danger .ye{filter:drop-shadow(0 0 3px rgba(255,40,20,.6))}
 
 /* 下端止于底部黑区绿线（gline 顶端 y=500），与该线垂直相接 */
-.gradbar{position:absolute;left:1405px;top:148px;width:7px;height:352px;z-index:6;opacity:.95;
+.gradbar{position:absolute;left:1405px;top:148px;width:3px;height:352px;z-index:6;opacity:.95;
   background:linear-gradient(180deg,#00e05a,#b8f000 28%,#ffc400 52%,#ff2020 76%,#b400ff);
   box-shadow:0 0 13px rgba(255,200,60,.45),0 0 28px rgba(180,0,255,.25);transition:background .4s}
 body.danger .gradbar{background:linear-gradient(180deg,#7a0000,#ff2020 35%,#8a0000 65%,#ff3030);
   box-shadow:0 0 16px rgba(255,30,20,.6)}
 /* 左端与带内第一条青色竖刻度（tk.b1 首刻度 x=568）对齐，右端止于 gradbar 左缘 1404 */
-.gline{left:568px;top:500px;width:844px;height:4px;
+.gline{left:568px;top:500px;width:840px;height:4px;
   background:linear-gradient(90deg,#ffe600,#6fcf3a);box-shadow:0 0 6px rgba(255,200,40,.45);
   transition:background .4s,box-shadow .4s}
 body.danger .gline{background:linear-gradient(90deg,#ff2a14,#ff6a2a);box-shadow:0 0 6px rgba(255,40,20,.6)}
@@ -267,21 +265,39 @@ body.zero:not(.clk) .subbox{opacity:0 !important;visibility:hidden;}
 <body>
 <div class="panel" id="panel"><div class="inner">
   <div class="charge"></div>
-  <div class="leftbar"></div><div class="leftdash"></div>
+  <div class="leftbezel"></div><div class="leftbar"></div>
   <svg class="deco" viewBox="0 0 1500 600" aria-hidden="true">
     <!-- 刻度形状：定义一次，下方所有 <use href="#bar"> 共用（defs 不渲染） -->
     <defs>
       <rect id="bar" width="2" height="7"/>
+      <rect id="barY" width="2" height="10"/>
+      <rect id="barH" width="7" height="2"/>
       <rect id="barR" x="-1.5" y="-3.5" width="2" height="7" transform="rotate(30)"/>
     </defs>
     <polygon class="blk0" points="440,600 560,488 1500,488 1500,600"/>
     <polygon class="blk" points="515,222 583,222 583,420 515,420 437,530.5 352,502.5"/>
     <polygon class="blk" points="348,509.5 433,537.5 388.9,600 295.4,600"/>
-    <polygon id="clockHot" class="blk clk" points="488,128 513,128 513,175 488,168" role="button" tabindex="0" aria-label="切换视图：倒计时 / 24H / 12H"/>
+    <path id="clockHot" class="blk clk" d="M488 132A4 4 0 0 1 492 128L514 128L514 175L490.96 168.8A4 4 0 0 1 488 164.93Z" role="button" tabindex="0" aria-label="切换视图：倒计时 / 24H / 12H"/>
     <polygon class="blk" points="515,128 765,128 780,148 1405,148 1405,420 583,420 583,222 515,222"/>
     <polygon class="blk0" points="1202,422 1405,422 1405,489 1202,489"/>
     <!-- 黑色竖条 -->
     <g class="bk">
+      <!-- 最左黑色刻度列-->
+      <use href="#barH" x="230" y="32"/>
+      <use href="#barH" x="230" y="72"/>
+      <use href="#barH" x="230" y="112"/>
+      <use href="#barH" x="230" y="152"/>
+      <use href="#barH" x="230" y="192"/>
+      <use href="#barH" x="230" y="232"/>
+      <use href="#barH" x="230" y="272"/>
+      <use href="#barH" x="230" y="312"/>
+      <use href="#barH" x="230" y="352"/>
+      <use href="#barH" x="230" y="392"/>
+      <use href="#barH" x="230" y="432"/>
+      <use href="#barH" x="230" y="472"/>
+      <use href="#barH" x="230" y="512"/>
+      <use href="#barH" x="230" y="552"/>
+      <use href="#barH" x="230" y="592"/>
       <use href="#bar" x="487" y="116"/>
       <use href="#bar" x="511" y="116"/>
       <use href="#bar" x="763" y="116"/>
@@ -303,21 +319,21 @@ body.zero:not(.clk) .subbox{opacity:0 !important;visibility:hidden;}
       <use href="#bar" x="1184" y="479"/>
       <use href="#bar" x="1189" y="479"/>
     </g>
-    <g class="ye" transform="translate(0 425)">
-      <use href="#bar" x="603"/>
-      <use href="#bar" x="608"/>
-      <use href="#bar" x="745"/>
-      <use href="#bar" x="749"/>
-      <use href="#bar" x="885"/>
-      <use href="#bar" x="889"/>
-      <use href="#bar" x="1025"/>
-      <use href="#bar" x="1029"/>
-      <use href="#bar" x="1173"/>
-      <use href="#bar" x="1178"/>
-      <use href="#bar" x="1303"/>
-      <use href="#bar" x="1307"/>
-      <use href="#bar" x="1398"/>
-      <use href="#bar" x="1402"/>
+    <g class="ye" transform="translate(0 424)">
+      <use href="#barY" x="603"/>
+      <use href="#barY" x="608"/>
+      <use href="#barY" x="745"/>
+      <use href="#barY" x="749"/>
+      <use href="#barY" x="885"/>
+      <use href="#barY" x="889"/>
+      <use href="#barY" x="1025"/>
+      <use href="#barY" x="1029"/>
+      <use href="#barY" x="1173"/>
+      <use href="#barY" x="1178"/>
+      <use href="#barY" x="1303"/>
+      <use href="#barY" x="1307"/>
+      <use href="#barY" x="1398"/>
+      <use href="#barY" x="1402"/>
     </g>
     <g class="cy">
       <!-- 青色竖线 -->
@@ -325,6 +341,21 @@ body.zero:not(.clk) .subbox{opacity:0 !important;visibility:hidden;}
       <use style="--d:227ms" href="#bar"  x="568" y="228"/>
       <use style="--d:70ms"  href="#bar"  x="519" y="411"/>
       <use style="--d:82ms"  href="#bar"  x="568" y="411"/>
+      <!-- 最左黑区里的青色横刻度：与右侧黑横刻度同形状同方向 -->
+      <use style="--d:78ms" href="#barH" x="201.5" y="72"/>
+      <use style="--d:72ms" href="#barH" x="201.5" y="112"/>
+      <use style="--d:66ms" href="#barH" x="201.5" y="152"/>
+      <use style="--d:60ms" href="#barH" x="201.5" y="192"/>
+      <use style="--d:54ms" href="#barH" x="201.5" y="232"/>
+      <use style="--d:48ms" href="#barH" x="201.5" y="272"/>
+      <use style="--d:42ms" href="#barH" x="201.5" y="312"/>
+      <use style="--d:36ms" href="#barH" x="201.5" y="352"/>
+      <use style="--d:30ms" href="#barH" x="201.5" y="392"/>
+      <use style="--d:24ms" href="#barH" x="201.5" y="432"/>
+      <use style="--d:18ms" href="#barH" x="201.5" y="472"/>
+      <use style="--d:12ms" href="#barH" x="201.5" y="512"/>
+      <use style="--d:6ms"  href="#barH" x="201.5" y="552"/>
+      <use style="--d:0ms"  href="#barH" x="201.5" y="592"/>
       <!-- 斜槽四角内的青色刻度 -->
       <use style="--d:12ms" href="#barR" x="360.05" y="498.83"/>
       <use style="--d:36ms" href="#barR" x="432.7"  y="522.77"/>
