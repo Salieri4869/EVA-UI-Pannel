@@ -278,10 +278,17 @@ body.pw .sep i{opacity:1;transition-delay:var(--d,0ms)}
   font-size:21px;line-height:24px;
 }
 .cell .redbar{
-  position:absolute;left:0;right:0;bottom:0;height:50%;z-index:1;
-  background:var(--red);
-  box-shadow:0 0 16px var(--red),0 0 33px rgba(255,30,15,.45);
+  position:absolute;left:0;right:0;bottom:0;height:50%;z-index:2;
+  /* 上下各一条 2px 装饰线（背景渐变画）+ 中间圆角主条（::before）；线与主条之间各镂空 1.5px。
+     总宽 / 总高与原来一致 */
+  background:linear-gradient(180deg,
+    var(--red) 0 2px,transparent 2px calc(100% - 2px),var(--red) calc(100% - 2px));
+  filter:drop-shadow(0 0 7px var(--red)) drop-shadow(0 0 16px rgba(255,30,15,.45));
   opacity:0;transition:opacity .16s;
+}
+.cell .redbar::before{
+  content:"";position:absolute;left:0;right:0;top:3.5px;bottom:3.5px;
+  background:var(--red);border-radius:4px;
 }
 .cell:hover .redbar{opacity:.22}
 .cell .redbar.on{opacity:1}
@@ -377,6 +384,223 @@ body.reserve .seg-wrap{animation:resvFade 3s ease-in-out infinite}
 }
 /* 键盘可达性：仅键盘聚焦时显示描边 */
 .box:focus-visible,.cell:focus-visible{outline:2px solid currentColor;outline-offset:4px}
+
+/* ══════════════════════════════════════════════════════════════
+   17 ROE 配色（body.eva2）—— 点击 svg.deco > polygon:nth-child(4) 切换，再点回 EOE（经典）
+   层级（由下到上）
+     L1  背景渐变板 · STOP→RACING 按钮（平贴背景，不凹不凸）· polygon:nth-child(2) 底部黑区
+     L2  蓝黑半透明装甲板（带投影）· ACTIVE TIME REMAINING: · 未按下的 内部 / 外部 / 主電源
+     L3  活動限界まで・あと · 数码管 · 被按下的 内部 / 外部 / 主電源（带厚度，浮起）
+   阴影一律用带蓝的半透明色、大模糊，不用纯黑；L3 的文字 / 按钮字内不加阴影。
+   ══════════════════════════════════════════════════════════════ */
+body{
+  --rb2:linear-gradient(180deg,#03031a 0 48px,transparent 48px) 0 0/1500px 600px no-repeat,
+        linear-gradient(to top right,#f58a55 0,#f0687a 14%,#e2509e 30%,#c850d8 46%,#9a48e0 62%,#6240e4 78%,#3d3bd6 90%,#2c2aa8 100%) 200px 0/1300px 600px no-repeat;
+}
+
+/* L1 背景：新渐变叠在旧渐变上淡入（只淡入上层，中途不会露黑） */
+.charge.alt{background:var(--rb2);opacity:0;transition:mask-position .5s cubic-bezier(.35,.1,.25,1),opacity .45s ease}
+body.eva2 .charge.alt{opacity:1}
+.leftbezel,.leftbar,.inner{transition:background-color .45s}
+body.eva2 .inner,body.eva2 .leftbezel,body.eva2 .leftbar{background:#03031a}
+
+/* L2 蓝黑半透明装甲板（SVG，夹在渐变板与 .deco 之间） */
+.plate{position:absolute;inset:0;width:1500px;height:600px;overflow:visible;pointer-events:none;opacity:0;transition:opacity .45s ease}
+body.eva2 .plate{opacity:1}
+
+/* 切换开关 = svg.deco > polygon:nth-child(4)。hover 时旁边浮出 ROE / EOE */
+.deco .themeHot{cursor:pointer;outline:none}
+.deco .themeHot:hover{stroke:#ffe8b4;filter:drop-shadow(0 0 8px rgba(255,190,70,.95))}
+.deco .themeHot:focus-visible{stroke:var(--cyan);stroke-width:2.5;filter:drop-shadow(0 0 5px rgba(63,216,255,.55))}
+.themeTag{
+  position:absolute;left:324px;top:545px;width:84px;height:30px;z-index:30;
+  transform:rotate(18deg);text-align:center;pointer-events:none;
+  font:700 24px/30px Arial,"Helvetica Neue",sans-serif;letter-spacing:.12em;
+  color:var(--amber);text-shadow:var(--glow);
+  opacity:0;transition:opacity .15s;
+}
+.themeTag.show{opacity:1}
+body.eva2 .themeTag{color:#fff;text-shadow:0 2px 5px rgba(10,10,70,.5)}
+
+.deco .blk{transition:fill .45s,stroke .45s}
+body.eva2 .deco .blk{fill:rgba(0,0,0,0);stroke:rgba(0,0,0,0);filter:none}
+body.eva2 .deco .blk0{fill:#0a0a34}                       /* L1 底部黑区：平贴背景的深蓝 */
+body.eva2 .deco .themeHot:hover{fill:rgba(150,160,255,.10)}
+body.eva2 .deco .themeHot:focus-visible{stroke:#a8c0ff;stroke-width:2.5}
+
+/* 刻度：青 → 冷白；按钮上方黄线对 → 蓝紫；右列分隔刻度 → 粉红 */
+body.eva2{--cyan:#e2e9ff}
+body.eva2 .tk{filter:drop-shadow(0 0 3px rgba(160,185,255,.8))}
+body.eva2 .tk.t2{filter:none}
+body.eva2 .tk.b1,body.eva2 .tk.b2{--tick:linear-gradient(#86a8ff,#86a8ff)}
+body.eva2 .cy>use{filter:drop-shadow(0 0 3px rgba(170,195,255,.85))}
+body.eva2 .ye{fill:#8fa9ff;filter:drop-shadow(0 0 3px rgba(120,160,255,.75))}
+body.eva2 .sep i{background:#ff8d9c;box-shadow:0 0 6px rgba(255,100,130,.65)}
+
+/* 右缘彩条 → 青蓝发光边线（与装甲板之间隔一道侧壁）；底部分界线 → 粉紫 */
+body.eva2 .gradbar{left:1409px;background:linear-gradient(180deg,#7df0ff,#2ab0ec 55%,#2f6fe6);box-shadow:0 0 10px rgba(60,200,255,.65),0 0 24px rgba(40,140,255,.35)}
+body.eva2 .gline{width:844px;background:linear-gradient(90deg,#ff7ccf,#b17cff 60%,#7a8cff);box-shadow:0 0 7px rgba(200,120,255,.55)}
+body.eva2.danger .gradbar{background:linear-gradient(180deg,#ff9aa5,#ff2a40 50%,#a00018);box-shadow:0 0 14px rgba(255,40,60,.7)}
+body.eva2.danger .gline{background:linear-gradient(90deg,#ff2a40,#ff7a6a);box-shadow:0 0 7px rgba(255,40,60,.65)}
+
+/* 标题（发光方式与 neo 完全一致）：
+   L3 活動限界まで / あと —— 白字 + 一圈蓝晕 + 紧贴字的右下暗投影，字是"浮"在板上的
+   L2 ACTIVE TIME REMAINING: —— 直接印在板上，无阴影 */
+.glow{transition:color .35s}
+body.eva2 .jpL,body.eva2 .atoL{color:#f4f6ff;text-shadow:0 0 6px rgba(170,195,255,.6),2px 3px 1px rgba(0,0,25,.95)}
+body.eva2 .enL{color:#dde3f7;text-shadow:none}
+body.eva2.danger:not(.clk) .jpL,body.eva2.danger:not(.clk) .atoL{color:#ffe6e9;text-shadow:0 0 8px rgba(255,70,90,.85),2px 3px 1px rgba(30,0,10,.95)}
+
+/* L3 数码管（笔画实色平涂，不要上亮下深的渐变 —— 那会被读成内阴影；只靠描边高光 + 右下硬投影 + 两层泛光）。
+   默认白；5:00 倒计时开始（.live）才转红 —— .clock 位不受影响 */
+body.eva2{
+  --seg-glow:0 0 7px rgba(190,212,255,.75),2px 3px 0 rgba(8,0,30,.75);
+  --seg-bloom:drop-shadow(2px 3px 1px rgba(8,0,30,.72)) drop-shadow(0 0 5px rgba(190,212,255,.5)) drop-shadow(0 0 16px rgba(120,150,255,.3));
+}
+body.eva2 .seg{fill:url(#gSegW);stroke:rgba(255,255,255,.45);stroke-width:.6;stroke-linejoin:round}
+body.eva2 .dot{background:#f4f7ff}
+/* 倒计时（.live）：笔画、投影、泛光一起转红 */
+body.eva2 .seg-wrap.live .digit.cd{--seg-bloom:drop-shadow(2px 3px 1px rgba(8,0,30,.72)) drop-shadow(0 0 5px rgba(255,30,60,.55)) drop-shadow(0 0 16px rgba(255,10,40,.3))}
+body.eva2.danger .seg-wrap.live .digit.cd{--seg-bloom:drop-shadow(2px 3px 1px rgba(8,0,30,.72)) drop-shadow(0 0 6px rgba(255,40,60,.85)) drop-shadow(0 0 22px rgba(255,10,40,.5))}
+body.eva2 .seg-wrap.live .dot.cd{--seg-glow:0 0 7px rgba(255,35,65,.75),2px 3px 0 rgba(8,0,30,.75)}
+body.eva2 .seg-wrap.live .cd .seg{fill:url(#gSegR);stroke:rgba(255,150,170,.32)}
+body.eva2 .seg-wrap.live .dot.cd{background:#ff1e3a}
+/* 归零：数码管代替「活動限界まで」闪烁；ACTIVE TIME REMAINING: 与 あと 不闪（DANGER EMERGENCY 照旧） */
+body.eva2.zero:not(.clk) .jpL,
+body.eva2.zero:not(.clk) .enL,
+body.eva2.zero:not(.clk) .atoL{animation:none}
+body.eva2.zero:not(.clk) .seg-wrap{animation:zeroA .39s steps(1) infinite}
+
+/* 玻璃材质（右列蓝板 / 功能按钮 / 登録 / 灰板共用）：半透明渐变 + 背景模糊 + 左上亮边右下暗边 + 斜向高光 */
+body.eva2{
+  --glassB:rgba(116,152,228,.84);
+  --glassV:rgba(124,104,208,.46);
+  --glassG:rgba(132,148,180,.55);
+  --rimB:rgba(214,228,255,.4);
+  --rimW:rgba(255,255,255,.26);
+}
+body.eva2 .box,body.eva2 .cell,body.eva2 .danger-cell,body.eva2 .subbox{
+  isolation:isolate;border-style:solid;border-width:2px;border-radius:3px;text-shadow:none;
+  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+}
+
+/* L2 → L3：内部 / 外部 / 主電源。未按下 = 平贴板面（L2）；被选中 / 通电 = 浮起（L3，带蓝色厚度侧壁）。
+   字内不加阴影。 */
+body.eva2 .box{
+  border-color:var(--rimB);background:var(--glassB);color:#fff;
+  box-shadow:none;
+  transition:transform .28s cubic-bezier(.2,1.5,.4,1),box-shadow .28s,color .3s,opacity .3s,filter .3s;
+}
+/* 按下 = 抬起一块有厚度的板（三件事缺一不可）：
+   ① 面微微上浮，四边描边分方向（上/左亮、下/右暗）—— 面的斜面；
+   ② 面与侧壁之间一条 1px 亮棱；
+   ③ 右下方铺 3 段实色侧壁（受光段 → 中间段 → 背光段），层与层之间是"几何偏移"而不是模糊 —— 
+      单色大块会平、渐变阶梯会像双层边框，3 段才读得出"同一种材料转了个面"；
+   最后一道柔影把它压回板面。 */
+body.eva2 .mode.active,body.eva2 .powerbox:not(.off){
+  transform:translate(-1px,-3px);
+  border-color:rgba(232,242,255,.78) rgba(48,64,124,.85) rgba(26,36,84,.92) rgba(232,242,255,.62);
+  background:linear-gradient(168deg,rgba(150,180,240,.92),rgba(112,146,216,.9));
+  box-shadow:
+    0 1px 0 #cfdcff,
+    2px 2px 0 #5f72ad,
+    4px 4px 0 #495a90,
+    6px 7px 0 #2f3a66,
+    10px 15px 18px rgba(6,8,40,.55),
+    inset 0 1px 0 rgba(240,248,255,.55),
+    inset 0 -2px 4px rgba(14,22,70,.4);
+}
+body.eva2 .mode.active{color:#e8102c}
+body.eva2 .mode.inactive{opacity:1;color:#8fb1ec}
+body.eva2 .mode::after{
+  transition:opacity .3s;
+  background:linear-gradient(-45deg,#e6122e 0 12.5%,transparent 12.5% 25%,#e6122e 25% 37.5%,transparent 37.5% 50%,#e6122e 50% 62.5%,transparent 62.5% 75%,#e6122e 75% 87.5%,transparent 87.5%);
+}
+body.eva2 .mode.inactive::after{opacity:0}
+body.eva2 .mode.dead,body.eva2 .mode.dead.inactive{
+  opacity:0;animation:none;filter:none;pointer-events:none;transform:none;
+  box-shadow:none;border-color:transparent;background:none;
+}
+body.eva2 .mode.dead::after{opacity:0}
+
+/* L1 功能按钮 STOP→RACING：平贴背景的玻璃，选中只换红字 + 红条，不浮起、不凹陷 */
+body.eva2 .cell{
+  border-color:var(--rimW);background:var(--glassV);color:#d2f1ff;
+  box-shadow:none;
+  transition:opacity .28s,color .2s,filter .15s;
+}
+body.eva2 .cell:hover{filter:brightness(1.1)}
+body.eva2 .cell .txt{transition:color .2s}
+body.eva2 .cell.sel .txt{color:#ff2a42}
+
+/* 右下灰厚板（材质取自 DEEP）：未按下 = 平贴在板上、无字；按下内部后随按钮一起抬起；
+   最后 7 秒转红，闪烁时一拍一拍地"凸起—落下"（凸起带侧壁，落下时侧壁收回板内） */
+body.eva2 .danger-cell{
+  border-color:transparent;
+  background:linear-gradient(180deg,rgba(128,146,176,.5),rgba(86,102,130,.56));
+  color:#d8e0ee;text-shadow:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 -2px 5px rgba(0,0,40,.25);
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  transition:transform .28s cubic-bezier(.2,1.5,.4,1),opacity .3s,background .3s,box-shadow .3s,color .3s,border-color .3s;
+}
+body.eva2 .danger-cell:not(.on){opacity:1}
+body.eva2 .danger-cell .dstk{opacity:0;transition:opacity .2s}
+body.eva2:not(.danger) .danger-cell.on{animation:none}
+/* 抬起（未警戒）：灰蓝厚板，侧壁与右列按钮同一套ramp */
+body.eva2 .danger-cell.on{
+  transform:translate(-1px,-3px);
+  border-color:rgba(226,236,255,.55) rgba(58,70,104,.85) rgba(34,42,68,.9) rgba(226,236,255,.42);
+  box-shadow:
+    0 1px 0 #eef3ff,
+    2px 2px 0 #8f9dba,
+    4px 4px 0 #6f7c98,
+    6px 7px 0 #4a5471,
+    9px 13px 15px rgba(0,0,14,.55),
+    inset 0 1px 0 rgba(255,255,255,.35),
+    inset 0 -2px 5px rgba(0,0,40,.3);
+}
+/* 警戒：整块转红，闪一次、落一次 */
+body.eva2.danger .danger-cell.on{
+  background:linear-gradient(180deg,#3b0712,#1d0309);
+  border-color:rgba(255,120,135,.6) rgba(96,16,32,.9) rgba(60,8,18,.95) rgba(255,120,135,.45);
+  color:#ff3a4c;text-shadow:0 0 10px rgba(255,40,60,.9);
+  animation:dangerblink .45s steps(1) infinite,dPress .45s steps(1) infinite;
+}
+body.eva2.danger .danger-cell.on .dstk{opacity:1}
+@keyframes dPress{
+  0%,49.9%{
+    transform:translate(-1px,-3px);
+    box-shadow:
+      0 1px 0 #e2a6ae,
+      2px 2px 0 #a44753,
+      4px 4px 0 #7d2a35,
+      6px 7px 0 #4e121b,
+      0 0 14px rgba(255,30,50,.7),
+      10px 15px 18px rgba(0,0,14,.5),
+      inset 0 1px 0 rgba(255,190,195,.28),inset 0 -2px 5px rgba(80,0,10,.4);
+  }
+  50%,100%{
+    transform:translate(0,0);
+    box-shadow:
+      0 0 14px rgba(255,30,50,.8),
+      4px 6px 10px rgba(0,0,14,.5),
+      inset 0 1px 0 rgba(255,190,195,.16),inset 0 0 16px rgba(255,40,50,.3);
+  }
+}
+
+/* 登録する（材质取自 DEEP）：深紫黑玻璃 + 红框 + 红色外溢 */
+body.eva2 .subbox{
+  border-color:#ff2a40;
+  background:linear-gradient(180deg,rgba(40,18,70,.82),rgba(14,10,50,.86));
+  box-shadow:
+    1px 2px 0 #2a0a24,2px 4px 0 #12061a,3px 6px 0 #05030c,
+    0 0 12px rgba(255,30,60,.55),7px 11px 13px rgba(0,0,14,.5);
+  text-shadow:0 0 8px rgba(255,40,70,.75);
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  transition:filter .2s;
+}
+body.eva2 .subbox:hover{filter:brightness(1.08)}
+body.eva2 .hint{color:#aab9ff;text-shadow:0 0 8px rgba(120,150,255,.5)}
 </style>
 </head>
 <body>
@@ -385,8 +609,53 @@ body.reserve .seg-wrap{animation:resvFade 3s ease-in-out infinite}
 
   <!-- ═══ 底层：充能 + 左侧黑边 ═══ -->
   <div class="charge"></div>
+  <div class="charge alt"></div>
   <div class="leftbezel"></div>
   <div class="leftbar"></div>
+
+  <!-- ═══ ROE · L2 半透明蓝黑装甲板（只含 path，避免干扰 svg.deco 的 polygon:nth-child 选择器）═══ -->
+  <svg class="plate" viewBox="0 0 1500 600" aria-hidden="true">
+    <defs>
+      <path id="platePath" d="M488,122 A4,4 0 0 1 492,118 L742,118 L759.4,146.7 L1405,146.7 L1405,420 L515,420 L437,530.5 L352,502.5 L515,222 L515,170 L490.96,163.8 A4,4 0 0 1 488,159.93 Z M348,509.5 L433,537.5 L388.9,600 L295.4,600 Z"/>
+      <linearGradient id="gPanel" gradientUnits="userSpaceOnUse" x1="1405" y1="146" x2="352" y2="520">
+        <stop offset="0"   stop-color="#0a0a2c" stop-opacity=".94"/>
+        <stop offset=".55" stop-color="#10103e" stop-opacity=".9"/>
+        <stop offset="1"   stop-color="#22227e" stop-opacity=".82"/>
+      </linearGradient>
+      <!-- 数码管笔画：实色平涂（上亮下深的渐变会被读成内阴影，已去掉），白 / 红各一条 -->
+      <linearGradient id="gSegW" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#f4f7ff"/>
+      </linearGradient>
+      <linearGradient id="gSegR" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ff1e3a"/>
+      </linearGradient>
+      <!-- 底边（x≥518）不要侧壁、也不要投影：侧壁整段硬切（不渐隐），投影只在左端 26px 内柔和收掉 -->
+      <linearGradient id="gFeather" gradientUnits="userSpaceOnUse" x1="508" y1="0" x2="534" y2="0">
+        <stop offset="0" stop-color="#000" stop-opacity="0"/>
+        <stop offset="1" stop-color="#000" stop-opacity="1"/>
+      </linearGradient>
+      <mask id="mShadow" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1700" height="800">
+        <rect x="-100" y="-100" width="1700" height="800" fill="#fff"/>
+        <use href="#platePath" fill="#000"/>
+        <rect x="508" y="419" width="905" height="52" fill="url(#gFeather)"/>
+      </mask>
+      <mask id="mWall" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1700" height="800">
+        <rect x="-100" y="-100" width="1700" height="800" fill="#fff"/>
+        <use href="#platePath" fill="#000"/>
+        <rect x="518" y="419" width="895" height="13" fill="#000"/>
+      </mask>
+      <filter id="fBlur"><feGaussianBlur stdDeviation="8"/></filter>
+    </defs>
+    <g mask="url(#mShadow)">
+      <use href="#platePath" transform="translate(10 2)" fill="#1a1c70" opacity=".38" filter="url(#fBlur)"/>
+    </g>
+    <g mask="url(#mWall)">
+      <use href="#platePath" transform="translate(5 7)" fill="#1c2066"/>
+      <use href="#platePath" transform="translate(2 3)" fill="#343a9c"/>
+    </g>
+    <use href="#platePath" fill="url(#gPanel)"/>
+    <use href="#platePath" fill="none" stroke="rgba(160,175,255,.28)" stroke-width="1"/>
+  </svg>
 
   <!-- ═══ 装甲：黑色多边形 + 全部刻度 ═══ -->
   <svg class="deco" viewBox="0 0 1500 600" aria-hidden="true">
@@ -401,7 +670,8 @@ body.reserve .seg-wrap{animation:resvFade 3s ease-in-out infinite}
     <!-- 装甲板（黑色填充 + 琥珀描边）；blk0 = 同色无描边的垫底块 -->
     <polygon class="blk0" points="440,600 560,488 1500,488 1500,600"/>
     <polygon class="blk"  points="515,222 583,222 583,420 515,420 437,530.5 352,502.5"/>
-    <polygon class="blk"  points="348,509.5 433,537.5 388.9,600 295.4,600"/>
+    <polygon id="themeHot" class="blk themeHot" role="button" tabindex="0" aria-label="切换配色：EOE / ROE"
+             points="348,509.5 433,537.5 388.9,600 295.4,600"/>
     <!-- 标题左侧小方块 = 视图切换开关 -->
     <path id="clockHot" class="blk clk" d="M488 122A4 4 0 0 1 492 118L514 118L514 170L490.96 163.8A4 4 0 0 1 488 159.93Z"
           role="button" tabindex="0" aria-label="切换视图：倒计时 / 24H / 12H"/>
@@ -541,6 +811,8 @@ body.reserve .seg-wrap{animation:resvFade 3s ease-in-out infinite}
   <div class="cell" data-bar="2" style="left:908px"  role="button" tabindex="0"><span class="txt">NORMAL</span><div class="redbar"></div></div>
   <div class="cell" data-bar="3" style="left:1048px" role="button" tabindex="0"><span class="txt">RACING</span><div class="redbar"></div></div>
 
+  <div class="themeTag" id="themeTag" aria-hidden="true">ROE</div>
+
   <!-- ═══ 红色预警框 ═══ -->
   <div class="danger-cell" id="dangerCell"><div class="dstk">
     <div><span>D</span><span>A</span><span>N</span><span>G</span><span>E</span><span>R</span></div>
@@ -554,7 +826,7 @@ body.reserve .seg-wrap{animation:resvFade 3s ease-in-out infinite}
 
 </div></div>
 
-<p class="hint">「主電源供給システム」断电重启 · 「内部 / 外部」切换供电模式 · 「外部」再点一次切「予備」· 「活動限界まで」左侧小方块循环切换 [倒计时 / 24H / 12H ]时钟</p>
+<p class="hint">「主電源供給システム」断电重启 · 「内部 / 外部」切换供电模式 · 「外部」再点一次切「予備」· 「活動限界まで」左侧小方块循环切换 [倒计时 / 24H / 12H ]时钟 · 左下角斜槽：经典 ⇄ ROE 配色</p>
 
 <script>
 /* ══════════════════════════════════════════════════════════════
@@ -633,6 +905,8 @@ const ui = {
   modeExt:    document.getElementById('modeExternal'),
   dangerCell: document.getElementById('dangerCell'),
   clockHot:   document.getElementById('clockHot'),
+  themeHot:   document.getElementById('themeHot'),
+  themeTag:   document.getElementById('themeTag'),
   titleJP:    document.querySelector('.jpL'),
   titleEN:    document.querySelector('.enL'),
   titleAto:   document.querySelector('.atoL'),
@@ -826,6 +1100,7 @@ let internal = false;
 let zero     = false;
 let reserve  = false;
 let viewMode = VIEW_COUNTDOWN;
+let eva2     = false;            /* 配色：false = 经典 (EOE)，true = ROE */
 
 let remainingMs = DURATION_MS;   /* 剩余时间（冻结时保留进度） */
 let endTime     = 0;             /* 本轮的截止时刻 */
@@ -859,8 +1134,12 @@ function triggerZero(){
 }
 
 /* 切到内部：数码管乱码 0.4s → 定格 5:00.00 停 0.7s → 开始倒计时 */
+/* ROE 配色：乱码 / 待机 / 时钟 / 予備 都是白字，只有 5:00 倒计时起（含归零）是红字 */
+function setLive(on){ ui.segWrap.classList.toggle('live', on); }
+
 function startCountdown(){
   stopCountdown();
+  setLive(false);
   remainingMs = DURATION_MS;
   isRunning = true;          /* 先置位，防外部重复触发 */
   setDanger(false);          /* 全新一轮从 5:00 起，不能带着上一轮的警戒色 */
@@ -873,6 +1152,7 @@ function startCountdown(){
     const elapsed = performance.now() - startedAt;
     if (elapsed >= SCRAMBLE_MS){
       scrambleRaf = 0;
+      setLive(true);
       drawCountdown(DURATION_MS);          /* 定格 5:00.00，停 HOLD_MS 供看清 */
       holdTimeout = setTimeout(() => {
         holdTimeout = 0;
@@ -907,6 +1187,7 @@ function resumeCountdown(){
   endTime = performance.now() + remainingMs;
   isRunning = true;
   isFrozen = false;
+  setLive(true);
   setDanger(remainingMs <= DANGER_AT_MS);
   countdownRaf = requestAnimationFrame(tick);
 }
@@ -916,13 +1197,13 @@ function syncCountdown(){
   if (!powered || !internal || zero || reserve){
     stopCountdown();
     if (zero){
-      /* 归零：保持 0:00.00 与警戒色，什么都不用重画 */
+      setLive(true);   /* 归零：保持 0:00.00 与警戒色，什么都不用重画 */
     } else if (reserve && powered && !internal){
       /* 予備：屏上停在 0:00:00，不跑秒、不带警戒色 */
-      setDanger(false); remainingMs = 0; drawCountdown(0);
+      setLive(false); setDanger(false); remainingMs = 0; drawCountdown(0);
     } else {
       /* 其余终止路径（外部待機）回到"熄屏待机"：不出数字，只留幽灵段 */
-      setDanger(false); remainingMs = DURATION_MS; clearCountdown();
+      setLive(false); setDanger(false); remainingMs = DURATION_MS; clearCountdown();
     }
     return;
   }
@@ -966,6 +1247,7 @@ function setDanger(on){
 function setActiveBar(index, hideRest){
   for (let i = 0; i < ui.bars.length; i++){
     ui.bars[i].barEl.classList.toggle('on', i === index);
+    ui.bars[i].cell.classList.toggle('sel', i === index);
     ui.bars[i].cell.classList.toggle('gone', !!hideRest && i !== index);
   }
 }
@@ -994,6 +1276,8 @@ function render(){
   const isInternal = powered && internal;
   const isReserve = powered && !internal && reserve;
 
+  document.body.classList.toggle('eva2', eva2);
+  ui.themeTag.textContent = eva2 ? 'EOE' : 'ROE';   /* hover 时显示「点了会切到哪一个」 */
   document.body.classList.toggle('pw', powered);
   document.body.classList.toggle('clk', isClock);
   document.body.classList.toggle('zero', zero);
@@ -1081,6 +1365,14 @@ bindActivate(ui.clockHot, () => {
   render();
   crossFade();
 });
+
+/* 配色切换：svg.deco > polygon:nth-child(4)。只改 eva2 一个状态，过渡全部交给 CSS（不闪烁） */
+bindActivate(ui.themeHot, () => {
+  eva2 = !eva2;
+  render();
+});
+['pointerenter', 'focus'].forEach(type => ui.themeHot.addEventListener(type, () => ui.themeTag.classList.add('show')));
+['pointerleave', 'blur'].forEach(type => ui.themeHot.addEventListener(type, () => ui.themeTag.classList.remove('show')));
 
 /* 功能按钮：只改红条位置，不动屏幕 */
 ui.bars.forEach(({ cell }, index) => bindActivate(cell, () => {
