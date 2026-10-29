@@ -422,12 +422,31 @@ body.eva2 .deco .blk0{fill:#0a0a34}
 body.eva2 .deco .themeHot:hover{fill:rgba(150,160,255,.10)}
 body.eva2 .deco .themeHot:focus-visible{stroke:#a8c0ff;stroke-width:2.5}
 
-body.eva2{--cyan:#e2e9ff}
-body.eva2 .tk{filter:drop-shadow(0 0 3px rgba(160,185,255,.8))}
-body.eva2 .tk.t2{filter:none}
-body.eva2 .tk.b1,body.eva2 .tk.b2{--tick:linear-gradient(#86a8ff,#86a8ff)}
-body.eva2 .cy>use{filter:drop-shadow(0 0 3px rgba(170,195,255,.85))}
-body.eva2 .ye{fill:#8fa9ff;filter:drop-shadow(0 0 3px rgba(120,160,255,.75))}
+body.eva2{
+  --cyan:#e2e9ff;
+  --tkC:#e2e9ff;
+  --tkG:drop-shadow(0 0 3px rgba(170,195,255,.85)); 
+}
+body.eva2 .tk{filter:var(--tkG)}
+body.eva2:not(.beast) .tk.t2{
+  background:repeating-linear-gradient(90deg,var(--tkC) 0 3px,transparent 3px 100px);
+  filter:var(--tkG);
+}
+body.eva2 .tk.t1{
+  background:repeating-linear-gradient(90deg,var(--tkC) 0 3px,transparent 3px 12px,var(--tkC) 12px 15px,transparent 15px 100px);
+}
+body.eva2 .tk.b1,body.eva2 .tk.b2{--tick:linear-gradient(var(--tkC),var(--tkC))}
+body.eva2 .cy>use{filter:var(--tkG)}
+body.eva2 .ye{fill:#8fa9ff;filter:var(--tkG)}
+body.eva2:not(.beast) .bk,
+body.eva2:not(.beast) #barH{fill:var(--tkC);filter:var(--tkG)}
+body.eva2:not(.beast) .cut{stroke:var(--tkC);filter:var(--tkG)}
+body.eva2:not(.beast) .cell::after{
+  background:
+    linear-gradient(var(--tkC),var(--tkC)) left 3px top 0/3px 8px no-repeat,
+    linear-gradient(var(--tkC),var(--tkC)) right 3px top 0/3px 8px no-repeat;
+  filter:var(--tkG);
+}
 body.eva2 .sep i{background:#ff8d9c;box-shadow:0 0 6px rgba(255,100,130,.65)}
 
 body.eva2 .gradbar{left:1405px;background:linear-gradient(180deg,#7df0ff,#2ab0ec 55%,#2f6fe6);box-shadow:0 0 10px rgba(60,200,255,.65),0 0 24px rgba(40,140,255,.35)}
@@ -438,11 +457,7 @@ body.eva2.danger .gline{background:linear-gradient(90deg,#ff2a40,#ff7a6a);box-sh
 .glow{transition:color .35s}
 body.eva2 .jpL,body.eva2 .atoL{color:#f4f6ff;text-shadow:0 0 6px rgba(170,195,255,.6),2px 3px 1px rgba(0,0,0,.95)}
 body.eva2 .enL{color:#dde3f7;text-shadow:none}
-body.eva2.danger:not(.clk):not(.beast) .jpL,
-body.eva2.danger:not(.clk):not(.beast) .atoL{
-  color:#f4f6ff;
-  text-shadow:0 0 6px rgba(170,195,255,.6),2px 3px 1px rgba(0,0,0,.95);
-}
+
 
 body.eva2{
   --seg-glow:0 0 7px rgba(190,212,255,.75),2px 3px 0 rgba(8,0,30,.75);
@@ -480,6 +495,12 @@ body.eva2 .box,body.eva2 .cell,body.eva2 .danger-cell,body.eva2 .subbox{
                  告急时继续抬着闪底；獣化时抬 + 抖 + 消失/出现
    · 「裏コード」= 獣化激活时才抬起并转红，平时平贴
    ──────────────────────────────────────────────────────────── */
+body.eva2{
+  --wallUp:2px 3px 0 0 rgba(62,86,158,1),
+           3px 5px 0 -1px rgba(14,20,58,.95),
+           5px 10px 16px -3px rgba(0,0,16,.8),
+           8px 22px 30px -14px rgba(0,0,10,.55);
+}
 body.eva2 .box{
   border-color:rgba(166,190,244,.36);
   background:linear-gradient(180deg,rgba(128,160,230,.5),rgba(78,102,178,.58));
@@ -507,10 +528,7 @@ body.eva2 .subbox{
 body.eva2 .mode.active,
 body.eva2 .powerbox:not(.off),
 body.eva2.beast .subbox{
-  --wall:2px 3px 0 0 rgba(62,86,158,1),       /* 侧壁：同材质压深一档 */
-         3px 5px 0 -1px rgba(14,20,58,.95),   /* 侧壁与台面的缝 */
-         5px 10px 16px -3px rgba(0,0,16,.8),  /* 接触投影 */
-         8px 22px 30px -14px rgba(0,0,10,.55);/* 环境遮蔽 */
+  --wall:var(--wallUp);
   transform:translate(-1px,-3px);
   border-color:rgba(198,218,255,.46);
   box-shadow:var(--wall);
@@ -518,10 +536,7 @@ body.eva2.beast .subbox{
 
 body.eva2 .danger-cell.on,
 body.eva2.beast .danger-cell{
-  --wall:2px 3px 0 0 rgba(62,86,158,1),
-         3px 5px 0 -1px rgba(14,20,58,.95),
-         5px 10px 16px -3px rgba(0,0,16,.8),
-         8px 22px 30px -14px rgba(0,0,10,.55);
+  --wall:var(--wallUp);
   transform:translate(-1px,-3px);
   border-color:rgba(198,218,255,.46);
   box-shadow:var(--wall);
@@ -543,8 +558,7 @@ body.eva2.beast .subbox:active{
   box-shadow:var(--wall);
 }
 
-/* 文字发光：几何（9/24/56px）与强度（.9/.55/.3）和 EOE 的 --glow 完全一致，
-   两个主题下同一个按钮的发光看起来才是同一档 */
+/* 文字发光*/
 body.eva2 .mode.active{
   color:#e8102c;
   text-shadow:0 0 9px rgba(255,40,60,.45),0 0 24px rgba(255,24,44,.28),0 0 56px rgba(255,10,32,.14);
@@ -567,7 +581,7 @@ body.eva2 .mode .zebra{
   background:linear-gradient(-45deg,#e6122e 0 12.5%,transparent 12.5% 25%,#e6122e 25% 37.5%,transparent 37.5% 50%,#e6122e 50% 62.5%,transparent 62.5% 75%,#e6122e 75% 87.5%,transparent 87.5%);
 }
 body.eva2 .mode.inactive .zebra{opacity:0}
-body.eva2 .mode.dead,body.eva2 .mode.dead.inactive{
+body.eva2 .mode.dead{
   opacity:0;animation:none;filter:none;pointer-events:none;transform:none;
   --wall:0 0 0 0 rgba(0,0,0,0);
   box-shadow:none;border-color:transparent;background:none;text-shadow:none;
@@ -716,6 +730,8 @@ body.beast .fx-fixed{opacity:1}
 
 body.eva2.beast{
   --cyan:#ffd6da;
+  --tkC:var(--cyan);
+  --tkG:drop-shadow(0 0 3px rgba(255,130,140,.85));
   --glassB:rgba(170,20,36,.72);
   --glassV:rgba(150,16,34,.5);
   --glassG:rgba(120,14,28,.45);
@@ -938,7 +954,7 @@ body.eva2.beast .inner{animation:beastFlick .5s steps(1,end) infinite}
   </svg>
 
   <!-- ═══ 装甲 ═══ -->
-  <svg class="deco" viewBox="0 0 1500 600" aria-hidden="true">
+  <svg class="deco" viewBox="0 0 1500 600">
     <defs>
       <rect id="bar"  width="2" height="7"/>
       <rect id="barY" width="2" height="10"/>
@@ -960,26 +976,25 @@ body.eva2.beast .inner{animation:beastFlick .5s steps(1,end) infinite}
       </mask>
     </defs>
 
-    <polygon class="blk0" points="440,600 560,488 1500,488 1500,600"/>
-    <polygon class="blk"  points="515,222 583,222 583,420 515,420 437,530.5 352,502.5"/>
+    <polygon class="blk0" aria-hidden="true" points="440,600 560,488 1500,488 1500,600"/>
+    <polygon class="blk"  aria-hidden="true" points="515,222 583,222 583,420 515,420 437,530.5 352,502.5"/>
     <polygon id="themeHot" class="blk themeHot" role="button" tabindex="0" aria-label="切换配色：EOE / ROE"
              points="348,509.5 433,537.5 388.9,600 295.4,600"/>
     <path id="clockHot" class="blk clk" d="M488 122A4 4 0 0 1 492 118L514 118L514 170L490.96 163.8A4 4 0 0 1 488 159.93Z"
           role="button" tabindex="0" aria-label="切换视图：倒计时 / 24H / 12H"/>
-    <polygon class="blk"  points="515,118 742,118 759.4,146.7 1405,146.7 1405,420 583,420 583,222 515,222"/>
+    <polygon class="blk"  aria-hidden="true" points="515,118 742,118 759.4,146.7 1405,146.7 1405,420 583,420 583,222 515,222"/>
     <g class="blk0Cast" aria-hidden="true" mask="url(#mEdgeStrip)">
       <use class="b0s"  href="#blk0Edge" transform="translate(10 2)" fill="#1a1c70" opacity=".38" filter="url(#fBlurX)"/>
       <use class="b0w"  href="#blk0Edge" transform="translate(5 7)"  fill="#1c2066"/>
       <use class="b0w2" href="#blk0Edge" transform="translate(2 3)"  fill="#343a9c"/>
     </g>
-    <polygon class="blk0" points="1195,422 1405,422 1405,489 1195,489"/>
-    <g class="baseShade">
+    <polygon class="blk0" aria-hidden="true" points="1195,422 1405,422 1405,489 1195,489"/>
+    <g class="baseShade" aria-hidden="true">
       <rect mask="url(#mShadeBot)" x="505" y="420" width="900" height="2.5" fill="url(#gSeamX)"/>
       <line x1="515" y1="420" x2="1405" y2="420" stroke="rgba(160,175,255,.28)" stroke-width="1"/>
     </g>
 
-    <g class="bk">
-      <use href="#barH" x="230" y="32"/>
+    <g class="bk" aria-hidden="true">
       <use href="#barH" x="230" y="72"/>
       <use href="#barH" x="230" y="112"/>
       <use href="#barH" x="230" y="152"/>
@@ -1016,7 +1031,7 @@ body.eva2.beast .inner{animation:beastFlick .5s steps(1,end) infinite}
       <use href="#bar" x="1189" y="479"/>
     </g>
 
-    <g class="ye" transform="translate(0 424)">
+    <g class="ye" aria-hidden="true" transform="translate(0 424)">
       <use href="#barY" x="603"/>
       <use href="#barY" x="608"/>
       <use href="#barY" x="745"/>
@@ -1033,7 +1048,7 @@ body.eva2.beast .inner{animation:beastFlick .5s steps(1,end) infinite}
       <use href="#barY" x="1402"/>
     </g>
     <!-- 青色刻度-->
-    <g class="cy">
+    <g class="cy" aria-hidden="true">
       <use style="--d:215ms" href="#bar"  x="519" y="228"/>
       <use style="--d:227ms" href="#bar"  x="568" y="228"/>
       <use style="--d:70ms"  href="#bar"  x="519" y="411"/>
@@ -1060,11 +1075,12 @@ body.eva2.beast .inner{animation:beastFlick .5s steps(1,end) infinite}
       <use style="--d:24ms" href="#barR" x="424.95" y="541.17"/>
     </g>
     <!-- 斜槽四角的短切线 -->
-
-    <line x1="342.03" y1="495.74" x2="350.29" y2="498.46" stroke="#000" stroke-width="2"/>
-    <line x1="335.16" y1="507.69" x2="343.42" y2="510.41" stroke="#000" stroke-width="2"/>
-    <line x1="442.47" y1="528.83" x2="450.73" y2="531.55" stroke="#000" stroke-width="2"/>
-    <line x1="435.08" y1="540.61" x2="443.35" y2="543.33" stroke="#000" stroke-width="2"/>
+    <g aria-hidden="true">
+      <line class="cut" x1="342.03" y1="495.74" x2="350.29" y2="498.46" stroke="#000" stroke-width="2"/>
+      <line class="cut" x1="335.16" y1="507.69" x2="343.42" y2="510.41" stroke="#000" stroke-width="2"/>
+      <line class="cut" x1="442.47" y1="528.83" x2="450.73" y2="531.55" stroke="#000" stroke-width="2"/>
+      <line class="cut" x1="435.08" y1="540.61" x2="443.35" y2="543.33" stroke="#000" stroke-width="2"/>
+    </g>
   </svg>
 
   <!-- ═══ 分界线 ═══ -->
@@ -1625,6 +1641,7 @@ ui.bars.forEach(({ cell }, index) => bindActivate(cell, () => {
 
 /* ══ 獣化 ══ */
 const FX_FRAME_MS = 33;
+const FX_W = 1500, FX_H = 600;   /* 两张 fx 画布的坐标空间（与 canvas 的 width/height 一致） */
 const fxReduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const fxBgCtx  = ui.fxBg.getContext('2d');
 const fxTopCtx = ui.fxTop.getContext('2d');
@@ -1648,12 +1665,9 @@ function fxTear(){
   }
 }
 
-/* ② 生命周期跑马灯 */
-const fxMqBoxes = [
-  { bars: [...ui.modeInt.querySelectorAll('.mq')],  states: [] },
-  { bars: [...ui.powerBox.querySelectorAll('.mq')], states: [] },
-  { bars: [...ui.modeExt.querySelectorAll('.mq')],  states: [] }
-];
+/* ② 生命周期跑马灯（三个盒子同构，用同一段查询生成，顺序 = 内部 / 主電源 / 外部） */
+const fxMqBoxes = [ui.modeInt, ui.powerBox, ui.modeExt]
+  .map(box => ({ bars: [...box.querySelectorAll('.mq')], states: [] }));
 function initMqState(){ return { x: 0, y: 0, w: 0, life: 0 }; }
 function resetMqState(state){
   state.x = Math.random() * 60;
@@ -1717,11 +1731,11 @@ function fxMakeBlock(){
   return { x: Math.round(x / 8) * 8, y: Math.round(y / 8) * 8, w, h, c };
 }
 function fxDrawBg(){
-  fxBgCtx.clearRect(0, 0, 1500, 600);
+  fxBgCtx.clearRect(0, 0, FX_W, FX_H);
   for (const b of fxBlocks){ fxBgCtx.fillStyle = b.c; fxBgCtx.fillRect(b.x, b.y, b.w, b.h); }
 }
 function fxDrawTop(){
-  fxTopCtx.clearRect(0, 0, 1500, 600);
+  fxTopCtx.clearRect(0, 0, FX_W, FX_H);
   const bars = Math.random() < 0.6 ? 1 + ((Math.random() * 2) | 0) : 0;
   for (let i = 0; i < bars; i++){
     fxTopCtx.fillStyle = `rgba(255,${(40 + fxRnd(60)) | 0},${(50 + fxRnd(40)) | 0},${(0.14 + fxRnd(0.26)).toFixed(2)})`;
@@ -1762,8 +1776,8 @@ function stopBeast(){
   if (!fxOn) return;
   fxOn = false;
   if (fxRaf){ cancelAnimationFrame(fxRaf); fxRaf = 0; }
-  fxBgCtx.clearRect(0, 0, 1500, 600);
-  fxTopCtx.clearRect(0, 0, 1500, 600);
+  fxBgCtx.clearRect(0, 0, FX_W, FX_H);
+  fxTopCtx.clearRect(0, 0, FX_W, FX_H);
   for (const seg of fxSegs) seg.classList.remove('hl');
   for (const g of fxTearGroups) for (const el of g.els) el.style.filter = '';
   for (const box of fxMqBoxes) {
@@ -1786,10 +1800,7 @@ function onSubbox(event){
   }
   window.open(SUB_URL, '_blank');
 }
-ui.subBox.addEventListener('click', onSubbox);
-ui.subBox.addEventListener('keydown', event => {
-  if (event.key === 'Enter' || event.key === ' '){ event.preventDefault(); onSubbox(event); }
-});
+bindActivate(ui.subBox, onSubbox);
 addEventListener('keydown', event => {
   if (event.key === 'Escape' && beast){ beast = false; render(); }
 });
