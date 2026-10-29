@@ -45,10 +45,12 @@ body.danger{
   --seg-bloom:drop-shadow(0 0 4px rgba(255,60,30,.55)) drop-shadow(0 0 12px rgba(255,20,10,.3));
 }
 
-/* ── 04 舞台 画布 1300×600───────────────────────────────────── */
+/* ── 04 舞台 画布 ───────────────────────────────────── */
 .panel{
-  position:absolute;left:50%;top:50%;
+  position:absolute;
+  left:50%;top:50%;
   width:1300px;height:600px;
+  transform:translate(-50%,-50%) scale(var(--panel-scale,1));
   transform-origin:center;
   overflow:hidden;
   filter:drop-shadow(0 20px 40px rgba(0,0,0,.85));
@@ -105,7 +107,7 @@ body.danger .deco .blk{filter:drop-shadow(0 0 4px rgba(255,40,20,.6))}
     var(--tick) 1004px 0/3px 100% no-repeat,
     var(--tick) 1049px 0/3px 100% no-repeat,
     var(--tick) 1144px 0/3px 100% no-repeat,
-    var(--tick) 1216px 0/3px 100% no-repeat,
+    var(--tick) 1199px 0/3px 100% no-repeat,
     var(--tick) 1303px 0/3px 100% no-repeat,
     var(--tick) 1398px 0/3px 100% no-repeat;
 }
@@ -117,7 +119,7 @@ body.danger .deco .blk{filter:drop-shadow(0 0 4px rgba(255,40,20,.6))}
     var(--tick) 746.5px 0/3px 100% no-repeat,
     var(--tick) 886.5px 0/3px 100% no-repeat,
     var(--tick) 1026.5px 0/3px 100% no-repeat,
-    var(--tick) 1180px 0/3px 100% no-repeat,
+    var(--tick) 1171.5px 0/3px 100% no-repeat,
     var(--tick) 1303px 0/3px 100% no-repeat,
     var(--tick) 1398px 0/3px 100% no-repeat;
 }
@@ -284,7 +286,11 @@ body.pw .cell{transition:opacity .28s}
   text-shadow:0 0 11px rgba(255,40,20,.9),0 0 31px rgba(255,20,10,.6);
   box-shadow:0 0 16px rgba(255,30,15,.8),inset 0 0 22px rgba(255,40,20,.25);
 }
-.danger-cell{left:1216px;width:84px;padding-top:4px;transition:opacity .3s}
+.danger-cell{
+  left:1200px;width:100px;
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .3s;
+}
 .subbox{
   left:1312px;width:84px;
   cursor:pointer;
@@ -292,11 +298,16 @@ body.pw .cell{transition:opacity .28s}
 }
 body:not(.pw) .danger-cell,body:not(.pw) .subbox{visibility:hidden}
 
-.danger-cell .dstk{width:74px;margin:0 auto;display:flex;flex-direction:column;gap:3px}
-.danger-cell .dstk>div{
-  display:flex;justify-content:space-between;
-  font-family:Arial,"Helvetica Neue",sans-serif;font-weight:700;font-size:12px;line-height:17px;
+.danger-cell .dstk{
+  width:calc(100% - 8px);
+  display:flex;flex-direction:column;justify-content:center;gap:1px;
 }
+.danger-cell .dstk>div{
+  display:flex;justify-content:space-between;white-space:nowrap;
+  font-family:Arial,"Helvetica Neue",sans-serif;font-weight:700;
+}
+.danger-cell .dstk>div:nth-child(1){font-size:22px;line-height:22px;letter-spacing:-.058em}
+.danger-cell .dstk>div:nth-child(2){font-size:15.8px;line-height:17px;letter-spacing:-.108em}
 .danger-cell:not(.on){opacity:.22}
 .danger-cell.on{animation:pulse .7s infinite}
 body.danger .danger-cell.on{animation:dangerblink .45s steps(1) infinite}
@@ -376,6 +387,21 @@ body.eva2 .inner,body.eva2 .leftbezel,body.eva2 .leftbar{background:#03031a}
 
 .plate{position:absolute;inset:0;width:1500px;height:600px;overflow:visible;pointer-events:none;opacity:0;transition:opacity .45s ease}
 body.eva2 .plate{opacity:1}
+
+.baseShade{opacity:0;pointer-events:none;transition:opacity .45s ease}
+body.eva2 .baseShade{opacity:1}
+body.eva2.beast .baseShade line{stroke:rgba(255,120,130,.28)}
+/* 獣化：补缝也要从「亮红侧壁」过渡到「暗红底板」，否则拐角处又是硬切 */
+body.eva2.beast #gSeamX .s0{stop-color:#6a0f1e}
+body.eva2.beast #gSeamX .s1{stop-color:#3a0612}
+body.eva2.beast #gSeamX .s2{stop-color:#16030a}
+
+/* 右下底板右侧的落影/侧壁：只在 ROE 显形，配色跟着装甲板走 */
+.blk0Cast{opacity:0;pointer-events:none;transition:opacity .45s ease}
+body.eva2 .blk0Cast{opacity:1}
+body.eva2.beast .blk0Cast .b0s {fill:#3a0610}
+body.eva2.beast .blk0Cast .b0w {fill:#3a0612}
+body.eva2.beast .blk0Cast .b0w2{fill:#6a0f1e}
 
 .deco .themeHot{cursor:pointer;outline:none}
 .deco .themeHot:hover{stroke:#ffe8b4;filter:drop-shadow(0 0 8px rgba(255,190,70,.95))}
@@ -891,12 +917,12 @@ body.eva2.beast .inner{animation:beastFlick .5s steps(1,end) infinite}
       <mask id="mShadow" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1700" height="800">
         <rect x="-100" y="-100" width="1700" height="800" fill="#fff"/>
         <use href="#platePath" fill="#000"/>
-        <rect x="508" y="419" width="905" height="52" fill="url(#gFeather)"/>
+        <rect x="508" y="419" width="897" height="52" fill="url(#gFeather)"/>
       </mask>
       <mask id="mWall" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1700" height="800">
         <rect x="-100" y="-100" width="1700" height="800" fill="#fff"/>
         <use href="#platePath" fill="#000"/>
-        <rect x="518" y="419" width="895" height="13" fill="#000"/>
+        <rect x="518" y="419" width="887" height="13" fill="#000"/>
       </mask>
       <filter id="fBlur"><feGaussianBlur stdDeviation="8"/></filter>
     </defs>
@@ -918,6 +944,20 @@ body.eva2.beast .inner{animation:beastFlick .5s steps(1,end) infinite}
       <rect id="barY" width="2" height="10"/>
       <rect id="barH" width="7" height="2"/>
       <rect id="barR" x="-1.5" y="-3.5" width="2" height="7" transform="rotate(30)"/>
+      <linearGradient id="gSeamX" gradientUnits="userSpaceOnUse" x1="513" y1="0" x2="600" y2="0">
+        <stop class="s0" offset="0"   stop-color="#343a9c"/>
+        <stop class="s1" offset=".32" stop-color="#1c2066"/>
+        <stop class="s2" offset="1"   stop-color="#0a0a34"/>
+      </linearGradient>
+      <mask id="mShadeBot" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1700" height="800">
+        <rect x="-100" y="-100" width="1700" height="800" fill="#fff"/>
+        <use href="#platePath" fill="#000"/>
+      </mask>
+      <rect id="blk0Edge" x="1195" y="420" width="210" height="69"/>
+      <filter id="fBlurX" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"/></filter>
+      <mask id="mEdgeStrip" maskUnits="userSpaceOnUse" x="1300" y="400" width="200" height="120">
+        <rect x="1403" y="420" width="97" height="69" fill="#fff"/>
+      </mask>
     </defs>
 
     <polygon class="blk0" points="440,600 560,488 1500,488 1500,600"/>
@@ -927,7 +967,16 @@ body.eva2.beast .inner{animation:beastFlick .5s steps(1,end) infinite}
     <path id="clockHot" class="blk clk" d="M488 122A4 4 0 0 1 492 118L514 118L514 170L490.96 163.8A4 4 0 0 1 488 159.93Z"
           role="button" tabindex="0" aria-label="切换视图：倒计时 / 24H / 12H"/>
     <polygon class="blk"  points="515,118 742,118 759.4,146.7 1405,146.7 1405,420 583,420 583,222 515,222"/>
-    <polygon class="blk0" points="1202,422 1405,422 1405,489 1202,489"/>
+    <g class="blk0Cast" aria-hidden="true" mask="url(#mEdgeStrip)">
+      <use class="b0s"  href="#blk0Edge" transform="translate(10 2)" fill="#1a1c70" opacity=".38" filter="url(#fBlurX)"/>
+      <use class="b0w"  href="#blk0Edge" transform="translate(5 7)"  fill="#1c2066"/>
+      <use class="b0w2" href="#blk0Edge" transform="translate(2 3)"  fill="#343a9c"/>
+    </g>
+    <polygon class="blk0" points="1195,422 1405,422 1405,489 1195,489"/>
+    <g class="baseShade">
+      <rect mask="url(#mShadeBot)" x="505" y="420" width="900" height="2.5" fill="url(#gSeamX)"/>
+      <line x1="515" y1="420" x2="1405" y2="420" stroke="rgba(160,175,255,.28)" stroke-width="1"/>
+    </g>
 
     <g class="bk">
       <use href="#barH" x="230" y="32"/>
