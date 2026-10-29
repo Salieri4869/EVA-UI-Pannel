@@ -751,10 +751,13 @@ body.eva2.beast .pRim{stroke:rgba(255,120,130,.28)}
 body.eva2.beast .deco .blk0{fill:#16030a}
 
 body.eva2.beast .tk{filter:drop-shadow(0 0 3px rgba(255,120,130,.8))}
-body.eva2.beast .tk.t2{filter:none}
+body.eva2.beast .tk.t2{background:repeating-linear-gradient(90deg,#ff8a96 0 3px,transparent 3px 100px);filter:drop-shadow(0 0 3px rgba(255,120,130,.8))}
 body.eva2.beast .tk.b1,body.eva2.beast .tk.b2{--tick:linear-gradient(#ff8a96,#ff8a96)}
+body.eva2.beast .cy{fill:#ff8a96}
 body.eva2.beast .cy>use{filter:drop-shadow(0 0 3px rgba(255,130,140,.85))}
-body.eva2.beast .ye{fill:#ff8a96;filter:drop-shadow(0 0 3px rgba(255,110,120,.75))}
+body.eva2.beast .ye{fill:#000;filter:none}
+body.eva2.beast .bk{fill:#ff8a96;filter:drop-shadow(0 0 3px rgba(255,120,130,.8))}
+body.eva2.beast .cell::after{background:linear-gradient(#ff8a96,#ff8a96) left 3px top 0/3px 8px no-repeat,linear-gradient(#ff8a96,#ff8a96) right 3px top 0/3px 8px no-repeat;filter:drop-shadow(0 0 3px rgba(255,120,130,.8))}
 body.eva2.beast .sep i{background:#ff9aa4;box-shadow:0 0 6px rgba(255,90,110,.65)}
 body.eva2.beast .gradbar,body.eva2.beast.danger .gradbar{background:linear-gradient(180deg,#ff6a72,#c0182a);box-shadow:0 0 8px rgba(255,50,70,.45)}
 body.eva2.beast .gline,body.eva2.beast.danger .gline{background:linear-gradient(90deg,#ff5a6a,#ff2030);box-shadow:0 0 7px rgba(255,40,60,.6)}
@@ -780,6 +783,53 @@ body.eva2.beast .jpL,
 body.eva2.beast .enL,
 body.eva2.beast .atoL{
   text-shadow:2px 3px 1px rgba(0,0,0,.98),0 0 8px rgba(255,30,50,.55),0 0 22px rgba(255,20,40,.22) !important;
+}
+body.eva2.beast:not(.zero) :is(.jpL,.enL,.atoL)>span{
+  display:inline-block;
+  animation:chJitA var(--jd,2.2s) steps(1,end) infinite;
+  animation-delay:var(--td,0s);
+}
+body.eva2.beast:not(.zero) :is(.jpL,.enL,.atoL)>span.j2{animation-name:chJitB}
+body.eva2.beast:not(.zero) :is(.jpL,.enL,.atoL)>span.j3{animation-name:chJitC}
+body.eva2.beast:not(.zero) :is(.jpL,.enL,.atoL)>span.dim{
+  animation:chFade 1.3s ease-in-out 1 both;
+}
+@keyframes chJitA{
+  0%,100%{translate:0 0}
+  11%{translate:.5px -.35px}
+  23%{translate:-.6px .3px}
+  34%{translate:.4px .5px}
+  46%{translate:-.45px -.5px}
+  58%{translate:.6px .2px}
+  71%{translate:-.5px .4px}
+  83%{translate:.3px -.4px}
+}
+@keyframes chJitB{
+  0%,100%{translate:0 0}
+  9%{translate:0 -.7px}
+  18%{translate:0 .3px}
+  29%{translate:-.35px -.6px}
+  41%{translate:0 .5px}
+  53%{translate:.3px 0}
+  64%{translate:0 -.75px}
+  76%{translate:-.3px .4px}
+  88%{translate:0 .3px}
+}
+@keyframes chJitC{
+  0%,100%{translate:0 0}
+  14%{translate:.7px .3px}
+  26%{translate:.2px -.3px}
+  38%{translate:-.65px .45px}
+  47%{translate:.55px .5px}
+  62%{translate:-.5px -.4px}
+  74%{translate:.6px -.2px}
+  86%{translate:-.25px .3px}
+}
+@keyframes chFade{
+  0%{-webkit-text-fill-color:#ff3a4c;filter:drop-shadow(0 0 0 rgba(255,240,244,0));translate:0 0}
+  34%{-webkit-text-fill-color:#ffa0ae;filter:drop-shadow(0 0 3px rgba(255,210,220,.6));translate:.8px -.9px}
+  66%{-webkit-text-fill-color:#ff5f70;filter:drop-shadow(0 0 2px rgba(255,150,165,.4));translate:-.7px .6px}
+  100%{-webkit-text-fill-color:#ff3a4c;filter:drop-shadow(0 0 0 rgba(255,240,244,0));translate:0 0}
 }
 
 /* 数码管：全红 + 轻微抖动 */
@@ -1227,6 +1277,63 @@ const ui = {
 ui.extJP = ui.modeExt.querySelector('.jp');
 ui.extEN = ui.modeExt.querySelector('.en');
 
+function syncTitle(el, txt){
+  if (el._raw === txt) return;
+  el._raw = txt;
+  const frag = document.createDocumentFragment();
+  for (const ch of txt){
+    const s = document.createElement('span');
+    s.className = 'j' + Math.floor(1 + Math.random() * 3);
+    s.style.setProperty('--td', (Math.random() * 1.6).toFixed(2) + 's');
+    s.style.setProperty('--jd', (1.4 + Math.random() * 1.6).toFixed(2) + 's');
+    s.appendChild(document.createTextNode(ch === ' ' ? '\u00a0' : ch));
+    frag.appendChild(s);
+  }
+  el.textContent = '';
+  el.appendChild(frag);
+}
+
+function reshuffleTitles(){
+  for (const el of [ui.titleJP, ui.titleEN, ui.titleAto]){
+    const txt = el._raw;
+    if (!txt) continue;
+    el._raw = null;
+    syncTitle(el, txt);
+  }
+}
+
+let fadeTimer = 0;
+
+function fadeTick(){
+  if (document.body.classList.contains('zero')) return;
+  const pool = [...document.querySelectorAll('.jpL>span,.enL>span,.atoL>span')]
+    .filter(s => s.textContent.trim());
+  if (!pool.length) return;
+  for (let i = pool.length - 1; i > 0; i--){
+    const j = (Math.random() * (i + 1)) | 0;
+    const t = pool[i]; pool[i] = pool[j]; pool[j] = t;
+  }
+  const n = Math.min(pool.length, 2 + ((Math.random() * 2) | 0));
+  for (let k = 0; k < n; k++){
+    const s = pool[k];
+    s.classList.add('dim');
+    setTimeout(() => s.classList.remove('dim'), 1320);
+  }
+}
+
+function startFadeTick(){
+  if (fadeTimer) return;
+  fadeTick();
+  fadeTimer = setInterval(fadeTick, 1400);
+}
+
+function stopFadeTick(){
+  if (!fadeTimer) return;
+  clearInterval(fadeTimer);
+  fadeTimer = 0;
+  for (const s of document.querySelectorAll('.jpL .dim,.enL .dim,.atoL .dim')) s.classList.remove('dim');
+}
+
 const FADE_TARGETS = [ui.titleJP, ui.titleEN, ui.titleAto, ui.segWrap];
 
 function buildSegGeometry(width, height, thickness, gap){
@@ -1342,7 +1449,7 @@ function drawClock(is12Hour){
   setDigitMask(clockDigits, 5, SEG_MASK[second % 10]);
 
   const marker = is12Hour ? meridiem : '24';
-  if (marker !== timeMarker){ timeMarker = marker; ui.titleAto.textContent = marker; }
+  if (marker !== timeMarker){ timeMarker = marker; syncTitle(ui.titleAto, marker); }
 }
 
 function countSegs(mask){
@@ -1552,8 +1659,8 @@ function render(){
   document.body.dataset.mode = internal ? 'internal' : 'external';
   applyDangerClass();
 
-  ui.titleJP.textContent = TITLE_JP[isClock ? 1 : 0];
-  ui.titleEN.textContent = TITLE_EN[isClock ? 1 : 0];
+  syncTitle(ui.titleJP, TITLE_JP[isClock ? 1 : 0]);
+  syncTitle(ui.titleEN, TITLE_EN[isClock ? 1 : 0]);
   ui.extJP.textContent = isReserve ? '予備' : '外部';
   ui.extEN.textContent = isReserve ? 'AUXILIARY' : 'EXTERNAL';
 
@@ -1576,7 +1683,7 @@ function render(){
     drawClock(viewMode === VIEW_CLOCK_12);
     if (powered) startClock(); else stopClock();
   } else {
-    ui.titleAto.textContent = 'あと';
+    syncTitle(ui.titleAto, 'あと');
     stopClock();
   }
 
@@ -1767,6 +1874,8 @@ function fxLoop(now){
 function startBeast(){
   if (fxOn) return;
   fxOn = true; fxFrame = 0;
+  reshuffleTitles();
+  startFadeTick();
   fxBlocks = Array.from({ length: 120 }, fxMakeBlock);
   for(const box of fxMqBoxes) box.states = [];
   if (fxReduce) fxStep();
@@ -1775,6 +1884,7 @@ function startBeast(){
 function stopBeast(){
   if (!fxOn) return;
   fxOn = false;
+  stopFadeTick();
   if (fxRaf){ cancelAnimationFrame(fxRaf); fxRaf = 0; }
   fxBgCtx.clearRect(0, 0, FX_W, FX_H);
   fxTopCtx.clearRect(0, 0, FX_W, FX_H);
