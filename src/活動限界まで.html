@@ -9,6 +9,11 @@
 <style>
 /* ══════════════════════════════════════════════════════════════
    EVA 活动限界倒计时面板 · 样式
+   ──────────────────────────────────────────────────────────────
+   01–16  EOE / ROE 共用的底座
+   17     ROE 配色层（body.roe）
+   18     ROE 立体与按钮
+   19     獣化 The Beast（body.roe.beast）
    ══════════════════════════════════════════════════════════════ */
 
 /* ── 01 字体 ─────────────────────────────────────────────── */
@@ -30,19 +35,36 @@ body{
   --glow:0 0 9px rgba(255,150,20,.9),0 0 24px rgba(255,110,10,.55),0 0 56px rgba(255,90,0,.3);
   --seg-glow:0 0 6px rgba(255,165,35,.6),0 0 14px rgba(255,110,10,.28);
   --seg-bloom:drop-shadow(0 0 4px rgba(255,170,40,.5)) drop-shadow(0 0 12px rgba(255,110,10,.28));
-  --cyan-glow:0 0 3px rgba(63,216,255,.7);
-  --tick:linear-gradient(var(--cyan),var(--cyan));
+  /* 刻度 / 底纹配色槽位：三个主题只换这些值，下面的规则只有一份 */
+  --tick:linear-gradient(var(--tickC),var(--tickC));
+  --tickC:var(--cyan);          /* .tk.b1/.b2 的短刻度 */
+  --tkT1:var(--cyan);           /* .tk.t1 细密纹 */
+  --tkT2:#000;                  /* .tk.t2 凹槽 */
+  --tkGlow:drop-shadow(0 0 3px rgba(63,216,255,.7));
+  --tkT2Glow:none;
+  --cyFill:var(--cyan);         /* .cy 点亮的刻度 */
+  --cyGlow:drop-shadow(0 0 3px rgba(63,216,255,.7));
+  --bkFill:#000;                /* .bk 衬底刻度 */
+  --bkGlow:none;
+  --yeFill:var(--amber);        /* .ye 甲板刻度 */
+  --yeGlow:drop-shadow(0 0 3px rgba(255,176,30,.5));
+  --cellTick:#000;              /* .cell 下方那两根短竖线 */
+  --cellTickGlow:none;
+  --sepFill:var(--cyan);        /* .sep 两端的小方块 */
+  --sepGlow:0 0 6px rgba(63,216,255,.5);
   --rb:linear-gradient(180deg,#000 0 48px,transparent 48px) 0 0/1500px 600px no-repeat,
        linear-gradient(to top right,#b2403c 0,#b58a3a 20%,#a9be4a 30%,#81ba5d 38%,#55995a 64%,#3f8aa0 80%,#3f68ae 92%,#4b4fb0 100%) 200px 0/1300px 600px no-repeat;
   font-family:"EVA Matisse",serif;
   user-select:none;
 }
 
+/* 告急：整块面板转红（琥珀 → 红），刻度光晕同步换色 */
 body.danger{
   --amber:#ff2415;
   --glow:0 0 11px rgba(255,40,20,.95),0 0 33px rgba(255,20,10,.7),0 0 78px rgba(255,10,0,.4);
   --seg-glow:0 0 6px rgba(255,60,30,.65),0 0 14px rgba(255,20,10,.3);
   --seg-bloom:drop-shadow(0 0 4px rgba(255,60,30,.55)) drop-shadow(0 0 12px rgba(255,20,10,.3));
+  --yeGlow:drop-shadow(0 0 3px rgba(255,40,20,.6));
 }
 
 /* ── 04 舞台 画布 ───────────────────────────────────── */
@@ -50,7 +72,7 @@ body.danger{
   position:absolute;
   left:50%;top:50%;
   width:1300px;height:600px;
-  transform:translate(-50%,-50%) scale(var(--panel-scale,1));
+  transform:translate(-50%,-50%);
   transform-origin:center;
   overflow:hidden;
   filter:drop-shadow(0 20px 40px rgba(0,0,0,.85));
@@ -86,14 +108,14 @@ body.danger .deco .blk{filter:drop-shadow(0 0 4px rgba(255,40,20,.6))}
 .deco .clk:focus-visible{stroke:var(--cyan);stroke-width:2.5;filter:drop-shadow(0 0 5px rgba(63,216,255,.55))}
 
 /* ── 08 刻度 ─────────────────────────────────────────────── */
-.tk{position:absolute;pointer-events:none;filter:drop-shadow(0 0 3px rgba(63,216,255,.7))}
+.tk{position:absolute;pointer-events:none;filter:var(--tkGlow)}
 .tk.t1{
   left:70px;top:36px;width:1430px;height:9px;
-  background:repeating-linear-gradient(90deg,var(--cyan) 0 3px,transparent 3px 12px,var(--cyan) 12px 15px,transparent 15px 100px);
+  background:repeating-linear-gradient(90deg,var(--tkT1) 0 3px,transparent 3px 12px,var(--tkT1) 12px 15px,transparent 15px 100px);
 }
 .tk.t2{
-  left:76px;top:50px;width:1424px;height:11px;filter:none;
-  background:repeating-linear-gradient(90deg,#000 0 3px,transparent 3px 100px);
+  left:76px;top:50px;width:1424px;height:11px;filter:var(--tkT2Glow);
+  background:repeating-linear-gradient(90deg,var(--tkT2) 0 3px,transparent 3px 100px);
 }
 .tk.b1{
   left:0;top:490px;width:1500px;height:8px;
@@ -124,14 +146,13 @@ body.danger .deco .blk{filter:drop-shadow(0 0 4px rgba(255,40,20,.6))}
     var(--tick) 1398px 0/3px 100% no-repeat;
 }
 
-.cy{fill:var(--cyan)}
-.cy>use{filter:drop-shadow(0 0 3px rgba(63,216,255,.7));opacity:0;transition:opacity .14s linear}
+.cy{fill:var(--cyFill)}
+.cy>use{filter:var(--cyGlow);opacity:0;transition:opacity .14s linear}
 body.pw .cy>use{opacity:1;transition-delay:var(--d,0ms)}
 
-.bk{fill:#000;filter:none}
+.bk{fill:var(--bkFill);filter:var(--bkGlow)}
 
-.ye{fill:var(--amber);filter:drop-shadow(0 0 3px rgba(255,176,30,.5))}
-body.danger .ye{filter:drop-shadow(0 0 3px rgba(255,40,20,.6))}
+.ye{fill:var(--yeFill);filter:var(--yeGlow)}
 
 /* ── 09 分界彩条 ─────────────────────────────────────────── */
 .gradbar{
@@ -230,17 +251,19 @@ body:not(.roe) .mode{
   text-shadow:0 0 9px rgba(255,40,18,.45),0 0 24px rgba(255,20,10,.28),0 0 56px rgba(255,8,0,.14);
 }
 
+/* 断电 / 不可用：整块消失。ROE 只是额外清掉厚度与位移 */
 .mode.dead,.mode.dead.inactive{
   opacity:0;animation:none;filter:none;pointer-events:none;
   color:#000;text-shadow:none;border-color:transparent;box-shadow:none;
 }
+body.roe .mode.dead{transform:none;background:none;--wall:0 0 0 0 rgba(0,0,0,0)}
 .mode.dead .jp,.mode.dead .en{opacity:0}
 .mode.dead .zebra{opacity:0}
 
 .sep{position:absolute;left:1216px;width:182px;height:10px}
 .sep i{
-  position:absolute;top:1px;width:3px;height:8px;background:var(--cyan);
-  box-shadow:0 0 6px rgba(63,216,255,.5);opacity:0;transition:opacity .14s linear;
+  position:absolute;top:1px;width:3px;height:8px;background:var(--sepFill);
+  box-shadow:var(--sepGlow);opacity:0;transition:opacity .14s linear;
 }
 .sep i.l{left:0}
 .sep i.r{right:0}
@@ -279,8 +302,9 @@ body.pw .sep i{opacity:1;transition-delay:var(--d,0ms)}
 .cell::after{
   content:"";position:absolute;left:-4px;right:-4px;top:100%;margin-top:3.5px;height:8px;
   background:
-    linear-gradient(#000,#000) left 3px top 0/3px 8px no-repeat,
-    linear-gradient(#000,#000) right 3px top 0/3px 8px no-repeat;
+    linear-gradient(var(--cellTick),var(--cellTick)) left 3px top 0/3px 8px no-repeat,
+    linear-gradient(var(--cellTick),var(--cellTick)) right 3px top 0/3px 8px no-repeat;
+  filter:var(--cellTickGlow);
 }
 body:not(.pw) .cell{opacity:0;pointer-events:none}
 body.pw .cell{transition:opacity .28s}
@@ -429,36 +453,66 @@ body.roe .deco .blk0{fill:#0a0a34}
 body.roe .deco .themeHot:hover{fill:rgba(150,160,255,.10)}
 body.roe .deco .themeHot:focus-visible{stroke:#a8c0ff;stroke-width:2.5}
 
+/* ROE 的全部配色槽位集中在这里；下面各章只覆写用到的那几个 */
 body.roe{
+  /* 刻度：--cyan 给 .cy 的 fill，--tkC 给底纹 / 衬底刻度，--tkG 是它们共用的光晕 */
   --cyan:#e2e9ff;
   --tkC:#e2e9ff;
-  --tkG:drop-shadow(0 0 3px rgba(170,195,255,.85)); 
+  --tkG:drop-shadow(0 0 3px rgba(170,195,255,.85));
+  /* 数码管：未点亮是白光段 + 深蓝黑侧壁 */
+  --seg-glow:0 0 7px rgba(190,212,255,.75),2px 3px 0 rgba(8,0,30,.75);
+  --seg-bloom:drop-shadow(2px 3px 1px rgba(8,0,30,.72)) drop-shadow(0 0 5px rgba(190,212,255,.5)) drop-shadow(0 0 16px rgba(120,150,255,.3));
+  /* 玻璃材质：面板底 / 边框（其余玻璃槽位没人引用） */
+  --glassV:rgba(124,104,208,.46);
+  --rimW:rgba(255,255,255,.26);
+  /* 立体侧壁：单一光源（左上），4 层 = 受光侧面 + 暗侧 + 接触影 + 环境遮蔽。
+     只有颜色不同，才分成四档；几何关系各档固定，改一处即全体生效。 */
+  --wallUp:2px 3px 0 0 rgba(62,86,158,1),
+           3px 5px 0 -1px rgba(14,20,58,.95),
+           5px 10px 16px -3px rgba(0,0,16,.8),
+           8px 22px 30px -14px rgba(0,0,10,.55);
+  /* 红板：告急 / 开机瞬闪（受光侧面最亮，对应蓝档的第 1 层） */
+  --wallRedUp:2px 3px 0 0 rgba(88,10,26,.98),
+              3px 5px 0 -1px rgba(28,2,10,.95),
+              6px 12px 18px -4px rgba(14,0,6,.8),
+              9px 24px 32px -16px rgba(10,0,4,.5);
+  /* 獣化下的 DANGER / 裏コード */
+  --wallRed:2px 3px 0 0 rgba(96,10,26,.98),
+            3px 5px 0 -1px rgba(34,2,10,.95),
+            6px 12px 18px -4px rgba(14,0,6,.8),
+            9px 24px 32px -16px rgba(10,0,4,.5);
+  /* 獣化下的内部 / 外部 / 主電源：外壳是亮红玻璃，侧壁压得更暗一档 */
+  --wallRedSoft:2px 3px 0 0 rgba(64,6,18,.95),
+                3px 5px 0 -1px rgba(38,2,10,.92),
+                5px 10px 16px -3px rgba(24,0,8,.75),
+                8px 22px 30px -14px rgba(14,0,5,.55);
 }
-body.roe .tk{filter:var(--tkG)}
-body.roe:not(.beast) .tk.t2{
-  background:repeating-linear-gradient(90deg,var(--tkC) 0 3px,transparent 3px 100px);
-  filter:var(--tkG);
+/* 这一整片刻度只换颜色，所以只赋值，不再重写规则 */
+body.roe{
+  --tickC:var(--tkC);
+  --tkT1:var(--tkC);
+  --tkT2:var(--tkC);
+  --tkGlow:var(--tkG);
+  --tkT2Glow:var(--tkG);
+  --cyFill:#e2e9ff;
+  --cyGlow:var(--tkG);
+  --bkFill:var(--tkC);
+  --bkGlow:var(--tkG);
+  --yeFill:#8fa9ff;
+  --yeGlow:var(--tkG);
+  --cellTick:var(--tkC);
+  --cellTickGlow:var(--tkG);
+  --sepFill:#ff8d9c;
+  --sepGlow:0 0 6px rgba(255,100,130,.65);
 }
-body.roe .tk.t1{
-  background:repeating-linear-gradient(90deg,var(--tkC) 0 3px,transparent 3px 12px,var(--tkC) 12px 15px,transparent 15px 100px);
-}
-body.roe .tk.b1,body.roe .tk.b2{--tick:linear-gradient(var(--tkC),var(--tkC))}
-body.roe .cy>use{filter:var(--tkG)}
-body.roe .ye{fill:#8fa9ff;filter:var(--tkG)}
-body.roe:not(.beast) .bk,
-body.roe:not(.beast) #barH{fill:var(--tkC);filter:var(--tkG)}
+/* #barH 是 <defs> 里的原型，会被每个 <use> 复制一份，这里的光晕是叠加出来的，
+   删掉会让那几条横刻度暗一档，所以保留 */
+body.roe:not(.beast) #barH{filter:var(--tkG)}
 body.roe:not(.beast) .cut{stroke:var(--tkC);filter:var(--tkG)}
 /* 断电时不亮：衬底刻度(.bk) 与斜槽那 4 根短切线(.cut) 在 EOE 里本来是黑的（等于看不见），
    ROE 不能因为改了配色就把它们点亮 —— 跟着 .pw 走，通电后才有 */
 body.roe:not(.pw) .bk,
 body.roe:not(.pw) .cut{opacity:0}
-body.roe:not(.beast) .cell::after{
-  background:
-    linear-gradient(var(--tkC),var(--tkC)) left 3px top 0/3px 8px no-repeat,
-    linear-gradient(var(--tkC),var(--tkC)) right 3px top 0/3px 8px no-repeat;
-  filter:var(--tkG);
-}
-body.roe .sep i{background:#ff8d9c;box-shadow:0 0 6px rgba(255,100,130,.65)}
 
 body.roe .gradbar{left:1405px;background:linear-gradient(180deg,#7df0ff,#2ab0ec 55%,#2f6fe6);box-shadow:0 0 10px rgba(60,200,255,.65),0 0 24px rgba(40,140,255,.35)}
 body.roe .gline{width:840px;background:linear-gradient(90deg,#ff7ccf,#b17cff 60%,#7a8cff);box-shadow:0 0 7px rgba(200,120,255,.55)}
@@ -470,33 +524,29 @@ body.roe .jpL,body.roe .atoL{color:#f4f6ff;text-shadow:0 0 6px rgba(170,195,255,
 body.roe .enL{color:#dde3f7;text-shadow:none}
 
 
-body.roe{
-  --seg-glow:0 0 7px rgba(190,212,255,.75),2px 3px 0 rgba(8,0,30,.75);
-  --seg-bloom:drop-shadow(2px 3px 1px rgba(8,0,30,.72)) drop-shadow(0 0 5px rgba(190,212,255,.5)) drop-shadow(0 0 16px rgba(120,150,255,.3));
-}
 body.roe .seg{fill:url(#gSegW);stroke:rgba(255,255,255,.45);stroke-width:.6;stroke-linejoin:round}
 body.roe .dot{background:#f4f7ff}
 body.roe .seg-wrap.live .digit.cd{--seg-bloom:drop-shadow(2px 3px 1px rgba(8,0,30,.72)) drop-shadow(0 0 5px rgba(255,30,60,.55)) drop-shadow(0 0 16px rgba(255,10,40,.3))}
 body.roe.danger .seg-wrap.live .digit.cd{--seg-bloom:drop-shadow(2px 3px 1px rgba(8,0,30,.72)) drop-shadow(0 0 6px rgba(255,40,60,.85)) drop-shadow(0 0 22px rgba(255,10,40,.5))}
-body.roe .seg-wrap.live .dot.cd{--seg-glow:0 0 7px rgba(255,35,65,.75),2px 3px 0 rgba(8,0,30,.75)}
+/* 倒计时点亮：点也跟着转红（与 .seg 的 gSegR 同一档红） */
+body.roe .seg-wrap.live .dot.cd{
+  --seg-glow:0 0 7px rgba(255,35,65,.75),2px 3px 0 rgba(8,0,30,.75);
+  background:#ff1e3a;
+}
 body.roe .seg-wrap.live .cd .seg{fill:url(#gSegR);stroke:rgba(255,150,170,.32)}
-body.roe .seg-wrap.live .dot.cd{background:#ff1e3a}
 body.roe.zero:not(.clk) .jpL,
 body.roe.zero:not(.clk) .enL,
 body.roe.zero:not(.clk) .atoL{animation:none}
 body.roe.zero:not(.clk) .seg-wrap{animation:zeroA .39s steps(1) infinite}
 
-body.roe{
-  --glassB:rgba(116,152,228,.84);
-  --glassV:rgba(124,104,208,.46);
-  --glassG:rgba(132,148,180,.55);
-  --rimB:rgba(214,228,255,.4);
-  --rimW:rgba(255,255,255,.26);
-}
 body.roe .box,body.roe .cell,body.roe .danger-cell,body.roe .subbox{
   isolation:isolate;border-style:solid;border-width:2px;border-radius:3px;text-shadow:none;
   -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
 }
+
+/* ══════════════════════════════════════════════════════════════
+   18 ROE 立体与按钮（抬起 / 平贴 / 告急 / 归零）
+   ══════════════════════════════════════════════════════════════ */
 
 /* ── 立体系统：单一光源（左上）· 统一厚度 ─────────────────
    · 抬起 = 一道硬侧壁当厚度 + 接触投影 + 环境遮蔽
@@ -506,12 +556,6 @@ body.roe .box,body.roe .cell,body.roe .danger-cell,body.roe .subbox{
                  告急时继续抬着闪底；獣化时抬 + 抖 + 消失/出现
    · 「裏コード」= 獣化激活时才抬起并转红，平时平贴
    ──────────────────────────────────────────────────────────── */
-body.roe{
-  --wallUp:2px 3px 0 0 rgba(62,86,158,1),
-           3px 5px 0 -1px rgba(14,20,58,.95),
-           5px 10px 16px -3px rgba(0,0,16,.8),
-           8px 22px 30px -14px rgba(0,0,10,.55);
-}
 body.roe .box{
   border-color:rgba(166,190,244,.36);
   background:linear-gradient(180deg,rgba(128,160,230,.5),rgba(78,102,178,.58));
@@ -545,13 +589,6 @@ body.roe.beast .subbox{
   box-shadow:var(--wall);
 }
 
-body.roe.beast .danger-cell{
-  --wall:var(--wallUp);
-  transform:translate(-1px,-3px);
-  border-color:rgba(198,218,255,.46);
-  box-shadow:var(--wall);
-}
-
 /* DANGER 开关的开机瞬闪：抬起 → 落回 → 最后 7 秒再进警戒
    · 内部倒计时一开始（乱码之后）抬起 + 点亮 0.4s（.boot）
    · 0.4s 后侧壁收掉、整块落回甲板、文字熄灭，一直保持「按下」相
@@ -567,10 +604,7 @@ body.roe .danger-cell.on{
 }
 body.roe .danger-cell.boot{
   /* 红板就得配红壁，蓝壁会露馅（和告急态同一套厚度） */
-  --wall:2px 3px 0 0 rgba(88,10,26,.98),
-         3px 5px 0 -1px rgba(28,2,10,.95),
-         6px 12px 18px -4px rgba(14,0,6,.8),
-         9px 24px 32px -16px rgba(10,0,4,.5);
+  --wall:var(--wallRedUp);
   transform:translate(-1px,-3px);
   border-color:rgba(255,120,135,.62);
   box-shadow:var(--wall);
@@ -586,10 +620,13 @@ body.roe .danger-cell.boot::before{
   /* 点亮要「啪」地一下（0.4s 窗口里没时间让它慢慢染红），回落仍走 .3s 渐变 */
   transition:background .1s linear,border-color .1s linear,box-shadow .18s;
 }
-body.roe .danger-cell.boot .dstk{opacity:1}
 body.roe .mode.active,
 body.roe .powerbox:not(.off){
   background:linear-gradient(168deg,rgba(150,180,242,.92),rgba(108,142,216,.92));
+}
+body.roe .mode.active{
+  color:#e8102c;
+  text-shadow:0 0 9px rgba(255,40,60,.45),0 0 24px rgba(255,24,44,.28),0 0 56px rgba(255,10,32,.14);
 }
 body.roe .powerbox:not(.off) .jp,
 body.roe .powerbox:not(.off) .en{opacity:.96}
@@ -602,12 +639,6 @@ body.roe.beast .subbox:active{
   transform:translate(1px,1px);
   transition-duration:.07s;
   box-shadow:var(--wall);
-}
-
-/* 文字发光*/
-body.roe .mode.active{
-  color:#e8102c;
-  text-shadow:0 0 9px rgba(255,40,60,.45),0 0 24px rgba(255,24,44,.28),0 0 56px rgba(255,10,32,.14);
 }
 
 /* 予備 / 外部 是同一块按钮（文案随状态切换）：ROE 下激活时走白字白光，
@@ -633,16 +664,9 @@ body.roe.zero:not(.clk) .mode.inactive{
   text-shadow:0 0 7px rgba(150,182,250,.22),0 0 18px rgba(96,132,235,.12);
 }
 body.roe .mode .zebra{
-  transition:opacity .3s;
   background:linear-gradient(-45deg,#e6122e 0 12.5%,transparent 12.5% 25%,#e6122e 25% 37.5%,transparent 37.5% 50%,#e6122e 50% 62.5%,transparent 62.5% 75%,#e6122e 75% 87.5%,transparent 87.5%);
 }
 body.roe .mode.inactive .zebra{opacity:0}
-body.roe .mode.dead{
-  opacity:0;animation:none;filter:none;pointer-events:none;transform:none;
-  --wall:0 0 0 0 rgba(0,0,0,0);
-  box-shadow:none;border-color:transparent;background:none;text-shadow:none;
-}
-body.roe .mode.dead .zebra{opacity:0}
 
 body.roe .cell{
   border-color:var(--rimW);background:var(--glassV);color:#d2f1ff;
@@ -680,13 +704,16 @@ body.roe .danger-cell::before{
 }
 body.roe .danger-cell:not(.on){opacity:1}
 body.roe .danger-cell .dstk{position:relative;z-index:1;opacity:0;transition:opacity .2s}
+/* 点亮（开机瞬闪 / 告急 / 獣化）时才显示文字 */
+body.roe .danger-cell.boot .dstk,
+body.roe.danger .danger-cell .dstk,
+body.roe.beast .danger-cell .dstk{opacity:1}
 body.roe:not(.danger):not(.beast) .danger-cell.on{animation:none}
 
 body.roe.beast .danger-cell,
 body.roe.danger .danger-cell.on{
   color:#ff3a4c;text-shadow:0 0 10px rgba(255,40,60,.9);
 }
-body.roe.beast .danger-cell::before,
 body.roe.danger .danger-cell.on::before{
   border-color:rgba(255,120,135,.62);
   background:linear-gradient(180deg,#3b0712,#1d0309);
@@ -695,20 +722,15 @@ body.roe.danger .danger-cell.on::before{
 /* 告急态：厚度也换成暗红，红板红壁才是一整块（蓝壁会露馅） */
 body.roe.danger .danger-cell.on{
   transform:translate(-1px,-3px);   /* 抬起改由这里与 .boot 负责，.on 本身是平贴的 */
-  --wall:2px 3px 0 0 rgba(88,10,26,.98),
-         3px 5px 0 -1px rgba(28,2,10,.95),
-         6px 12px 18px -4px rgba(14,0,6,.8),
-         9px 24px 32px -16px rgba(10,0,4,.5);
+  --wall:var(--wallRedUp);
 }
 /* 裏コード：整块 dAlert 警报闪（替代原来的 dJit + dHide + dPulse 三频叠加）
    （.on 那一条选择器必须写上，否则会被上面 .danger .danger-cell.on 压过去）
    ★ 文字与底板一起压暗到 .43，不会整块消失 */
 body.roe.beast .danger-cell,
 body.roe.beast .danger-cell.on{
-  --wall:2px 3px 0 0 rgba(96,10,26,.98),
-         3px 5px 0 -1px rgba(34,2,10,.95),
-         6px 12px 18px -4px rgba(14,0,6,.8),
-         9px 24px 32px -16px rgba(10,0,4,.5);
+  --wall:var(--wallRed);
+  transform:translate(-1px,-3px);   /* 减少动效时 dAlert 被关掉，靠这条保持抬起 */
   box-shadow:var(--wall);
   animation:dAlert .88s steps(1,end) infinite;   /* 整块（底板 + 文字）一起按 GIF 节奏闪 */
   --gOn:0 0 10px rgba(255,40,60,.95),0 0 26px rgba(255,20,45,.65),0 0 56px rgba(255,10,32,.35);
@@ -722,13 +744,12 @@ body.roe.beast .danger-cell::before{
   border-color:rgba(255,140,152,.72);
   box-shadow:var(--wall),0 0 16px rgba(255,30,50,.5);
 }
-body.roe.beast .danger-cell .dstk,
-body.roe.danger .danger-cell .dstk{opacity:1}
 
 /* 归零：底板跟着方波一起闪文字由第 15 章那条 zeroA 负责 */
 body.roe.zero:not(.clk) .danger-cell::before{animation:zeroA .39s steps(1) infinite}
-/* 归零是断电前最后一相，保持原来「抬着闪」的样子 */
-body.roe.zero:not(.clk) .danger-cell.on{
+/* 归零是断电前最后一相，保持原来「抬着闪」的样子。
+   獣化 + 归零同时成立时，红板必须配红壁，所以排除 .beast */
+body.roe.zero:not(.clk):not(.beast) .danger-cell.on{
   --wall:var(--wallUp);
   transform:translate(-1px,-3px);
   box-shadow:var(--wall);
@@ -774,11 +795,7 @@ body.roe .subbox{
              box-shadow .26s,background .3s,color .3s,border-color .3s,text-shadow .3s;
 }
 body.roe.beast .subbox{
-
-  --wall:2px 3px 0 0 rgba(96,10,26,.98),
-         3px 5px 0 -1px rgba(34,2,10,.95),
-         6px 12px 18px -4px rgba(14,0,6,.8),
-         9px 24px 32px -16px rgba(10,0,4,.5);
+  --wall:var(--wallRed);
   transform:translate(-1px,-3px);
   background:linear-gradient(180deg,#8a0f1e,#440512);
   border-color:rgba(255,140,152,.72);
@@ -798,20 +815,16 @@ body{
 }
 .charge.red{background:var(--rb3);opacity:0;transition:mask-position .5s cubic-bezier(.35,.1,.25,1),opacity .35s ease}
 body.beast .charge.red{opacity:1}
-.fx{position:absolute;inset:0;width:1500px;height:600px;pointer-events:none;opacity:0;transition:opacity .2s}
-body.beast .fx{opacity:1}
-.fx-fixed{position:absolute;inset:0;width:1500px;height:600px;pointer-events:none;opacity:0;transition:opacity .2s}
-body.beast .fx-fixed{opacity:1}
+/* 獣化图层：两张 canvas 与那张静态坏块 SVG 共用同一套铺满 + 淡入 */
+.fx,.fx-fixed{position:absolute;inset:0;width:1500px;height:600px;pointer-events:none;opacity:0;transition:opacity .2s}
+body.beast .fx,body.beast .fx-fixed{opacity:1}
 .pShadow,.pWall,.pWall2{transition:fill .35s}
 
 body.roe.beast{
   --cyan:#ffd6da;
   --tkC:var(--cyan);
   --tkG:drop-shadow(0 0 3px rgba(255,130,140,.85));
-  --glassB:rgba(170,20,36,.72);
   --glassV:rgba(150,16,34,.5);
-  --glassG:rgba(120,14,28,.45);
-  --rimB:rgba(255,140,150,.4);
   --rimW:rgba(255,120,130,.3);
   --seg-glow:0 0 7px rgba(255,35,65,.7),2px 3px 0 rgba(40,0,10,.6);
   --seg-bloom:drop-shadow(2px 3px 1px rgba(40,0,10,.6)) drop-shadow(0 0 5px rgba(255,40,70,.55)) drop-shadow(0 0 14px rgba(255,10,40,.28));
@@ -826,19 +839,26 @@ body.roe.beast .pWall2{fill:#6a0f1e}
 body.roe.beast .pRim{stroke:rgba(255,120,130,.28)}
 body.roe.beast .deco .blk0{fill:#16030a}
 
-body.roe.beast .tk{filter:drop-shadow(0 0 3px rgba(255,120,130,.8))}
-body.roe.beast .tk.t2{background:repeating-linear-gradient(90deg,#ff8a96 0 3px,transparent 3px 100px);filter:drop-shadow(0 0 3px rgba(255,120,130,.8))}
-body.roe.beast .tk.b1,body.roe.beast .tk.b2{--tick:linear-gradient(#ff8a96,#ff8a96)}
-body.roe.beast .cy{fill:#ff8a96}
-body.roe.beast .cy>use{filter:drop-shadow(0 0 3px rgba(255,130,140,.85))}
-body.roe.beast .ye{fill:#000;filter:none}
+/* 獣化：同一批槽位换红，规则一行都不用改 */
+body.roe.beast{
+  --tickC:#ff8a96;
+  --tkT2:#ff8a96;
+  --tkGlow:drop-shadow(0 0 3px rgba(255,120,130,.8));
+  --tkT2Glow:drop-shadow(0 0 3px rgba(255,120,130,.8));
+  --cyFill:#ff8a96;
+  --cyGlow:drop-shadow(0 0 3px rgba(255,130,140,.85));
+  --yeFill:#000;
+  --yeGlow:none;
+  --cellTick:#ff8a96;
+  --cellTickGlow:drop-shadow(0 0 3px rgba(255,120,130,.8));
+  --sepFill:#ff9aa4;
+  --sepGlow:0 0 6px rgba(255,90,110,.65);
+}
 /* 只有 DANGER / 裏コード 那一行的四根（x 1303/1307/1398/1402）留在红：
    .ye 整组转黑后它们正好落在红灯带旁边，跟着一起黑会断成一截。
    颜色跟 .bk / .cy 同一支 #ff8a96，光晕也同一副 */
 body.roe.beast .ye>.yHot{fill:#ff8a96;filter:drop-shadow(0 0 3px rgba(255,120,130,.85))}
-body.roe.beast .bk{fill:#ff8a96;filter:drop-shadow(0 0 3px rgba(255,120,130,.8))}
-body.roe.beast .cell::after{background:linear-gradient(#ff8a96,#ff8a96) left 3px top 0/3px 8px no-repeat,linear-gradient(#ff8a96,#ff8a96) right 3px top 0/3px 8px no-repeat;filter:drop-shadow(0 0 3px rgba(255,120,130,.8))}
-body.roe.beast .sep i{background:#ff9aa4;box-shadow:0 0 6px rgba(255,90,110,.65)}
+body.roe.beast{--bkFill:#ff8a96;--bkGlow:drop-shadow(0 0 3px rgba(255,120,130,.8))}
 body.roe.beast .gradbar,body.roe.beast.danger .gradbar{background:linear-gradient(180deg,#ff6a72,#c0182a);box-shadow:0 0 8px rgba(255,50,70,.45)}
 body.roe.beast .gline,body.roe.beast.danger .gline{background:linear-gradient(90deg,#ff5a6a,#ff2030);box-shadow:0 0 7px rgba(255,40,60,.6)}
 
@@ -933,10 +953,7 @@ body.roe.beast .box{
 }
 /* 獣化下抬起的那块，侧壁换成暗红，几何关系不变 */
 body.roe.beast .mode.active,body.roe.beast .powerbox:not(.off){
-  --wall:2px 3px 0 0 rgba(64,6,18,.95),
-         3px 5px 0 -1px rgba(38,2,10,.92),
-         5px 10px 16px -3px rgba(24,0,8,.75),
-         8px 22px 30px -14px rgba(14,0,5,.55);
+  --wall:var(--wallRedSoft);
   border-color:rgba(255,180,190,.5);
   background:linear-gradient(168deg,rgba(255,86,98,.9),rgba(198,22,40,.9));
   box-shadow:var(--wall);
@@ -979,8 +996,10 @@ body.roe.beast.pw:not(.zero) .cell[data-bar="3"] .redbar{opacity:1}
 
 /* 獣化下的 DANGER：抬起 + 整块警报闪（见 dAlert），
    这里只补「文字保持清晰」——不加任何高斯模糊，也不覆盖闪烁用的 opacity */
-body.roe.beast .danger-cell .dstk{opacity:1;filter:none}
-body.roe.beast .danger-cell .dstk{text-shadow:var(--dGlow,var(--gOn)) !important}
+body.roe.beast .danger-cell .dstk{
+  filter:none;
+  text-shadow:var(--dGlow,var(--gOn)) !important;
+}
 body.roe.beast .hint{color:#ff9aa4;text-shadow:0 0 8px rgba(255,60,80,.5)}
 
 /* 整屏亮度 */
@@ -1005,6 +1024,11 @@ body.roe.beast .inner{animation:beastFlick .5s steps(1,end) infinite}
     <feTurbulence id="fxTurbA" type="fractalNoise" baseFrequency="0 .07" numOctaves="1" seed="3" result="n"/>
     <feComponentTransfer in="n" result="m"><feFuncR type="discrete" tableValues=".5 .5 .5 0 .5 .5 1 .5 .5 .5"/><feFuncB type="table" tableValues=".5 .5"/><feFuncA type="table" tableValues="1 1"/></feComponentTransfer>
     <feDisplacementMap in="SourceGraphic" in2="m" scale="44" xChannelSelector="R" yChannelSelector="B"/>
+  </filter>
+  <filter id="fxTearC" x="-6%" y="-15%" width="112%" height="130%" color-interpolation-filters="sRGB">
+    <feTurbulence id="fxTurbC" type="fractalNoise" baseFrequency="0 .1" numOctaves="1" seed="5" result="n"/>
+    <feComponentTransfer in="n" result="m"><feFuncR type="discrete" tableValues=".5 .5 .5 0 .5 .5 .5 1 .5 .5"/><feFuncB type="table" tableValues=".5 .5"/><feFuncA type="table" tableValues="1 1"/></feComponentTransfer>
+    <feDisplacementMap in="SourceGraphic" in2="m" scale="10" xChannelSelector="R" yChannelSelector="B"/>
   </filter>
   <filter id="fxTearD" x="-4%" y="-20%" width="108%" height="140%" color-interpolation-filters="sRGB">
     <feTurbulence id="fxTurbD" type="fractalNoise" baseFrequency="0 .12" numOctaves="1" seed="9" result="n"/>
@@ -1283,12 +1307,26 @@ body.roe.beast .inner{animation:beastFlick .5s steps(1,end) infinite}
 
 </div></div>
 
-<p class="hint">「主電源供給システム」断电重启 · 「内部 / 外部」切换供电模式 ·「活動限界まで」左侧小方块 [倒计时 / 24H / 12H ]时钟 · 左下角斜槽：EOE ⇄ ROE 配色 · 獣化（Esc 退出）</p>
+<p class="hint">「主電源供給システム」断电重启 · 「内部 / 外部」切换供电模式 ·「活動限界まで」左侧小方块 [倒计时 / 24H / 12H ]时钟 · 左下角斜槽：EOE ⇄ ROE 配色 · 獣化（Esc 退出）· 裏コード Ctrl+点击开原曲</p>
 
 <script>
 (function(){
 'use strict';
 
+/* ══════════════════════════════════════════════════════════════
+   行为层
+   ──────────────────────────────────────────────────────────────
+   状态 → DOM 的唯一出口是 render()，其余函数只改自己的局部量。
+   body 上的类全部由 render() 维护，CSS 只看这几个类：
+     roe      EOE / ROE 配色        beast   裏コード（獣化）
+     pw       主電源通电            clk     时钟视图（24H / 12H）
+     zero     归零                  danger  最后 7 秒
+     reserve  予備（外部按钮第二次按下）
+   分节：01 常量 · 02 DOM · 03 标题乱码 · 04 七段数码管 · 05 状态量
+        06 倒计时 · 07 时钟 · 08 渲染 · 09 交互 · 10 獣化特效 · 11 自适应
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── 01 常量 ─────────────────────────────────────────────── */
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const STAGE_W = 1300;
 const STAGE_H = 600;
@@ -1301,6 +1339,7 @@ const SCRAMBLE_MS   = 400;            /* 切入内部时的乱码时长 */
 const SCRAMBLE_HOLD = 75;             /* 乱码帧间隔 */
 const HOLD_MS       = 700;            /* 定格 5:00.00 让眼睛看清 */
 const BOOT_MS       = 400;            /* 倒计时开始时 DANGER 抬起后落回的时长 */
+const POWER_STEP_DELAYS = [120, 220, 320];  /* 通电自检时四格功能条依次点亮的延时 */
 
 /* 视图模式 */
 const VIEW_COUNTDOWN = 0;
@@ -1338,13 +1377,15 @@ const SEG_MASK = ['abcdef', 'bc', 'abged', 'abgcd', 'fgbc', 'afgcd', 'afgedc', '
     return mask;
   });
 
+/* ── 02 DOM ──────────────────────────────────────────────── */
+const modeExtEl = document.getElementById('modeExternal');
 const ui = {
   panel:      document.getElementById('panel'),
   segWrap:    document.getElementById('segWrap'),
   clockDig:   document.getElementById('clockDig'),
   powerBox:   document.getElementById('powerBox'),
   modeInt:    document.getElementById('modeInternal'),
-  modeExt:    document.getElementById('modeExternal'),
+  modeExt:    modeExtEl,
   dangerCell: document.getElementById('dangerCell'),
   clockHot:   document.getElementById('clockHot'),
   themeHot:   document.getElementById('themeHot'),
@@ -1355,14 +1396,13 @@ const ui = {
   titleJP:    document.querySelector('.jpL'),
   titleEN:    document.querySelector('.enL'),
   titleAto:   document.querySelector('.atoL'),
-  extJP:      null,
-  extEN:      null,
+  extJP:      modeExtEl.querySelector('.jp'),
+  extEN:      modeExtEl.querySelector('.en'),
   bars:       [...document.querySelectorAll('.cell[data-bar]')]
                 .map(cell => ({ cell, barEl: cell.querySelector('.redbar') }))
 };
-ui.extJP = ui.modeExt.querySelector('.jp');
-ui.extEN = ui.modeExt.querySelector('.en');
 
+/* ── 03 标题乱码（獣化时每个字独立抖动）────────────────────── */
 function syncTitle(el, txt){
   if (el._raw === txt) return;
   el._raw = txt;
@@ -1422,6 +1462,7 @@ function stopFadeTick(){
 
 const FADE_TARGETS = [ui.titleJP, ui.titleEN, ui.titleAto, ui.segWrap];
 
+/* ── 04 七段数码管 ───────────────────────────────────────── */
 function buildSegGeometry(width, height, thickness, gap){
   const d = gap * 0.7071;
   const h = thickness / 2;
@@ -1573,13 +1614,18 @@ function drawScramble(){
   dotsDithered = true;
 }
 
+/* ── 05 状态量 ───────────────────────────────────────────── */
 let powered  = false;
 let internal = false;
 let zero     = false;
 let reserve  = false;
 let viewMode = VIEW_COUNTDOWN;
 let roe     = false;
-let beast    = false;
+let beast   = false;
+
+/* 功能条：null = 跟着模式推导（内部→RACING / 外部→NORMAL / 归零→STOP）；
+   手动点过就记住，模式一变（内部 / 外部 / 断电 / 归零）立刻清空，避免和模式自相矛盾 */
+let barOverride = null;
 
 let remainingMs = DURATION_MS;
 let endTime     = 0;
@@ -1593,10 +1639,15 @@ let holdTimeout  = 0;
 let clockTimeout = 0;
 let bootTimer    = 0;
 
+/* ── 06 倒计时 ───────────────────────────────────────────── */
 /* DANGER 开关的开机瞬闪：抬起 + 点亮 BOOT_MS，然后落回、熄灭，
    一直保持「按下」相，直到最后 7 秒由 body.danger 重新点亮 */
-function bootDanger(){
+function clearBootTimer(){
   if (bootTimer){ clearTimeout(bootTimer); bootTimer = 0; }
+}
+
+function bootDanger(){
+  clearBootTimer();
   ui.dangerCell.classList.add('boot');
   bootTimer = setTimeout(() => {
     bootTimer = 0;
@@ -1605,7 +1656,7 @@ function bootDanger(){
 }
 
 function clearBootDanger(){
-  if (bootTimer){ clearTimeout(bootTimer); bootTimer = 0; }
+  clearBootTimer();
   ui.dangerCell.classList.remove('boot');
 }
 
@@ -1623,6 +1674,7 @@ function triggerZero(){
   isRunning = false;
   countdownRaf = 0;
   zero = true;
+  barOverride = null;
   render();
 }
 
@@ -1689,10 +1741,16 @@ function syncCountdown(){
     stopCountdown();
     if (zero){
       setLive(true);
-    } else if (reserve && powered && !internal){
-      setLive(false); setDanger(false); remainingMs = 0; drawCountdown(0);
+      return;
+    }
+    setLive(false);
+    setDanger(false);
+    if (reserve){
+      remainingMs = 0;
+      drawCountdown(0);
     } else {
-      setLive(false); setDanger(false); remainingMs = DURATION_MS; clearCountdown();
+      remainingMs = DURATION_MS;
+      clearCountdown();
     }
     return;
   }
@@ -1701,6 +1759,7 @@ function syncCountdown(){
   else if (!isRunning) startCountdown();
 }
 
+/* ── 07 时钟 ─────────────────────────────────────────────── */
 function startClock(){
   if (clockTimeout) return;
   const step = () => {
@@ -1717,6 +1776,7 @@ function stopClock(){
   timeMarker = '';
 }
 
+/* ── 08 渲染 ─────────────────────────────────────────────── */
 function applyDangerClass(){
   document.body.classList.toggle('danger', isDanger && viewMode === VIEW_COUNTDOWN);
 }
@@ -1737,7 +1797,7 @@ function setActiveBar(index, hideRest){
 
 function runPowerSequence(){
   setActiveBar(-1);
-  [120, 220, 320].forEach((delay, index) => setTimeout(() => {
+  POWER_STEP_DELAYS.forEach((delay, index) => setTimeout(() => {
     if (powered && !internal && !zero) setActiveBar(index);
   }, delay));
 }
@@ -1781,7 +1841,8 @@ function render(){
   ui.powerBox.classList.toggle('off', !powered);
 
   const zeroLook = zero && !isClock;
-  setActiveBar(!powered || isReserve ? -1 : (zeroLook ? 0 : (internal ? 3 : 2)), zeroLook);
+  const barIndex = zeroLook ? 0 : (barOverride !== null ? barOverride : (internal ? 3 : 2));
+  setActiveBar(!powered || isReserve ? -1 : barIndex, zeroLook);
 
   if (isClock){
     timeMarker = '';
@@ -1796,6 +1857,7 @@ function render(){
   if (beast) startBeast(); else stopBeast();
 }
 
+/* ── 09 交互 ─────────────────────────────────────────────── */
 function bindActivate(el, handler){
   el.addEventListener('click', handler);
   el.addEventListener('keydown', event => {
@@ -1803,26 +1865,35 @@ function bindActivate(el, handler){
   });
 }
 
-bindActivate(ui.powerBox, () => {
+/* 主電源：开 / 关都回到初始态（内部、予備、归零、视图全部复位） */
+function onPowerClick(){
   powered = !powered;
   internal = false;
   zero = false;
   reserve = false;
   viewMode = VIEW_COUNTDOWN;
+  barOverride = null;
   render();
   if (powered) runPowerSequence();
-});
+}
 
-bindActivate(ui.modeInt, () => {
+/* 内部：只有已通电、且当前不是「已经在内部」时才生效 */
+function onInternalClick(){
   if (!powered || (internal && !zero)) return;
-  internal = true; zero = false; reserve = false;
+  internal = true;
+  zero = false;
+  reserve = false;
+  barOverride = null;
   render();
-});
+}
 
-bindActivate(ui.modeExt, () => {
+/* 外部 / 予備 是同一块按钮：内部时点它先退到外部，再点一次才进予備 */
+function onExternalClick(){
   if (!powered) return;
   if (internal){
-    internal = false; zero = false; reserve = false;
+    internal = false;
+    zero = false;
+    reserve = false;
     render();
     return;
   }
@@ -1830,28 +1901,38 @@ bindActivate(ui.modeExt, () => {
   zero = false;
   reserve = !reserve;
   render();
-});
+}
 
-bindActivate(ui.clockHot, () => {
+function onClockClick(){
   viewMode = (viewMode + 1) % VIEW_COUNT;
   if (viewMode !== VIEW_COUNTDOWN) reserve = false;
   render();
   crossFade();
-});
+}
 
-bindActivate(ui.themeHot, () => {
+function onThemeClick(){
   roe = !roe;
   render();
-});
+}
+
+/* 功能条：只是「当前档位」的手动覆盖，不参与计时 */
+function onBarClick(index){
+  if (!powered || zero || reserve) return;
+  barOverride = index;
+  setActiveBar(index);
+}
+
+bindActivate(ui.powerBox, onPowerClick);
+bindActivate(ui.modeInt, onInternalClick);
+bindActivate(ui.modeExt, onExternalClick);
+bindActivate(ui.clockHot, onClockClick);
+bindActivate(ui.themeHot, onThemeClick);
 ['pointerenter', 'focus'].forEach(type => ui.themeHot.addEventListener(type, () => ui.themeTag.classList.add('show')));
 ['pointerleave', 'blur'].forEach(type => ui.themeHot.addEventListener(type, () => ui.themeTag.classList.remove('show')));
 
-ui.bars.forEach(({ cell }, index) => bindActivate(cell, () => {
-  if (!powered || zero || reserve) return;
-  setActiveBar(index);
-}));
+ui.bars.forEach(({ cell }, index) => bindActivate(cell, () => onBarClick(index)));
 
-/* ══ 獣化 ══ */
+/* ── 10 獣化特效 ─────────────────────────────────────────── */
 const FX_FRAME_MS = 33;
 const FX_W = 1500, FX_H = 600;   /* 两张 fx 画布的坐标空间（与 canvas 的 width/height 一致） */
 const fxReduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1919,11 +2000,9 @@ function fxHollow(){
     seg.classList.toggle('hl',
       seg.classList.contains('on') && Math.random() < 0.08);
   }
-  const whole = Math.random() < 0.5 ? 0 : 1;
-  for (let n = 0; n < whole; n++){
-    for (const seg of fxDigits[(Math.random() * fxDigits.length) | 0]){
-      if (seg.classList.contains('on')) seg.classList.add('hl');
-    }
+  if (Math.random() < 0.5) return;
+  for (const seg of fxDigits[(Math.random() * fxDigits.length) | 0]){
+    if (seg.classList.contains('on')) seg.classList.add('hl');
   }
 }
 
@@ -2005,21 +2084,24 @@ function stopBeast(){
   }
 }
 
+/* 「裏コード」/「登録する」：直接点是面板内的动作（ROE 下切獣化）；
+   Ctrl / ⌘ / Shift 左键打开主页 */
 const SUB_URL = 'https://www.bilibili.com/video/BV1HAHF6oEdi';
 function onSubbox(event){
-  if (roe && !(event.ctrlKey || event.metaKey || event.shiftKey)){
-    if (!powered) return;
-    beast = !beast;
-    render();
+  if (event.ctrlKey || event.metaKey || event.shiftKey){
+    window.open(SUB_URL, '_blank');
     return;
   }
-  window.open(SUB_URL, '_blank');
+  if (!roe || !powered) return;
+  beast = !beast;
+  render();
 }
 bindActivate(ui.subBox, onSubbox);
 addEventListener('keydown', event => {
   if (event.key === 'Escape' && beast){ beast = false; render(); }
 });
 
+/* ── 11 自适应缩放 ───────────────────────────────────────── */
 let fitQueued = false;
 function fitPanel(){
   fitQueued = false;
