@@ -251,7 +251,7 @@ body:not(.roe) .mode{
   text-shadow:0 0 9px rgba(255,40,18,.45),0 0 24px rgba(255,20,10,.28),0 0 56px rgba(255,8,0,.14);
 }
 
-/* 断电 / 不可用：整块消失。ROE 只是额外清掉厚度与位移 */
+/* 断电 / 不可用：整块消失（ROE 另清厚度；.inactive 须用 :not(.dead) 排除才不被压回可见） */
 .mode.dead,.mode.dead.inactive{
   opacity:0;animation:none;filter:none;pointer-events:none;
   color:#000;text-shadow:none;border-color:transparent;box-shadow:none;
@@ -486,9 +486,7 @@ body.roe{
                 3px 5px 0 -1px rgba(38,2,10,.92),
                 5px 10px 16px -3px rgba(24,0,8,.75),
                 8px 22px 30px -14px rgba(14,0,5,.55);
-}
-/* 这一整片刻度只换颜色，所以只赋值，不再重写规则 */
-body.roe{
+  /* ── 刻度：只换颜色，所以只赋值，不再重写规则 ── */
   --tickC:var(--tkC);
   --tkT1:var(--tkC);
   --tkT2:var(--tkC);
@@ -514,8 +512,8 @@ body.roe:not(.beast) .cut{stroke:var(--tkC);filter:var(--tkG)}
 body.roe:not(.pw) .bk,
 body.roe:not(.pw) .cut{opacity:0}
 
-body.roe .gradbar{left:1405px;background:linear-gradient(180deg,#7df0ff,#2ab0ec 55%,#2f6fe6);box-shadow:0 0 10px rgba(60,200,255,.65),0 0 24px rgba(40,140,255,.35)}
-body.roe .gline{width:840px;background:linear-gradient(90deg,#ff7ccf,#b17cff 60%,#7a8cff);box-shadow:0 0 7px rgba(200,120,255,.55)}
+body.roe .gradbar{background:linear-gradient(180deg,#7df0ff,#2ab0ec 55%,#2f6fe6);box-shadow:0 0 10px rgba(60,200,255,.65),0 0 24px rgba(40,140,255,.35)}
+body.roe .gline{background:linear-gradient(90deg,#ff7ccf,#b17cff 60%,#7a8cff);box-shadow:0 0 7px rgba(200,120,255,.55)}
 body.roe.danger .gradbar{background:linear-gradient(180deg,#ff9aa5,#ff2a40 50%,#a00018);box-shadow:0 0 14px rgba(255,40,60,.7)}
 body.roe.danger .gline{background:linear-gradient(90deg,#ff2a40,#ff7a6a);box-shadow:0 0 7px rgba(255,40,60,.65)}
 
@@ -651,7 +649,7 @@ body.roe:not(.beast) #modeExternal.active{
 body.roe.zero:not(.clk):not(.beast) #modeExternal.active{
   text-shadow:0 0 7px rgba(232,242,255,.5),0 0 18px rgba(184,208,255,.28);
 }
-body.roe .mode.inactive{
+body.roe .mode.inactive:not(.dead){
   opacity:1;color:#b3c9f0;
   text-shadow:0 0 9px rgba(150,182,250,.31),0 0 24px rgba(96,132,235,.19),0 0 56px rgba(70,105,225,.1);
   background:linear-gradient(180deg,rgba(150,178,235,.8),rgba(104,128,200,.86));
@@ -738,18 +736,18 @@ body.roe.beast .danger-cell.on{
   --gOff:0 0 5px rgba(255,40,60,.3);
 }
 body.roe.beast .danger-cell::before{
-  /* 底板常亮红，不再自己闪/消失；明暗统一交给元素本体的 dAlert */
+  /* 獣化「单独」成立时：底板自己不动，明暗全交给元素本体的 dAlert（.88s 逐帧警报闪）。 */
   animation:none;
   background:linear-gradient(180deg,#8a0f1e,#440512);
   border-color:rgba(255,140,152,.72);
   box-shadow:var(--wall),0 0 16px rgba(255,30,50,.5);
 }
 
-/* 归零：底板跟着方波一起闪文字由第 15 章那条 zeroA 负责 */
+/* 归零：底板跟着方波一起闪 */
 body.roe.zero:not(.clk) .danger-cell::before{animation:zeroA .39s steps(1) infinite}
 /* 归零是断电前最后一相，保持原来「抬着闪」的样子。
-   獣化 + 归零同时成立时，红板必须配红壁，所以排除 .beast */
-body.roe.zero:not(.clk):not(.beast) .danger-cell.on{
+   獣化 / 告急两种情况下红板必须配红壁，所以都要排除*/
+body.roe.zero:not(.clk):not(.beast):not(.danger) .danger-cell.on{
   --wall:var(--wallUp);
   transform:translate(-1px,-3px);
   box-shadow:var(--wall);
@@ -823,24 +821,14 @@ body.beast .fx,body.beast .fx-fixed{opacity:1}
 body.roe.beast{
   --cyan:#ffd6da;
   --tkC:var(--cyan);
-  --tkG:drop-shadow(0 0 3px rgba(255,130,140,.85));
   --glassV:rgba(150,16,34,.5);
   --rimW:rgba(255,120,130,.3);
   --seg-glow:0 0 7px rgba(255,35,65,.7),2px 3px 0 rgba(40,0,10,.6);
   --seg-bloom:drop-shadow(2px 3px 1px rgba(40,0,10,.6)) drop-shadow(0 0 5px rgba(255,40,70,.55)) drop-shadow(0 0 14px rgba(255,10,40,.28));
-}
-body.roe.beast .inner,body.roe.beast .leftbezel,body.roe.beast .leftbar{background:#0b0207}
-body.roe.beast #gPanel stop:nth-child(1){stop-color:#2a0a12}
-body.roe.beast #gPanel stop:nth-child(2){stop-color:#34101a}
-body.roe.beast #gPanel stop:nth-child(3){stop-color:#4e1222}
-body.roe.beast .pShadow{fill:#3a0610}
-body.roe.beast .pWall{fill:#3a0612}
-body.roe.beast .pWall2{fill:#6a0f1e}
-body.roe.beast .pRim{stroke:rgba(255,120,130,.28)}
-body.roe.beast .deco .blk0{fill:#16030a}
 
-/* 獣化：同一批槽位换红，规则一行都不用改 */
-body.roe.beast{
+  /* 獣化：同一批槽位换红，规则一行都不用改。
+     光晕四个槽位（tkGlow/tkT2Glow/cyGlow/bkGlow）在这里全部直接给值，
+     不再经由 --tkG —— 所以 beast 下不需要单独覆盖 --tkG */
   --tickC:#ff8a96;
   --tkT2:#ff8a96;
   --tkGlow:drop-shadow(0 0 3px rgba(255,120,130,.8));
@@ -853,12 +841,23 @@ body.roe.beast{
   --cellTickGlow:drop-shadow(0 0 3px rgba(255,120,130,.8));
   --sepFill:#ff9aa4;
   --sepGlow:0 0 6px rgba(255,90,110,.65);
+  --bkFill:#ff8a96;
+  --bkGlow:drop-shadow(0 0 3px rgba(255,120,130,.8));
 }
+body.roe.beast .inner,body.roe.beast .leftbezel,body.roe.beast .leftbar{background:#0b0207}
+body.roe.beast #gPanel stop:nth-child(1){stop-color:#2a0a12}
+body.roe.beast #gPanel stop:nth-child(2){stop-color:#34101a}
+body.roe.beast #gPanel stop:nth-child(3){stop-color:#4e1222}
+body.roe.beast .pShadow{fill:#3a0610}
+body.roe.beast .pWall{fill:#3a0612}
+body.roe.beast .pWall2{fill:#6a0f1e}
+body.roe.beast .pRim{stroke:rgba(255,120,130,.28)}
+body.roe.beast .deco .blk0{fill:#16030a}
+
 /* 只有 DANGER / 裏コード 那一行的四根（x 1303/1307/1398/1402）留在红：
    .ye 整组转黑后它们正好落在红灯带旁边，跟着一起黑会断成一截。
    颜色跟 .bk / .cy 同一支 #ff8a96，光晕也同一副 */
 body.roe.beast .ye>.yHot{fill:#ff8a96;filter:drop-shadow(0 0 3px rgba(255,120,130,.85))}
-body.roe.beast{--bkFill:#ff8a96;--bkGlow:drop-shadow(0 0 3px rgba(255,120,130,.8))}
 body.roe.beast .gradbar,body.roe.beast.danger .gradbar{background:linear-gradient(180deg,#ff6a72,#c0182a);box-shadow:0 0 8px rgba(255,50,70,.45)}
 body.roe.beast .gline,body.roe.beast.danger .gline{background:linear-gradient(90deg,#ff5a6a,#ff2030);box-shadow:0 0 7px rgba(255,40,60,.6)}
 
@@ -984,11 +983,6 @@ body.roe.beast .mode.inactive::before{
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35  0 0 0 0 .02  0 0 0 0 .05  0 0 0 .9 -.25'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
 }
 
-.mq{display:none;position:absolute;height:6px;z-index:3;pointer-events:none;
-    background:#ff2438;box-shadow:0 0 10px rgba(255,30,50,.8);opacity:.85}
-#powerBox .mq{height:4px}
-body.roe.beast .mq{display:block}
-
 body.roe.beast .cell{color:#ff6a74}
 body.roe.beast .cell.sel .txt{color:#ff9aa4}
 body.roe.beast.pw:not(.zero) .cell[data-bar="2"] .redbar,
@@ -1015,6 +1009,21 @@ body.roe.beast .inner{animation:beastFlick .5s steps(1,end) infinite}
   body.roe.beast .inner,
   body.roe.beast .seg-wrap{animation:none}
 }
+
+/* ══════════════════════════════════════════════════════════════
+   獣化：内部 / 外部 / 主電源 的「花屏」故障效果（参考 beast2.gif）
+   覆盖层 .gl：整板偏粉闪 / 分块明暗 / 小马赛克块 / 长短不一的红条（可溢出）
+   ══════════════════════════════════════════════════════════════ */
+.gl{position:absolute;inset:0;pointer-events:none;display:none;z-index:4}
+body.roe.beast .mode:not(.dead) .gl,
+body.roe.beast .powerbox:not(.off) .gl{display:block}
+/* 未激活的那块整体弱一档 */
+body.roe.beast .mode.inactive .gl{opacity:.6}
+.gl i{position:absolute;display:block;opacity:0;pointer-events:none}
+/* 亮度层：整块板的亮度档位硬切（按 GIF 实测：内部≈稳定偏亮、主電源≈偶尔掉一档、外部≈频繁起伏） */
+.glv{position:absolute;inset:0;pointer-events:none;display:none;z-index:3;background:transparent}
+body.roe.beast .mode:not(.dead) .glv,
+body.roe.beast .powerbox:not(.off) .glv{display:block}
 </style>
 </head>
 <body>
@@ -1024,13 +1033,8 @@ body.roe.beast .inner{animation:beastFlick .5s steps(1,end) infinite}
     <feTurbulence id="fxTurbA" type="fractalNoise" baseFrequency="0 .07" numOctaves="1" seed="3" result="n"/>
     <feComponentTransfer in="n" result="m"><feFuncR type="discrete" tableValues=".5 .5 .5 0 .5 .5 1 .5 .5 .5"/><feFuncB type="table" tableValues=".5 .5"/><feFuncA type="table" tableValues="1 1"/></feComponentTransfer>
     <feDisplacementMap in="SourceGraphic" in2="m" scale="44" xChannelSelector="R" yChannelSelector="B"/>
-  </filter>
-  <filter id="fxTearC" x="-6%" y="-15%" width="112%" height="130%" color-interpolation-filters="sRGB">
-    <feTurbulence id="fxTurbC" type="fractalNoise" baseFrequency="0 .1" numOctaves="1" seed="5" result="n"/>
-    <feComponentTransfer in="n" result="m"><feFuncR type="discrete" tableValues=".5 .5 .5 0 .5 .5 .5 1 .5 .5"/><feFuncB type="table" tableValues=".5 .5"/><feFuncA type="table" tableValues="1 1"/></feComponentTransfer>
-    <feDisplacementMap in="SourceGraphic" in2="m" scale="10" xChannelSelector="R" yChannelSelector="B"/>
-  </filter>
-  <filter id="fxTearD" x="-4%" y="-20%" width="108%" height="140%" color-interpolation-filters="sRGB">
+    </filter>
+    <filter id="fxTearD" x="-4%" y="-20%" width="108%" height="140%" color-interpolation-filters="sRGB">
     <feTurbulence id="fxTurbD" type="fractalNoise" baseFrequency="0 .12" numOctaves="1" seed="9" result="n"/>
     <feComponentTransfer in="n" result="m"><feFuncR type="discrete" tableValues=".5 .5 .5 .5 0 .5 1 .5 .5 .5"/><feFuncB type="table" tableValues=".5 .5"/><feFuncA type="table" tableValues="1 1"/></feComponentTransfer>
     <feDisplacementMap in="SourceGraphic" in2="m" scale="14" xChannelSelector="R" yChannelSelector="B"/>
@@ -1265,17 +1269,14 @@ body.roe.beast .inner{animation:beastFlick .5s steps(1,end) infinite}
   <div class="sep" style="top:172px;--d:380ms"><i class="l"></i><i class="r"></i></div>
   <div class="box mode inactive dead" id="modeInternal" role="button" tabindex="0">
     <div class="jp">内部</div><div class="en">INTERNAL</div><i class="zebra"></i>
-    <i class="mq"></i><i class="mq"></i><i class="mq"></i><i class="mq"></i><i class="mq"></i><i class="mq"></i>
   </div>
   <div class="sep" style="top:266px;--d:340ms"><i class="l"></i><i class="r"></i></div>
   <div class="box powerbox off" id="powerBox" role="button" tabindex="0">
     <div class="jp">主電源供給システム</div><div class="en">MAIN ENERGY SUPPLY SYSTEM</div>
-    <i class="mq"></i><i class="mq"></i><i class="mq"></i><i class="mq"></i><i class="mq"></i><i class="mq"></i>
   </div>
   <div class="sep" style="top:318px;--d:300ms"><i class="l"></i><i class="r"></i></div>
   <div class="box mode inactive dead" id="modeExternal" role="button" tabindex="0">
     <div class="jp">外部</div><div class="en">EXTERNAL</div><i class="zebra"></i>
-    <i class="mq"></i><i class="mq"></i><i class="mq"></i><i class="mq"></i><i class="mq"></i><i class="mq"></i>
   </div>
   <div class="sep sm" style="top:413px;--d:260ms"><i class="l"></i><i class="r"></i></div>
 
@@ -1339,7 +1340,9 @@ const SCRAMBLE_MS   = 400;            /* 切入内部时的乱码时长 */
 const SCRAMBLE_HOLD = 75;             /* 乱码帧间隔 */
 const HOLD_MS       = 700;            /* 定格 5:00.00 让眼睛看清 */
 const BOOT_MS       = 400;            /* 倒计时开始时 DANGER 抬起后落回的时长 */
-const POWER_STEP_DELAYS = [120, 220, 320];  /* 通电自检时四格功能条依次点亮的延时 */
+/* 通电自检：前三格（STOP → SLOW → NORMAL）依次闪一下，最终停在外部模式的默认档 NORMAL。
+   第四格 RACING 归内部模式，不参与自检 */
+const POWER_STEP_DELAYS = [120, 220, 320];
 
 /* 视图模式 */
 const VIEW_COUNTDOWN = 0;
@@ -1534,7 +1537,10 @@ const clockDigits = CLOCK_LAYOUT.map(spec => createDigit(spec, ''));
 mountDigits(ui.segWrap, countdownDigits, COUNTDOWN_DOTS, 'dot cd');
 mountDigits(ui.clockDig, clockDigits, CLOCK_DOTS, 'dot');
 
-const countdownDotEls = [...ui.segWrap.querySelectorAll('.dot')];
+/* 只取倒计时的冒号点（.dot.cd）。#clockDig 也是 #segWrap 的子元素，
+   用 .dot 会把时钟那 4 个点一起选进来 —— 乱码时给它们设的 opacity
+   会残留到时钟视图上，表现为冒号点随机少几个 */
+const countdownDotEls = [...ui.segWrap.querySelectorAll('.dot.cd')];
 let dotsDithered = false;
 
 function clearDotDither(){
@@ -1942,11 +1948,10 @@ const fxDigits = [...ui.segWrap.querySelectorAll('.digit')].map(d => [...d.query
 const fxSegs   = fxDigits.flat();
 const fxRnd = n => Math.random() * n;
 
-/* ① 撕裂：A / D / C 组 */
+/* 撕裂：标题 A / D 组 */
 const fxTearGroups = [
   { key: 'A', els: [ui.titleJP, ui.titleAto], p: 0.8 },
-  { key: 'D', els: [ui.titleEN],              p: 0.45 },
-  { key: 'C', els: [ui.powerBox, ui.modeInt, ui.modeExt], p: 0.7 }
+  { key: 'D', els: [ui.titleEN],              p: 0.45 }
 ];
 for (const g of fxTearGroups) g.turb = document.getElementById('fxTurb' + g.key);
 function fxTear(){
@@ -1955,43 +1960,6 @@ function fxTear(){
     g.turb.setAttribute('seed', (Math.random() * 1000) | 0);
     g.turb.setAttribute('baseFrequency', '0 ' + (0.03 + Math.random() * 0.09).toFixed(3));
     for (const el of g.els) el.style.filter = Math.random() < g.p ? 'url(#fxTear' + g.key + ')' : '';
-  }
-}
-
-/* ② 生命周期跑马灯（三个盒子同构，用同一段查询生成，顺序 = 内部 / 主電源 / 外部） */
-const fxMqBoxes = [ui.modeInt, ui.powerBox, ui.modeExt]
-  .map(box => ({ bars: [...box.querySelectorAll('.mq')], states: [] }));
-function initMqState(){ return { x: 0, y: 0, w: 0, life: 0 }; }
-function resetMqState(state){
-  state.x = Math.random() * 60;
-  state.y = Math.random() * 85;
-  state.w = 10 + Math.random() * 50;
-  state.life = 5 + Math.floor(Math.random() * 25);
-}
-function fxMarquee(){
-  for (const box of fxMqBoxes){
-    box.bars.forEach((bar, i) => {
-      if (!box.states[i]) box.states[i] = initMqState();
-      const s = box.states[i];
-      
-      if (s.life > 0) {
-        s.life--;
-        return; 
-      }
-
-      // 寿命结束，随机重生或隐身
-      if (Math.random() < 0.3) {
-        s.life = Math.floor(Math.random() * 10);
-        bar.style.display = 'none';
-        return;
-      }
-
-      resetMqState(s);
-      bar.style.display = 'block';
-      bar.style.left = s.x + '%';
-      bar.style.top = s.y + '%';
-      bar.style.width = Math.min(s.w, 100 - s.x) + '%';
-    });
   }
 }
 
@@ -2039,7 +2007,6 @@ function fxDrawTop(){
 
 let fxOn = false, fxRaf = 0, fxLast = 0, fxFrame = 0;
 function fxStep(){
-  fxMarquee();
   if (fxFrame % 2 === 0){
     fxTear();
     fxHollow();
@@ -2061,7 +2028,6 @@ function startBeast(){
   reshuffleTitles();
   startFadeTick();
   fxBlocks = Array.from({ length: 120 }, fxMakeBlock);
-  for(const box of fxMqBoxes) box.states = [];
   if (fxReduce) fxStep();
   else fxRaf = requestAnimationFrame(fxLoop);
 }
@@ -2074,14 +2040,6 @@ function stopBeast(){
   fxTopCtx.clearRect(0, 0, FX_W, FX_H);
   for (const seg of fxSegs) seg.classList.remove('hl');
   for (const g of fxTearGroups) for (const el of g.els) el.style.filter = '';
-  for (const box of fxMqBoxes) {
-    for (const bar of box.bars) {
-      bar.style.display = '';
-      bar.style.left = '';
-      bar.style.top = '';
-      bar.style.width = '';
-    }
-  }
 }
 
 /* 「裏コード」/「登録する」：直接点是面板内的动作（ROE 下切獣化）；
@@ -2125,6 +2083,170 @@ requestAnimationFrame(() => requestAnimationFrame(() => {
   runPowerSequence();
 }));
 
+})();
+
+/* ═══ 獣化：内部 / 外部 / 主電源 花屏效果 ═══ */
+(function(){
+  const boxes = ['modeInternal','powerBox','modeExternal'].map(id=>document.getElementById(id)).filter(Boolean);
+  if(!boxes.length) return;
+  const R=(a,b)=>a+Math.random()*(b-a);
+  const RI=(a,b)=>Math.round(R(a,b));
+  const pick=a=>a[(Math.random()*a.length)|0];
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const S = boxes.map(box=>{
+    const gl=document.createElement('div'); gl.className='gl'; gl.setAttribute('aria-hidden','true');
+    box.appendChild(gl);
+    const lv=document.createElement('div'); lv.className='glv'; lv.setAttribute('aria-hidden','true');
+    box.insertBefore(lv,gl);
+    return {box,gl,lv,timer:0,busy:0,lvTimer:0,isPower:box.id==='powerBox'};
+  });
+  const weak = s => s.box.classList.contains('inactive');
+
+  // 创建一个一次性元素并播放动画，结束后移除；播放期间把按钮抬到最上层
+  function spawn(s, css, frames, opt){
+    const e=document.createElement('i');
+    e.style.cssText=css;
+    s.gl.appendChild(e);
+    s.busy++; s.box.style.zIndex=30;
+    const a=e.animate(frames,opt);
+    a.onfinish=a.oncancel=()=>{
+      e.remove();
+      if(--s.busy<=0){ s.busy=0; s.box.style.zIndex=''; }
+    };
+  }
+  const steps=n=>'steps('+n+',end)';
+
+  // ① 整板偏粉/洋红闪一下
+  function tint(s,k){
+    const c='rgba(255,'+RI(60,100)+','+RI(140,190)+','+(R(.22,.36)*k).toFixed(2)+')';
+    spawn(s,'inset:0;background:'+c,
+      [{opacity:0},{opacity:1},{opacity:.25},{opacity:.9},{opacity:0}],
+      {duration:R(140,280),easing:steps(5)});
+  }
+
+  // ② 分块明暗不一
+  function blocks(s,k){
+    const W=s.box.clientWidth,H=s.box.clientHeight;
+    const n=RI(2,4);
+    for(let i=0;i<n;i++){
+      const dark=Math.random()<.55;
+      const w=dark?Math.round(R(.06,.15)*W):Math.round(R(.25,.65)*W);
+      const h=dark?Math.max(4,Math.round(R(.10,.28)*H)):Math.round(R(.35,1)*H);
+      const x=Math.round(R(0,W-w)), y=Math.round(R(0,H-h));
+      const c=dark?'rgba(20,0,6,'+(R(.35,.55)*k).toFixed(2)+')':'rgba(255,50,70,'+(R(.16,.28)*k).toFixed(2)+')';
+      spawn(s,'left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;background:'+c,
+        [{opacity:0},{opacity:1},{opacity:.4},{opacity:1},{opacity:0}],
+        {duration:R(110,260),delay:R(0,90),easing:steps(5)});
+    }
+  }
+
+  // ③ 字上盖一小撮马赛克方块
+  function mosaic(s,k){
+    const W=s.box.clientWidth,H=s.box.clientHeight;
+    const m=Math.max(3,Math.round(H*R(.06,.12)));
+    const cx=Math.round(R(.05,.75)*W/m)*m, cy=Math.round(R(.05,.7)*H/m)*m;
+    const n=RI(4,12), seen=new Set();
+    for(let i=0;i<n;i++){
+      const gx=clamp(cx+RI(-3,3)*m,0,W-m), gy=clamp(cy+RI(-2,2)*m,0,H-m);
+      const key=gx+','+gy; if(seen.has(key)) continue; seen.add(key);
+      const c=pick(['#ff2a40','#ff2a40','#d01428','#ff7a88','#ff2a40','#5a0816']);
+      spawn(s,'left:'+gx+'px;top:'+gy+'px;width:'+m+'px;height:'+m+'px;background:'+c,
+        [{opacity:0},{opacity:.9*k+.1},{opacity:0,offset:.55},{opacity:.8*k},{opacity:0}],
+        {duration:R(90,220),delay:R(0,70),easing:steps(4)});
+    }
+  }
+
+  // ④ 红条：1~3 条，长短不一（单个方块 → 长条），上下挨得近、左右错开；
+  function bars(s,k){
+    const W=s.box.clientWidth,H=s.box.clientHeight;
+    const n=weak(s)?RI(1,2):RI(1,3);
+    const overflow=Math.random()<.22;
+    let y=R(.05,.8)*H;
+    for(let i=0;i<n;i++){
+      const h=Math.max(3,Math.round(H*R(.11,.27)));
+      const kind=pick(['sq','short','short','long','long']);
+      const w=kind==='sq'?h:kind==='short'?Math.round(R(.14,.36)*W):Math.round(R(.5,.95)*W);
+      let x=R(0,Math.max(0,W-w));
+      let yy=y;
+      if(overflow && i===0){
+        if(Math.random()<.65) x = pick([-1,1])>0 ? W-w*R(.5,.9) : -w*R(.1,.5);   // 左右溢出
+        else yy = pick([-1,1])>0 ? H-h*R(.2,.6) : -h*R(.4,.9);                    // 上下溢出
+      } else {
+        yy=clamp(yy,0,H-h);
+      }
+      const dx=pick([-1,1])*R(.04,.2)*W;
+      const a=(.78*k+.15).toFixed(2);
+      spawn(s,'left:'+x.toFixed(1)+'px;top:'+yy.toFixed(1)+'px;width:'+w+'px;height:'+h+'px;background:#ff1f36',
+        [{opacity:0,transform:'translateX(0)'},
+         {opacity:a,transform:'translateX(0)',offset:.18},
+         {opacity:a*.55,transform:'translateX('+dx*.5+'px)',offset:.5},
+         {opacity:a,transform:'translateX('+dx+'px)',offset:.78},
+         {opacity:0,transform:'translateX('+dx+'px)'}],
+        {duration:R(100,300),delay:R(0,90),easing:steps(5)});
+      y += pick([-1,1])*h*R(1.1,2.4);
+      y = clamp(y,0,H-h);
+    }
+  }
+
+  function burst(s){
+    const k=weak(s)?.55:1;
+    const fx=[];
+    if(Math.random()<.75) fx.push(bars);
+    if(Math.random()<.40) fx.push(mosaic);
+    if(Math.random()<.35) fx.push(blocks);
+    if(Math.random()<.25) fx.push(tint);
+    if(!fx.length) fx.push(bars);
+    fx.forEach(f=>f(s,k));
+    if(Math.random()<.3) setTimeout(()=>{ if(isBeast()) bars(s,k); },RI(70,180));  // 连抽
+  }
+
+  /* ═══ 亮度硬切═══ */
+  const LV_K = 1;            // 亮度跳变总强度
+  const FRAME = 40;          // 一帧毫秒数
+  const LV_PROFILE = {
+    bright:{base:180,levels:[[0,.70],[36,.21],[-36,.07],[-72,.02]],
+            hold:d=>d===0?RI(3,9):RI(1,2)},
+    power: {base:180,levels:[[0,.62],[-36,.33],[-72,.05]],
+            hold:d=>d===0?RI(2,8):(d===-36?RI(3,6):1)},
+    dim:   {base:108,levels:[[-36,.30],[0,.27],[36,.37],[72,.06]],
+            hold:()=>RI(1,5)}
+  };
+  function lvProfile(s){ return s.isPower?LV_PROFILE.power:(weak(s)?LV_PROFILE.dim:LV_PROFILE.bright); }
+  function wpick(levels){ let r=Math.random(); for(const [v,w] of levels){ if((r-=w)<0) return v; } return levels[0][0]; }
+  function lvApply(s,d,base){
+    const el=s.lv; d*=LV_K;
+    if(!d){ el.style.background='transparent'; el.style.mixBlendMode='normal'; return; }
+    if(d>0){ el.style.mixBlendMode='plus-lighter'; el.style.background='rgb('+Math.round(d)+','+Math.round(d*.12)+','+Math.round(d*.18)+')'; }
+    else   { el.style.mixBlendMode='normal';       el.style.background='rgba(0,0,0,'+Math.min(.8,-d/base).toFixed(2)+')'; }
+  }
+  function lvLoop(s){
+    const pf=lvProfile(s);
+    const d=wpick(pf.levels);
+    lvApply(s,d,pf.base);
+    s.lvTimer=setTimeout(()=>{
+      if(document.body.classList.contains('beast')){ if(!document.hidden) lvLoop(s); else s.lvTimer=setTimeout(()=>lvLoop(s),300); }
+      else { s.lvTimer=0; lvApply(s,0,1); }
+    }, pf.hold(d)*FRAME);
+  }
+
+  function isBeast(){ return document.body.classList.contains('beast') && !document.hidden; }
+  function loop(s){
+    s.timer=setTimeout(()=>{
+      if(isBeast() && getComputedStyle(s.gl).display!=='none') burst(s);
+      if(document.body.classList.contains('beast')) loop(s); else s.timer=0;
+    }, weak(s)?R(1200,3200):R(380,1500));
+  }
+  function sync(){
+    const on=document.body.classList.contains('beast');
+    S.forEach(s=>{
+      if(on && !s.timer){ loop(s); setTimeout(()=>{ if(isBeast()) burst(s); },R(0,250)); }
+      if(on && !s.lvTimer) lvLoop(s);
+      if(!on && s.timer){ clearTimeout(s.timer); s.timer=0; }
+      if(!on && s.lvTimer){ clearTimeout(s.lvTimer); s.lvTimer=0; lvApply(s,0,1); }
+    });
+  }
+  new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});
+  sync();
 })();
 </script>
 </body>
