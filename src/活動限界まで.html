@@ -192,7 +192,7 @@ body.danger .gline{background:linear-gradient(90deg,#ff2a14,#ff6a2a);box-shadow:
 .digit{position:absolute;overflow:visible;filter:var(--seg-bloom)}
 .seg{fill:var(--amber);opacity:0}
 .seg.on{opacity:1}
-.dot{position:absolute;width:15px;height:13px;background:var(--amber);box-shadow:var(--seg-glow)}
+.dot{position:absolute;width:13px;height:13px;background:var(--amber);box-shadow:var(--seg-glow)}
 
 body.pw:not(.clk):not(.zero) .seg-wrap.idle .cd .seg:not(.on){opacity:.07}
 .seg-wrap.idle .dot{opacity:0}
@@ -543,7 +543,9 @@ body.roe .seg-wrap.live .cd .seg{fill:url(#gSegR);stroke:rgba(255,150,170,.32)}
 body.roe.zero:not(.clk) .jpL,
 body.roe.zero:not(.clk) .enL,
 body.roe.zero:not(.clk) .atoL{animation:none}
-body.roe.zero:not(.clk) .seg-wrap{animation:zeroA .39s steps(1) infinite}
+@keyframes zeroSeg{0%{opacity:1}20%{opacity:1}20.01%{opacity:0}100%{opacity:0}}
+body.roe.zero:not(.clk) .seg-wrap{animation:zeroSeg .39s steps(1) infinite}
+body.roe.zero:not(.clk) .seg:not(.on){opacity:0}
 
 body.roe .box,body.roe .cell,body.roe .danger-cell,body.roe .subbox{
   isolation:isolate;border-style:solid;border-width:2px;border-radius:3px;text-shadow:none;
@@ -946,8 +948,8 @@ body.roe.beast:not(.zero) :is(.jpL,.enL,.atoL)>span.dim{
 /* 数码管：全红 + 轻微抖动 */
 body.roe.beast .seg{fill:url(#gSegR);stroke:rgba(255,150,170,.32)}
 body.roe.beast .dot{background:#ff1e3a}
-body.roe.beast.pw:not(.clk):not(.zero) .seg-wrap .cd .seg:not(.on),
-body.roe.beast .seg:not(.on){opacity:.2}
+body.roe.beast.pw:not(.clk):not(.zero) .seg-wrap.idle .cd .seg:not(.on),
+body.roe.beast .seg-wrap.idle .seg:not(.on){opacity:.2}
 body.roe.beast .seg-wrap .digit .seg.hl{fill:rgba(255,40,60,.07);stroke:#ffd2d8;stroke-width:1.6;filter:none}
 body.roe.beast .seg-wrap{animation:segJitter .18s steps(2) infinite}
 @keyframes segJitter{
@@ -1374,23 +1376,23 @@ const TITLE_EN = ['ACTIVE TIME REMAINING:', 'CURRENT TIME COUNTING:'];
 /* 段位布局：l=left  top=顶边  w/h=尺寸  th=笔画粗细  g=段间缝隙 */
 /* 倒计时 5 位：3 位大字（分 / 秒十 / 秒个）+ 2 位小字（百分秒十 / 个） */
 const COUNTDOWN_LAYOUT = [
-  {l:0,   top:0,  w:117, h:229, th:26, g:4},
-  {l:153, top:0,  w:117, h:229, th:26, g:4},
-  {l:284, top:0,  w:117, h:229, th:26, g:4},
-  {l:443, top:64, w:79,  h:165, th:20, g:3},
-  {l:538, top:64, w:79,  h:165, th:20, g:3}
+  {l:0,   top:0,  w:115, h:229, th:26, g:4},
+  {l:153, top:0,  w:115, h:229, th:26, g:4},
+  {l:284, top:0,  w:115, h:229, th:26, g:4},
+  {l:443, top:64, w:77,  h:165, th:20, g:3},
+  {l:538, top:64, w:77,  h:165, th:20, g:3}
 ];
-const COUNTDOWN_DOTS = [[128, 60], [128, 166], [414, 109], [414, 177]];
+const COUNTDOWN_DOTS = [[127.5, 60], [127.5, 166], [414.5, 109], [414.5, 177]];
 
 const CLOCK_LAYOUT = [
-  {l:0,   top:15.5, w:97, h:198, th:22, g:3.5},
-  {l:109, top:15.5, w:97, h:198, th:22, g:3.5},
-  {l:242, top:15.5, w:97, h:198, th:22, g:3.5},
-  {l:351, top:15.5, w:97, h:198, th:22, g:3.5},
-  {l:484, top:86.5, w:62, h:127, th:15, g:2.5},
-  {l:556, top:86.5, w:62, h:127, th:15, g:2.5}
+  {l:0,   top:15.5, w:95, h:198, th:22, g:3.5},
+  {l:109, top:15.5, w:95, h:198, th:22, g:3.5},
+  {l:242, top:15.5, w:95, h:198, th:22, g:3.5},
+  {l:351, top:15.5, w:95, h:198, th:22, g:3.5},
+  {l:484, top:86.5, w:60, h:127, th:15, g:2.5},
+  {l:556, top:86.5, w:60, h:127, th:15, g:2.5}
 ];
-const CLOCK_DOTS = [[216.5, 67], [216.5, 159], [458.5, 67], [458.5, 159]];
+const CLOCK_DOTS   = [[216.5, 67], [216.5, 159], [458.5, 67], [458.5, 159]];
 
 const SEG_MASK = ['abcdef', 'bc', 'abged', 'abgcd', 'fgbc', 'afgcd', 'afgedc', 'abc', 'abcdefg', 'abfgcd']
   .map(letters => {
@@ -1509,8 +1511,71 @@ function buildSegGeometry(width, height, thickness, gap){
   };
 }
 
+/* ROE 专用七段：
+   外轮廓为圆角矩形；上下横段与竖段之间是斜缝；右上竖段斜缝更陡，顶端升到顶边（比 a / f 高出一截）。
+   中横段 g 的两个尖头伸到外边缘，其斜边与竖段端头的斜边同形，仅相差一道缝宽。 */
+const ROE_GAP_SCALE = 1.5;   // ROE 的段间缝隙 = 布局里的 g × 这个倍数
+function buildSegGeometryROE(width, height, thickness, gapBase){
+  const gap = gapBase * ROE_GAP_SCALE;
+  const W = width, H = height, T = thickness, ym = H / 2;
+  const hq = gap * 0.7071;                     // 45° 斜缝单侧的 x−y 偏移
+  const hg = T / 2;                            // g 的半厚
+  const m  = hg / T;                           // g / 竖段端头斜边的斜率
+  const Gv = gap * Math.sqrt(1 + m * m);       // 该斜边方向上，缝宽对应的竖直错位
+  const dxr = 0.27 * T;                        // 右上斜缝：顶边比内角向右多出的距离
+  const slope = dxr / T;
+  const hx = (gap / 2) * Math.sqrt(1 + slope * slope);
+  const xr = W - T, E = 10;                    // E：多边形先画出界，再由圆角轮廓裁掉
+  const yBt = (dxr + hx) / slope;
+
+  const top = {
+    a: [[hq - E, -E], [xr + dxr + E * slope - hx, -E], [xr - hx, T], [T + hq, T]],
+    f: [[-E, -E + hq], [T, T + hq], [T, ym - Gv - hg], [0, ym - Gv], [-E, ym - Gv]],
+    b: [[xr + dxr + hx + E * slope, -E], [W + E, -E], [W + E, ym - Gv], [W, ym - Gv],
+        [xr, ym - Gv - hg], [xr, yBt]]
+  };
+  const flip = pts => pts.map(([x, y]) => [x, H - y]);
+  const raw = {
+    a: top.a, f: top.f, b: top.b,
+    g: [[0, ym], [T, ym - hg], [xr, ym - hg], [W, ym], [xr, ym + hg], [T, ym + hg]],
+    d: flip(top.a), e: flip(top.f), c: flip(top.b)
+  };
+
+  // 圆角外轮廓（凸多边形）
+  const R = Math.min(0.17 * W, H / 4), N = 8, outline = [];
+  for (const [cx, cy, a0] of [[R, R, 180], [W - R, R, 270], [W - R, H - R, 0], [R, H - R, 90]]){
+    for (let i = 0; i <= N; i++){
+      const t = (a0 + 90 * i / N) * Math.PI / 180;
+      outline.push([cx + R * Math.cos(t), cy + R * Math.sin(t)]);
+    }
+  }
+  const clip = subject => {
+    let out = subject;
+    for (let i = 0; i < outline.length && out.length; i++){
+      const A = outline[i], B = outline[(i + 1) % outline.length];
+      const side = P => (B[0] - A[0]) * (P[1] - A[1]) - (B[1] - A[1]) * (P[0] - A[0]);
+      const input = out; out = [];
+      for (let j = 0; j < input.length; j++){
+        const P = input[j], Q = input[(j + 1) % input.length];
+        const sp = side(P), sq = side(Q);
+        if (sp >= 0) out.push(P);
+        if ((sp >= 0) !== (sq >= 0)){
+          const t = sp / (sp - sq);
+          out.push([P[0] + (Q[0] - P[0]) * t, P[1] + (Q[1] - P[1]) * t]);
+        }
+      }
+    }
+    return out;
+  };
+  const geo = {};
+  for (const k in raw) geo[k] = clip(raw[k]);
+  return geo;
+}
+
 function createDigit(spec, extraClass){
   const geometry = buildSegGeometry(spec.w, spec.h, spec.th, spec.g);
+  const geometryROE = buildSegGeometryROE(spec.w, spec.h, spec.th, spec.g);
+  const fmt = pts => pts.map(p => p[0].toFixed(2) + ',' + p[1].toFixed(2)).join(' ');
   const svg = document.createElementNS(SVG_NS, 'svg');
   svg.setAttribute('class', 'digit' + (extraClass ? ' ' + extraClass : ''));
   svg.setAttribute('viewBox', `0 0 ${spec.w} ${spec.h}`);
@@ -1522,7 +1587,9 @@ function createDigit(spec, extraClass){
     const key = String.fromCharCode(97 + i);
     const polygon = document.createElementNS(SVG_NS, 'polygon');
     polygon.setAttribute('class', 'seg');
-    polygon.setAttribute('points', geometry[key].map(p => p[0].toFixed(2) + ',' + p[1].toFixed(2)).join(' '));
+    polygon._ptsE = fmt(geometry[key]);
+    polygon._ptsR = fmt(geometryROE[key]);
+    polygon.setAttribute('points', polygon._ptsE);
     svg.appendChild(polygon);
     segs[i] = polygon;
   }
@@ -1555,6 +1622,15 @@ const countdownDigits = COUNTDOWN_LAYOUT.map(spec => createDigit(spec, 'cd'));
 const clockDigits = CLOCK_LAYOUT.map(spec => createDigit(spec, ''));
 mountDigits(ui.segWrap, countdownDigits, COUNTDOWN_DOTS, 'dot cd');
 mountDigits(ui.clockDig, clockDigits, CLOCK_DOTS, 'dot');
+
+/* EOE / ROE 切换时换段形状（只在主题变化时才写 DOM） */
+let segShapeRoe = null;
+function applySegShape(isRoe){
+  if (segShapeRoe === isRoe) return;
+  segShapeRoe = isRoe;
+  for (const digit of countdownDigits.concat(clockDigits))
+    for (const seg of digit.segs) seg.setAttribute('points', isRoe ? seg._ptsR : seg._ptsE);
+}
 
 /* 只取倒计时的冒号点（.dot.cd）。#clockDig 也是 #segWrap 的子元素，
    用 .dot 会把时钟那 4 个点一起选进来 —— 乱码时给它们设的 opacity
@@ -1840,6 +1916,7 @@ function render(){
 
   if (!roe || !powered) beast = false;
   document.body.classList.toggle('roe', roe);
+  applySegShape(roe);
   document.body.classList.toggle('beast', beast);
   ui.themeTag.textContent = roe ? 'ROE' : 'EOE';
   document.body.classList.toggle('pw', powered);
