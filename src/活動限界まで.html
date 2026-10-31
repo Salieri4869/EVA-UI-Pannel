@@ -395,12 +395,20 @@ body.reserve .seg-wrap{animation:resvFade 3s ease-in-out infinite}
 @keyframes vswap{from{opacity:0}to{opacity:1}}
 
 /* ── 16 辅助 ─────────────────────────────────────────────── */
+.hintZone{position:fixed;left:0;right:0;bottom:0;height:20px;z-index:40;pointer-events:none}
+.hintHot{position:absolute;left:50%;bottom:0;width:min(720px,52vw);height:100%;transform:translateX(-50%);pointer-events:auto;cursor:help}
 .hint{
-  position:fixed;left:0;right:0;bottom:6px;z-index:40;
-  pointer-events:none;text-align:center;
-  font-family:"Microsoft YaHei",sans-serif;font-size:12px;letter-spacing:.14em;
-  color:var(--amber);opacity:.45;text-shadow:0 0 8px rgba(255,150,20,.4);
+  position:absolute;left:50%;bottom:38px;transform:translate(-50%,6px);
+  max-width:min(860px,90vw);margin:0;padding:9px 18px 10px;
+  text-align:center;font-family:"Microsoft YaHei",sans-serif;
+  font-size:12px;line-height:1.75;letter-spacing:.14em;
+  color:var(--amber);text-shadow:0 0 8px rgba(255,150,20,.4);
+  background:rgba(20,14,6,.9);border:1px solid rgba(255,170,40,.42);
+  box-shadow:0 8px 24px rgba(0,0,0,.6),0 0 14px rgba(255,150,20,.18);
+  opacity:0;pointer-events:none;
+  transition:opacity .16s ease,transform .16s ease;
 }
+.hintHot:hover ~ .hint{opacity:1;transform:translate(-50%,0)}
 .box:focus-visible,.cell:focus-visible{outline:2px solid currentColor;outline-offset:4px}
 
 /* ══════════════════════════════════════════════════════════════
@@ -802,7 +810,11 @@ body.roe.beast .subbox{
   box-shadow:var(--wall),0 0 16px rgba(255,30,50,.5);
 }
 body.roe .subbox:hover{filter:brightness(1.1)}
-body.roe .hint{color:#aab9ff;text-shadow:0 0 8px rgba(120,150,255,.5)}
+body.roe .hint{
+  color:#aab9ff;text-shadow:0 0 8px rgba(120,150,255,.5);
+  background:rgba(10,12,40,.9);border-color:rgba(150,175,255,.45);
+  box-shadow:0 8px 24px rgba(0,0,0,.6),0 0 16px rgba(90,130,255,.22);
+}
 
 /* ══════════════════════════════════════════════════════════════
    19 獣化 The Beast（body.roe.beast）
@@ -994,7 +1006,11 @@ body.roe.beast .danger-cell .dstk{
   filter:none;
   text-shadow:var(--dGlow,var(--gOn)) !important;
 }
-body.roe.beast .hint{color:#ff9aa4;text-shadow:0 0 8px rgba(255,60,80,.5)}
+body.roe.beast .hint{
+  color:#ff9aa4;text-shadow:0 0 8px rgba(255,60,80,.5);
+  background:rgba(26,4,10,.9);border-color:rgba(255,120,130,.45);
+  box-shadow:0 8px 24px rgba(0,0,0,.65),0 0 16px rgba(255,50,70,.22);
+}
 
 /* 整屏亮度 */
 body.roe.beast .inner{animation:beastFlick .5s steps(1,end) infinite}
@@ -1308,7 +1324,11 @@ body.roe.beast .powerbox:not(.off) .glv{display:block}
 
 </div></div>
 
-<p class="hint">「主電源供給システム」断电重启 · 「内部 / 外部」切换供电模式 ·「活動限界まで」左侧小方块 [倒计时 / 24H / 12H ]时钟 · 左下角斜槽：EOE ⇄ ROE 配色 · 獣化（Esc 退出）· 裏コード Ctrl+点击开原曲</p>
+<!-- 底部热区-->
+<div class="hintZone">
+  <span class="hintHot" aria-hidden="true"></span>
+  <p class="hint">「主電源供給システム」断电重启 · 「内部 / 外部」切换供电模式 ·「活動限界まで」左侧小方块 [倒计时 / 24H / 12H ]时钟 · 左下角斜槽：EOE ⇄ ROE 配色 · 獣化（Esc 退出）</p>
+</div>
 
 <script>
 (function(){
@@ -1331,7 +1351,6 @@ body.roe.beast .powerbox:not(.off) .glv{display:block}
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const STAGE_W = 1300;
 const STAGE_H = 600;
-const STAGE_V_MARGIN = 28;      /* 上下留给 .hint 的空间 */
 
 /* 计时参数 */
 const DURATION_MS   = 5 * 60 * 1000;  /* 一轮恰好 5 分钟 */
@@ -2065,7 +2084,7 @@ function fitPanel(){
   fitQueued = false;
   const scale = Math.min(
     innerWidth / STAGE_W,
-    (innerHeight - STAGE_V_MARGIN) / STAGE_H
+    innerHeight / STAGE_H
   );
   ui.panel.style.transform = `translate(-50%,-50%) scale(${scale})`;
 }
