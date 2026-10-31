@@ -13,7 +13,8 @@
    01–16  EOE / ROE 共用的底座
    17     ROE 配色层（body.roe）
    18     ROE 立体与按钮
-   19     獣化 The Beast（body.roe.beast）
+   19     红色 Red Skin（body.roe.beast / body.roe.danger 共用）
+   19a    獣化 The Beast · 动效与花屏（body.roe.beast）
    ══════════════════════════════════════════════════════════════ */
 
 /* ── 01 字体 ─────────────────────────────────────────────── */
@@ -52,6 +53,20 @@ body{
   --cellTickGlow:none;
   --sepFill:var(--cyan);        /* .sep 两端的小方块 */
   --sepGlow:0 0 6px rgba(63,216,255,.5);
+  /* 斜纹只有两色：EOE 实色交替，ROE 起第二色透明 */
+  --zl:#e8000e;
+  --zl2:#150202;
+  /* 抬起量：所有「抬起来」的位移只写这一份（侧壁厚度才是 --wall* 的活儿） */
+  --lift:translate(-1px,-3px);
+  /* 红底板：DANGER 点亮 / 裏コード 抬起 / dPulse 亮相同一块，改一次全同步 */
+  --subBg:linear-gradient(180deg,#8a0f1e,#440512);
+  --dstkGlow:0 0 10px rgba(255,40,60,.9);
+  /* 提示条：字 / 字光 / 底 / 边框 / 外发光 */
+  --hintC:var(--amber);
+  --hintGlow:0 0 8px rgba(255,150,20,.4);
+  --hintBg:rgba(20,14,6,.9);
+  --hintRim:rgba(255,170,40,.42);
+  --hintTab:0 8px 24px rgba(0,0,0,.6),0 0 14px rgba(255,150,20,.18);
   --rb:linear-gradient(180deg,#000 0 48px,transparent 48px) 0 0/1500px 600px no-repeat,
        linear-gradient(to top right,#b2403c 0,#b58a3a 20%,#a9be4a 30%,#81ba5d 38%,#55995a 64%,#3f8aa0 80%,#3f68ae 92%,#4b4fb0 100%) 200px 0/1300px 600px no-repeat;
   font-family:"EVA Matisse",serif;
@@ -222,13 +237,12 @@ body.clk .cd{display:none}
 }
 .mode .zebra{
   position:absolute;top:0;bottom:0;right:0;width:40px;
-  background:linear-gradient(-45deg,#e8000e 0 12.5%,#150202 12.5% 25%,#e8000e 25% 37.5%,#150202 37.5% 50%,#e8000e 50% 62.5%,#150202 62.5% 75%,#e8000e 75% 87.5%,#150202 87.5%);
+  background:linear-gradient(-45deg,var(--zl) 0 12.5%,var(--zl2) 12.5% 25%,var(--zl) 25% 37.5%,var(--zl2) 37.5% 50%,var(--zl) 50% 62.5%,var(--zl2) 62.5% 75%,var(--zl) 75% 87.5%,var(--zl2) 87.5%);
   transition:opacity .3s;
 }
 .mode:not(.active) .zebra{opacity:0}
-body.roe.reserve:not(.beast) .mode.active .zebra{
-  background:linear-gradient(-45deg,#eef4ff 0 12.5%,transparent 12.5% 25%,#eef4ff 25% 37.5%,transparent 37.5% 50%,#eef4ff 50% 62.5%,transparent 62.5% 75%,#eef4ff 75% 87.5%,transparent 87.5%);
-}
+/* 予備 的白斜纹只在蓝皮（ROE 常态）成立：红皮下由 19 章统一压回红 */
+body.roe.reserve:not(.beast):not(.danger) .mode.active{--zl:#eef4ff}
 
 .powerbox .jp{position:absolute;left:6px;top:1px;font-size:19px;font-weight:700;line-height:22px;white-space:nowrap}
 .powerbox .en{
@@ -402,9 +416,9 @@ body.reserve .seg-wrap{animation:resvFade 3s ease-in-out infinite}
   max-width:min(860px,90vw);margin:0;padding:9px 18px 10px;
   text-align:center;font-family:"Microsoft YaHei",sans-serif;
   font-size:12px;line-height:1.75;letter-spacing:.14em;
-  color:var(--amber);text-shadow:0 0 8px rgba(255,150,20,.4);
-  background:rgba(20,14,6,.9);border:1px solid rgba(255,170,40,.42);
-  box-shadow:0 8px 24px rgba(0,0,0,.6),0 0 14px rgba(255,150,20,.18);
+  color:var(--hintC);text-shadow:var(--hintGlow);
+  background:var(--hintBg);border:1px solid var(--hintRim);
+  box-shadow:var(--hintTab);
   opacity:0;pointer-events:none;
   transition:opacity .16s ease,transform .16s ease;
 }
@@ -429,18 +443,10 @@ body.roe .plate{opacity:1}
 
 .baseShade{opacity:0;pointer-events:none;transition:opacity .45s ease}
 body.roe .baseShade{opacity:1}
-body.roe.beast .baseShade line{stroke:rgba(255,120,130,.28)}
-/* 獣化：补缝也要从「亮红侧壁」过渡到「暗红底板」，否则拐角处又是硬切 */
-body.roe.beast #gSeamX .s0{stop-color:#6a0f1e}
-body.roe.beast #gSeamX .s1{stop-color:#3a0612}
-body.roe.beast #gSeamX .s2{stop-color:#16030a}
 
 /* 右下底板右侧的落影/侧壁：只在 ROE 显形，配色跟着装甲板走 */
 .blk0Cast{opacity:0;pointer-events:none;transition:opacity .45s ease}
 body.roe .blk0Cast{opacity:1}
-body.roe.beast .blk0Cast .b0s {fill:#3a0610}
-body.roe.beast .blk0Cast .b0w {fill:#3a0612}
-body.roe.beast .blk0Cast .b0w2{fill:#6a0f1e}
 
 .deco .themeHot{cursor:pointer;outline:none}
 .deco .themeHot:hover{stroke:#ffe8b4;filter:drop-shadow(0 0 8px rgba(255,190,70,.95))}
@@ -473,6 +479,8 @@ body.roe{
   /* 玻璃材质：面板底 / 边框（其余玻璃槽位没人引用） */
   --glassV:rgba(124,104,208,.46);
   --rimW:rgba(255,255,255,.26);
+  /* 按钮外框：.box / 未抬起的 .mode·.powerbox·.danger-cell·.subbox / ::before 共用 */
+  --btnRim:rgba(166,190,244,.36);
   /* 立体侧壁：单一光源（左上），4 层 = 受光侧面 + 暗侧 + 接触影 + 环境遮蔽。
      只有颜色不同，才分成四档；几何关系各档固定，改一处即全体生效。 */
   --wallUp:2px 3px 0 0 rgba(62,86,158,1),
@@ -510,6 +518,15 @@ body.roe{
   --cellTickGlow:var(--tkG);
   --sepFill:#ff8d9c;
   --sepGlow:0 0 6px rgba(255,100,130,.65);
+  /* 斜纹：ROE 起第二色改成透明，只留一条红 */
+  --zl:#e6122e;
+  --zl2:transparent;
+  /* 提示条（规则在 01–16 章，这里只换值） */
+  --hintC:#aab9ff;
+  --hintGlow:0 0 8px rgba(120,150,255,.5);
+  --hintBg:rgba(10,12,40,.9);
+  --hintRim:rgba(150,175,255,.45);
+  --hintTab:0 8px 24px rgba(0,0,0,.6),0 0 16px rgba(90,130,255,.22);
 }
 /* #barH 是 <defs> 里的原型，会被每个 <use> 复制一份，这里的光晕是叠加出来的，
    删掉会让那几条横刻度暗一档，所以保留 */
@@ -522,8 +539,7 @@ body.roe:not(.pw) .cut{opacity:0}
 
 body.roe .gradbar{background:linear-gradient(180deg,#7df0ff,#2ab0ec 55%,#2f6fe6);box-shadow:0 0 10px rgba(60,200,255,.65),0 0 24px rgba(40,140,255,.35)}
 body.roe .gline{background:linear-gradient(90deg,#ff7ccf,#b17cff 60%,#7a8cff);box-shadow:0 0 7px rgba(200,120,255,.55)}
-body.roe.danger .gradbar{background:linear-gradient(180deg,#ff9aa5,#ff2a40 50%,#a00018);box-shadow:0 0 14px rgba(255,40,60,.7)}
-body.roe.danger .gline{background:linear-gradient(90deg,#ff2a40,#ff7a6a);box-shadow:0 0 7px rgba(255,40,60,.65)}
+/* 告急 / 獣化的红档在 19 章统一给（同一条规则管两个状态），这里只留蓝档 */
 
 .glow{transition:color .35s}
 body.roe .jpL,body.roe .atoL{color:#f4f6ff;text-shadow:0 0 6px rgba(170,195,255,.6),2px 3px 1px rgba(0,0,0,.95)}
@@ -565,7 +581,7 @@ body.roe .box,body.roe .cell,body.roe .danger-cell,body.roe .subbox{
    · 「裏コード」= 獣化激活时才抬起并转红，平时平贴
    ──────────────────────────────────────────────────────────── */
 body.roe .box{
-  border-color:rgba(166,190,244,.36);
+  border-color:var(--btnRim);
   background:linear-gradient(180deg,rgba(128,160,230,.5),rgba(78,102,178,.58));
   color:#cfe0ff;
   box-shadow:none;
@@ -582,7 +598,7 @@ body.roe .danger-cell,
 body.roe .subbox{
   --wall:0 0 0 0 rgba(0,0,0,0);
   transform:none;
-  border-color:rgba(166,190,244,.36);
+  border-color:var(--btnRim);
   box-shadow:var(--wall);
 }
 
@@ -592,7 +608,7 @@ body.roe .mode.active,
 body.roe .powerbox:not(.off),
 body.roe.beast .subbox{
   --wall:var(--wallUp);
-  transform:translate(-1px,-3px);
+  transform:var(--lift);
   border-color:rgba(198,218,255,.46);
   box-shadow:var(--wall);
 }
@@ -605,7 +621,7 @@ body.roe.beast .subbox{
 body.roe .danger-cell.on{
   --wall:0 0 0 0 rgba(0,0,0,0);
   transform:none;
-  border-color:rgba(166,190,244,.36);
+  border-color:var(--btnRim);
   box-shadow:var(--wall);
   transition:transform .26s cubic-bezier(.55,0,.85,.3),box-shadow .26s,
              border-color .26s,color .18s;
@@ -613,17 +629,17 @@ body.roe .danger-cell.on{
 body.roe .danger-cell.boot{
   /* 红板就得配红壁，蓝壁会露馅（和告急态同一套厚度） */
   --wall:var(--wallRedUp);
-  transform:translate(-1px,-3px);
+  transform:var(--lift);
   border-color:rgba(255,120,135,.62);
   box-shadow:var(--wall);
   color:#ff3a4c;
-  text-shadow:0 0 10px rgba(255,40,60,.9);
+  text-shadow:var(--dstkGlow);
   transition:transform .18s cubic-bezier(.2,1.5,.4,1),box-shadow .18s,
              border-color .18s,color .18s;
 }
 body.roe .danger-cell.boot::before{
   border-color:rgba(255,120,135,.62);
-  background:linear-gradient(180deg,#8a0f1e,#440512);
+  background:var(--subBg);
   box-shadow:var(--wall),0 0 16px rgba(255,30,50,.5);
   /* 点亮要「啪」地一下（0.4s 窗口里没时间让它慢慢染红），回落仍走 .3s 渐变 */
   transition:background .1s linear,border-color .1s linear,box-shadow .18s;
@@ -671,9 +687,6 @@ body.roe.zero:not(.clk) .mode.active{
 body.roe.zero:not(.clk) .mode.inactive{
   text-shadow:0 0 7px rgba(150,182,250,.22),0 0 18px rgba(96,132,235,.12);
 }
-body.roe .mode .zebra{
-  background:linear-gradient(-45deg,#e6122e 0 12.5%,transparent 12.5% 25%,#e6122e 25% 37.5%,transparent 37.5% 50%,#e6122e 50% 62.5%,transparent 62.5% 75%,#e6122e 75% 87.5%,transparent 87.5%);
-}
 body.roe .mode.inactive .zebra{opacity:0}
 
 body.roe .cell{
@@ -703,7 +716,7 @@ body.roe .danger-cell{
 /* 底板：inset:-2px 正好补回被让出来的 2px 边框，尺寸与原按钮一致 */
 body.roe .danger-cell::before{
   content:"";position:absolute;inset:-2px;z-index:0;
-  border:2px solid rgba(166,190,244,.36);border-radius:inherit;
+  border:2px solid var(--btnRim);border-radius:inherit;
   background:linear-gradient(180deg,rgba(146,174,232,.76),rgba(100,124,194,.84));
   box-shadow:var(--wall);
   pointer-events:none;
@@ -720,16 +733,16 @@ body.roe:not(.danger):not(.beast) .danger-cell.on{animation:none}
 
 body.roe.beast .danger-cell,
 body.roe.danger .danger-cell.on{
-  color:#ff3a4c;text-shadow:0 0 10px rgba(255,40,60,.9);
+  color:#ff3a4c;text-shadow:var(--dstkGlow);
 }
 body.roe.danger .danger-cell.on::before{
   border-color:rgba(255,120,135,.62);
   background:linear-gradient(180deg,#3b0712,#1d0309);
   animation:dPulse .45s steps(1) infinite;
 }
-/* 告急态：厚度也换成暗红，红板红壁才是一整块（蓝壁会露馅） */
+/* 告急态：厚度也换成暗红 */
 body.roe.danger .danger-cell.on{
-  transform:translate(-1px,-3px);   /* 抬起改由这里与 .boot 负责，.on 本身是平贴的 */
+  transform:var(--lift);   /* 抬起改由这里与 .boot 负责，.on 本身是平贴的 */
   --wall:var(--wallRedUp);
 }
 /* 裏コード：整块 dAlert 警报闪（替代原来的 dJit + dHide + dPulse 三频叠加）
@@ -738,7 +751,7 @@ body.roe.danger .danger-cell.on{
 body.roe.beast .danger-cell,
 body.roe.beast .danger-cell.on{
   --wall:var(--wallRed);
-  transform:translate(-1px,-3px);   /* 减少动效时 dAlert 被关掉，靠这条保持抬起 */
+  transform:var(--lift);   /* 减少动效时 dAlert 被关掉，靠这条保持抬起 */
   box-shadow:var(--wall);
   animation:dAlert .88s steps(1,end) infinite;   /* 整块（底板 + 文字）一起按 GIF 节奏闪 */
   --gOn:0 0 10px rgba(255,40,60,.95),0 0 26px rgba(255,20,45,.65),0 0 56px rgba(255,10,32,.35);
@@ -748,24 +761,29 @@ body.roe.beast .danger-cell.on{
 body.roe.beast .danger-cell::before{
   /* 獣化「单独」成立时：底板自己不动，明暗全交给元素本体的 dAlert（.88s 逐帧警报闪）。 */
   animation:none;
-  background:linear-gradient(180deg,#8a0f1e,#440512);
+  background:var(--subBg);
   border-color:rgba(255,140,152,.72);
   box-shadow:var(--wall),0 0 16px rgba(255,30,50,.5);
 }
 
-/* 归零：底板跟着方波一起闪 */
-body.roe.zero:not(.clk) .danger-cell::before{animation:zeroA .39s steps(1) infinite}
-/* 归零是断电前最后一相，保持原来「抬着闪」的样子。
-   獣化 / 告急两种情况下红板必须配红壁，所以都要排除*/
+/* 归零（非獣化）：断电前最后一相 —— DANGER 保持抬起，但整块不再跟着方波闪
+   （元素本体与 ::before 底板一起停，文字 .dstk 压在上面，跟着静下来） */
+body.roe.zero:not(.clk):not(.beast) .danger-cell,
+body.roe.zero:not(.clk):not(.beast) .danger-cell.on,
+body.roe.zero:not(.clk):not(.beast) .danger-cell::before{animation:none}
+/* 獣化归零：底板照旧跟方波闪 */
+body.roe.zero:not(.clk).beast .danger-cell::before{animation:zeroA .39s steps(1) infinite}
+/* 抬起的厚度：非告急走蓝壁；告急那支由上面 744 的 --wallRedUp 负责
+   （獣化 / 告急两种情况下红板必须配红壁，所以都要排除） */
 body.roe.zero:not(.clk):not(.beast):not(.danger) .danger-cell.on{
   --wall:var(--wallUp);
-  transform:translate(-1px,-3px);
+  transform:var(--lift);
   box-shadow:var(--wall);
 }
 
 @keyframes dPulse{
   0%,49.9%{
-    background:linear-gradient(180deg,#8a0f1e,#440512);
+    background:var(--subBg);
     border-color:rgba(255,140,152,.72);
     box-shadow:var(--wall),0 0 16px rgba(255,30,50,.5);
   }
@@ -787,9 +805,9 @@ body.roe.zero:not(.clk):not(.beast):not(.danger) .danger-cell.on{
   9.09%  {opacity:.43;--dGlow:var(--gOff);transform:translate(0,-4px)}
   18.18% {opacity:.92;--dGlow:var(--gOn); transform:translate(-2px,-2px)}
   22.73% {opacity:.43;--dGlow:var(--gOff);transform:translate(0,-4px)}
-  27.27% {opacity:1;  --dGlow:var(--gOn); transform:translate(-1px,-3px)}
-  31.82% {opacity:.8; --dGlow:var(--gMid);transform:translate(-1px,-3px)}
-  36.36%,100%{opacity:1;--dGlow:var(--gOn);transform:translate(-1px,-3px)}
+  27.27% {opacity:1;  --dGlow:var(--gOn); transform:var(--lift)}
+  31.82% {opacity:.8; --dGlow:var(--gMid);transform:var(--lift)}
+  36.36%,100%{opacity:1;--dGlow:var(--gOn);transform:var(--lift)}
 }
 
 /* 裏コード：未激活时与 DANGER 同材质同底色（都平贴），
@@ -804,99 +822,175 @@ body.roe .subbox{
 }
 body.roe.beast .subbox{
   --wall:var(--wallRed);
-  transform:translate(-1px,-3px);
-  background:linear-gradient(180deg,#8a0f1e,#440512);
+  transform:var(--lift);
+  background:var(--subBg);
   border-color:rgba(255,140,152,.72);
   color:#ff3a4c;
-  text-shadow:0 0 10px rgba(255,40,60,.9);
+  text-shadow:var(--dstkGlow);
   box-shadow:var(--wall),0 0 16px rgba(255,30,50,.5);
 }
 body.roe .subbox:hover{filter:brightness(1.1)}
-body.roe .hint{
-  color:#aab9ff;text-shadow:0 0 8px rgba(120,150,255,.5);
-  background:rgba(10,12,40,.9);border-color:rgba(150,175,255,.45);
-  box-shadow:0 8px 24px rgba(0,0,0,.6),0 0 16px rgba(90,130,255,.22);
-}
 
 /* ══════════════════════════════════════════════════════════════
-   19 獣化 The Beast（body.roe.beast）
+   19 红皮 Red Skin（body.roe.beast / body.roe.danger）
+   ──────────────────────────────────────────────────────────────
+   裏コード（獣化）与告急（倒计时最后 7 秒）贴的是同一套红：同色、同材质、
+   同厚度。所以「颜色」只在这里写一份，选择器统一挂 :is(.beast,.danger)
+   同时认两个状态：
+       beast  → 裏コード           danger → 最后 7 秒
+   19a 只留獣化独有的动效与花屏；原先逐条复制的那份红（旧 19b）已整节删除。
+   ★ 本节一律不写 animation —— 唯一例外是「关掉」pulse 呼吸（见按钮那节），
+     免得和 19a 的帧动画叠在一起。改一个红值 ⇒ 只改这里，两状态同步生效。
    ══════════════════════════════════════════════════════════════ */
 body{
   --rb3:linear-gradient(180deg,#0a0206 0 48px,transparent 48px) 0 0/1500px 600px no-repeat,
         linear-gradient(to top right,#ff3a2a 0,#ff1c28 30%,#f01430 50%,#c80c28 68%,#7c0818 85%,#3c0310 100%) 200px 0/1300px 600px no-repeat;
 }
 .charge.red{background:var(--rb3);opacity:0;transition:mask-position .5s cubic-bezier(.35,.1,.25,1),opacity .35s ease}
-body.beast .charge.red{opacity:1}
 /* 獣化图层：两张 canvas 与那张静态坏块 SVG 共用同一套铺满 + 淡入 */
 .fx,.fx-fixed{position:absolute;inset:0;width:1500px;height:600px;pointer-events:none;opacity:0;transition:opacity .2s}
 body.beast .fx,body.beast .fx-fixed{opacity:1}
 .pShadow,.pWall,.pWall2{transition:fill .35s}
 
-body.roe.beast{
+/* ── 背景：整屏红滤镜（同一支 --rb3） ─────────────────────── */
+body.beast .charge.red,
+body.roe.danger .charge.red{opacity:1}
+
+/* ── 背景内衬 ─────────────────────────────────────────────── */
+body.roe:is(.beast,.danger) :is(.inner,.leftbezel,.leftbar){background:#0b0207}
+
+/* ★ 红皮：一个 :is() 同时认「裏コード / 最后 7 秒」，整套红只写一份。
+   下面这条只赋变量，其余是平铺规则 —— 不用 CSS 嵌套，免依赖 Chrome ≥120。 */
+body.roe:is(.beast,.danger){
+  /* ── 配色槽位：只赋值，规则本身在 17 章共用 ───────────────── */
   --cyan:#ffd6da;
   --tkC:var(--cyan);
+  --tkG:drop-shadow(0 0 3px rgba(255,120,130,.8));
   --glassV:rgba(150,16,34,.5);
   --rimW:rgba(255,120,130,.3);
   --seg-glow:0 0 7px rgba(255,35,65,.7),2px 3px 0 rgba(40,0,10,.6);
   --seg-bloom:drop-shadow(2px 3px 1px rgba(40,0,10,.6)) drop-shadow(0 0 5px rgba(255,40,70,.55)) drop-shadow(0 0 14px rgba(255,10,40,.28));
-
-  /* 獣化：同一批槽位换红，规则一行都不用改。
-     光晕四个槽位（tkGlow/tkT2Glow/cyGlow/bkGlow）在这里全部直接给值，
-     不再经由 --tkG —— 所以 beast 下不需要单独覆盖 --tkG */
+  /* tkGlow / tkT2Glow / cellTickGlow / bkGlow 在 17 章都是 var(--tkG)，
+     改 --tkG 即跟随；只有 --cyGlow 要更强一档，单独给值 */
   --tickC:#ff8a96;
   --tkT2:#ff8a96;
-  --tkGlow:drop-shadow(0 0 3px rgba(255,120,130,.8));
-  --tkT2Glow:drop-shadow(0 0 3px rgba(255,120,130,.8));
   --cyFill:#ff8a96;
   --cyGlow:drop-shadow(0 0 3px rgba(255,130,140,.85));
   --yeFill:#000;
   --yeGlow:none;
   --cellTick:#ff8a96;
-  --cellTickGlow:drop-shadow(0 0 3px rgba(255,120,130,.8));
   --sepFill:#ff9aa4;
   --sepGlow:0 0 6px rgba(255,90,110,.65);
   --bkFill:#ff8a96;
-  --bkGlow:drop-shadow(0 0 3px rgba(255,120,130,.8));
+  /* 斜纹：只换第一色，第二色沿用 ROE 的 transparent */
+  --zl:#ff3a4c;
+  /* 提示条 */
+  --hintC:#ff9aa4;
+  --hintGlow:0 0 8px rgba(255,60,80,.5);
+  --hintBg:rgba(26,4,10,.9);
+  --hintRim:rgba(255,120,130,.45);
+  --hintTab:0 8px 24px rgba(0,0,0,.65),0 0 16px rgba(255,50,70,.22);
 }
-body.roe.beast .inner,body.roe.beast .leftbezel,body.roe.beast .leftbar{background:#0b0207}
-body.roe.beast #gPanel stop:nth-child(1){stop-color:#2a0a12}
-body.roe.beast #gPanel stop:nth-child(2){stop-color:#34101a}
-body.roe.beast #gPanel stop:nth-child(3){stop-color:#4e1222}
-body.roe.beast .pShadow{fill:#3a0610}
-body.roe.beast .pWall{fill:#3a0612}
-body.roe.beast .pWall2{fill:#6a0f1e}
-body.roe.beast .pRim{stroke:rgba(255,120,130,.28)}
-body.roe.beast .deco .blk0{fill:#16030a}
+
+/* ── 装甲板：三档渐变 + 侧壁 / 描边 / 底色 ─────────────────── */
+body.roe:is(.beast,.danger) #gPanel stop:nth-child(1){stop-color:#2a0a12}
+body.roe:is(.beast,.danger) #gPanel stop:nth-child(2){stop-color:#34101a}
+body.roe:is(.beast,.danger) #gPanel stop:nth-child(3){stop-color:#4e1222}
+body.roe:is(.beast,.danger) .pShadow{fill:#3a0610}
+body.roe:is(.beast,.danger) .pWall{fill:#3a0612}
+body.roe:is(.beast,.danger) .pWall2{fill:#6a0f1e}
+body.roe:is(.beast,.danger) .pRim{stroke:rgba(255,120,130,.28)}
+body.roe:is(.beast,.danger) .deco .blk0{fill:#16030a}
+
+/* 补缝 / 右下侧壁 / 落影：不换成同一档红，拐角处就是硬切 */
+body.roe:is(.beast,.danger) .baseShade line{stroke:rgba(255,120,130,.28)}
+body.roe:is(.beast,.danger) #gSeamX .s0{stop-color:#6a0f1e}
+body.roe:is(.beast,.danger) #gSeamX .s1{stop-color:#3a0612}
+body.roe:is(.beast,.danger) #gSeamX .s2{stop-color:#16030a}
+body.roe:is(.beast,.danger) .blk0Cast .b0s{fill:#3a0610}
+body.roe:is(.beast,.danger) .blk0Cast .b0w{fill:#3a0612}
+body.roe:is(.beast,.danger) .blk0Cast .b0w2{fill:#6a0f1e}
 
 /* 只有 DANGER / 裏コード 那一行的四根（x 1303/1307/1398/1402）留在红：
-   .ye 整组转黑后它们正好落在红灯带旁边，跟着一起黑会断成一截。
-   颜色跟 .bk / .cy 同一支 #ff8a96，光晕也同一副 */
-body.roe.beast .ye>.yHot{fill:#ff8a96;filter:drop-shadow(0 0 3px rgba(255,120,130,.85))}
-body.roe.beast .gradbar,body.roe.beast.danger .gradbar{background:linear-gradient(180deg,#ff6a72,#c0182a);box-shadow:0 0 8px rgba(255,50,70,.45)}
-body.roe.beast .gline,body.roe.beast.danger .gline{background:linear-gradient(90deg,#ff5a6a,#ff2030);box-shadow:0 0 7px rgba(255,40,60,.6)}
+     .ye 整组转黑后它们正好落在红灯带旁边，跟着一起黑会断成一截。
+     颜色跟 .bk / .cy 同一支 #ff8a96，光晕也同一副 */
+body.roe:is(.beast,.danger) .ye>.yHot{fill:#ff8a96;filter:drop-shadow(0 0 3px rgba(255,120,130,.85))}
+body.roe:is(.beast,.danger) .gradbar{background:linear-gradient(180deg,#ff6a72,#c0182a);box-shadow:0 0 8px rgba(255,50,70,.45)}
+body.roe:is(.beast,.danger) .gline{background:linear-gradient(90deg,#ff5a6a,#ff2030);box-shadow:0 0 7px rgba(255,40,60,.6)}
 
-/* 獣化：所有文字红色 */
-body.roe.beast .jpL,
-body.roe.beast .enL,
-body.roe.beast .atoL,
-body.roe.beast .mode .jp,
-body.roe.beast .mode .en,
-body.roe.beast .powerbox .jp,
-body.roe.beast .powerbox .en,
-body.roe.beast .cell .txt,
-body.roe.beast .danger-cell .dstk,
-body.roe.beast .subbox .jp,
-body.roe.beast .subbox .en1,
-body.roe.beast .subbox .en2{
+/* ── 文字：一律 #ff3a4c ────────────────────────────────────── */
+/* ★ 标题必须单独一条：:is() 的权重取参数里最高的那个，把 .jpL 和 .mode .jp
+   混进同一个 :is() 会把单类那批抬到 (0,4,1)，反压下面标题的黑投影。 */
+body.roe:is(.beast,.danger) :is(.jpL,.enL,.atoL){
+  color:#ff3a4c !important;
+  /* 标题的投影是黑的，只让发光层转红（黑投影必须写在最前，否则被红晕糊成红色） */
+  text-shadow:2px 3px 1px rgba(0,0,0,.98),0 0 8px rgba(255,30,50,.55),0 0 22px rgba(255,20,40,.22) !important;
+}
+body.roe:is(.beast,.danger) :is(.mode .jp,.mode .en,.powerbox .jp,.powerbox .en,.cell .txt,.danger-cell .dstk,.subbox .jp,.subbox .en1,.subbox .en2){
   color:#ff3a4c !important;
   text-shadow:0 0 8px rgba(255,30,50,.75) !important;
 }
-/* 獣化下标题的投影同样是黑色，只让发光层转红（黑投影必须写在最前，否则被红晕糊成红色） */
-body.roe.beast .jpL,
-body.roe.beast .enL,
-body.roe.beast .atoL{
-  text-shadow:2px 3px 1px rgba(0,0,0,.98),0 0 8px rgba(255,30,50,.55),0 0 22px rgba(255,20,40,.22) !important;
+
+/* ── 数码管：全红（獣化的抖动在 19a，告急不加） ─────────────── */
+body.roe:is(.beast,.danger) .seg{fill:url(#gSegR);stroke:rgba(255,150,170,.32)}
+body.roe:is(.beast,.danger) .dot{background:#ff1e3a}
+body.roe:is(.beast,.danger) .seg-wrap .digit .seg.hl{fill:url(#gSegR);stroke:#ffd2d8;stroke-width:1.6;filter:none}
+
+/* ── 按钮 ──────────────────────────────────────────────────── */
+body.roe:is(.beast,.danger) .box{
+  color:#ff6a76;
+  text-shadow:0 0 9px rgba(255,90,110,.62),0 0 24px rgba(255,50,70,.38),0 0 56px rgba(255,30,50,.18);
 }
+
+/* 抬起的「内部 / 外部」与通电的「主電源」：红玻璃 + 暗红侧壁。
+     ★ 顺带停掉 pulse 呼吸 —— `animation:pulse 1.6s` 的 filter:brightness(1.1↔1.4)
+     会把整块按钮连文字光晕一起提亮，红底上就糊成一团光。
+     只停动画，材质 / 阴影全用现成的，不新增任何亮度值。 */
+body.roe:is(.beast,.danger) .mode.active,
+body.roe:is(.beast,.danger) .powerbox:not(.off){
+  --wall:var(--wallRedSoft);
+  border-color:rgba(255,180,190,.5);
+  background:linear-gradient(168deg,rgba(255,86,98,.9),rgba(198,22,40,.9));
+  box-shadow:var(--wall);
+  animation:none;
+}
+body.roe:is(.beast,.danger) .mode.active{color:#ff7580}
+body.roe:is(.beast,.danger) .powerbox:not(.off){color:#ff9aa4}
+
+/* 未点的那一块也要读作红色：底色转红、边框转红，而不是只剩字是红的 */
+body.roe:is(.beast,.danger) .mode.inactive{
+  color:#ff8b96;
+  background:linear-gradient(180deg,rgba(210,44,64,.55),rgba(132,18,38,.62));
+  border-color:rgba(255,130,142,.34);
+  text-shadow:0 0 9px rgba(255,70,90,.5),0 0 24px rgba(255,30,50,.28),0 0 56px rgba(255,10,30,.14);
+}
+
+/* 斜纹跟字同色（--zl，予備 的白斜纹也压回红） */
+body.roe:is(.beast,.danger) .cell{color:#ff6a74}
+body.roe:is(.beast,.danger) .cell.sel .txt{color:#ff9aa4}
+body.roe:is(.beast,.danger).pw:not(.zero) :is(.cell[data-bar="2"],.cell[data-bar="3"]) .redbar{opacity:1}
+
+/* 裏コード：材质转红；「抬起」仍旧只属于獣化（见 18 章与 19a） */
+body.roe:is(.beast,.danger) .subbox{
+  background:var(--subBg);
+  border-color:rgba(255,140,152,.72);
+  color:#ff3a4c;
+  text-shadow:var(--dstkGlow);
+}
+
+/* 告急 × 归零：18 章 `body.roe.zero:not(.clk) .mode.inactive` 会把字光再收一档，
+   它的特异性（0,5,1）正好压过红皮 —— 归零的暗相照样是红底，
+   所以按同一档红再钉一次（与复用前一致；獣化 × 归零仍走归零那档，没动）。 */
+body.roe.danger.zero:not(.clk) .mode.inactive{
+  text-shadow:0 0 9px rgba(255,70,90,.5),0 0 24px rgba(255,30,50,.28),0 0 56px rgba(255,10,30,.14);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   19a 獣化 The Beast · 动效与花屏（body.roe.beast）
+   —— 颜色全在 19 章，这里只放「会动的东西」：
+      整屏亮度抖 / 标题字抖 / 数码管抖 / DANGER 警报闪 / 幽灵段 /
+      inactive 噪点 / 花屏与噪点图层。
+   ══════════════════════════════════════════════════════════════ */
 body.roe.beast:not(.zero) :is(.jpL,.enL,.atoL)>span{
   display:inline-block;
   animation:chJitA var(--jd,2.2s) steps(1,end) infinite;
@@ -945,12 +1039,10 @@ body.roe.beast:not(.zero) :is(.jpL,.enL,.atoL)>span.dim{
   100%{-webkit-text-fill-color:#ff3a4c;filter:drop-shadow(0 0 0 rgba(255,240,244,0));translate:0 0}
 }
 
-/* 数码管：全红 + 轻微抖动 */
-body.roe.beast .seg{fill:url(#gSegR);stroke:rgba(255,150,170,.32)}
-body.roe.beast .dot{background:#ff1e3a}
+/* 幽灵段：只在「外部待机」(.idle) 留一点底光；
+   内部 / 予備 / 时钟一律全黑（见 15 章的默认 opacity:0 与 .zero 规则） */
 body.roe.beast.pw:not(.clk):not(.zero) .seg-wrap.idle .cd .seg:not(.on),
 body.roe.beast .seg-wrap.idle .seg:not(.on){opacity:.2}
-body.roe.beast .seg-wrap .digit .seg.hl{fill:rgba(255,40,60,.07);stroke:#ffd2d8;stroke-width:1.6;filter:none}
 body.roe.beast .seg-wrap{animation:segJitter .18s steps(2) infinite}
 @keyframes segJitter{
   0%{transform:translate(0,0)}
@@ -958,32 +1050,6 @@ body.roe.beast .seg-wrap{animation:segJitter .18s steps(2) infinite}
   50%{transform:translate(-1px,1px)}
   75%{transform:translate(0,-1px)}
   100%{transform:translate(1px,0)}
-}
-
-body.roe.beast .box{
-  color:#ff6a76;
-  text-shadow:0 0 9px rgba(255,90,110,.62),0 0 24px rgba(255,50,70,.38),0 0 56px rgba(255,30,50,.18);
-}
-/* 獣化下抬起的那块，侧壁换成暗红，几何关系不变 */
-body.roe.beast .mode.active,body.roe.beast .powerbox:not(.off){
-  --wall:var(--wallRedSoft);
-  border-color:rgba(255,180,190,.5);
-  background:linear-gradient(168deg,rgba(255,86,98,.9),rgba(198,22,40,.9));
-  box-shadow:var(--wall);
-}
-body.roe.beast .mode.active{color:#ff7580;animation:none}
-body.roe.beast .powerbox:not(.off){color:#ff9aa4;animation:none}
-/* 未点的那一块也要读作红色：底色转红、边框转红，而不是只剩字是红的 */
-body.roe.beast .mode.inactive{
-  color:#ff8b96;
-  background:linear-gradient(180deg,rgba(210,44,64,.55),rgba(132,18,38,.62));
-  border-color:rgba(255,130,142,.34);
-  text-shadow:0 0 9px rgba(255,70,90,.5),0 0 24px rgba(255,30,50,.28),0 0 56px rgba(255,10,30,.14);
-}
-/* 獣化下斜纹跟字同色：文字被第 19 章钉成 #ff3a4c，斜纹也必须用这个红，
-   否则 #ff6a76 压在亮红玻璃底上会读成白色（与「内部/外部」明显不是一色） */
-body.roe.beast .mode .zebra{
-  background:linear-gradient(-45deg,#ff3a4c 0 12.5%,transparent 12.5% 25%,#ff3a4c 25% 37.5%,transparent 37.5% 50%,#ff3a4c 50% 62.5%,transparent 62.5% 75%,#ff3a4c 75% 87.5%,transparent 87.5%);
 }
 
 /* 内外部文字不闪烁 */
@@ -997,21 +1063,12 @@ body.roe.beast .mode.inactive::before{
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35  0 0 0 0 .02  0 0 0 0 .05  0 0 0 .9 -.25'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
 }
 
-body.roe.beast .cell{color:#ff6a74}
-body.roe.beast .cell.sel .txt{color:#ff9aa4}
-body.roe.beast.pw:not(.zero) .cell[data-bar="2"] .redbar,
-body.roe.beast.pw:not(.zero) .cell[data-bar="3"] .redbar{opacity:1}
-
 /* 獣化下的 DANGER：抬起 + 整块警报闪（见 dAlert），
-   这里只补「文字保持清晰」——不加任何高斯模糊，也不覆盖闪烁用的 opacity */
+   这里只补「文字保持清晰」——不加任何高斯模糊，也不覆盖闪烁用的 opacity。
+   ★ 必须排在 19 章之后：同特异性，靠源码顺序压过那条 8px 的红晕 */
 body.roe.beast .danger-cell .dstk{
   filter:none;
   text-shadow:var(--dGlow,var(--gOn)) !important;
-}
-body.roe.beast .hint{
-  color:#ff9aa4;text-shadow:0 0 8px rgba(255,60,80,.5);
-  background:rgba(26,4,10,.9);border-color:rgba(255,120,130,.45);
-  box-shadow:0 8px 24px rgba(0,0,0,.65),0 0 16px rgba(255,50,70,.22);
 }
 
 /* 整屏亮度 */
