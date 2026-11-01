@@ -606,6 +606,7 @@ body.roe .subbox{
    —— 一道硬侧壁当厚度，其余柔化 */
 body.roe .mode.active,
 body.roe .powerbox:not(.off),
+body.roe .danger-cell.raised,
 body.roe.beast .subbox{
   --wall:var(--wallUp);
   transform:var(--lift);
@@ -614,15 +615,11 @@ body.roe.beast .subbox{
 }
 
 /* DANGER 开关的开机瞬闪：抬起 → 落回 → 最后 7 秒再进警戒
-   · 内部倒计时一开始（乱码之后）抬起 + 点亮 0.4s（.boot）
-   · 0.4s 后侧壁收掉、整块落回甲板、文字熄灭，一直保持「按下」相
+   · 乱码一开始就抬起并点亮（.boot），一路亮到 4:59:80
+   · 4:59:80 灭灯但还抬着，4:59:74 才落回甲板(参考剧场版破)
    · 剩 7 秒（body.danger）才回到原来的「抬着闪底」
-   ★ .on 本身不再抬起：抬起只由 .boot / .danger / .beast / .zero 决定 */
+   ★ .on 本身不再抬起：抬起只由 .boot / .raised / .danger / .beast / .zero 决定 */
 body.roe .danger-cell.on{
-  --wall:0 0 0 0 rgba(0,0,0,0);
-  transform:none;
-  border-color:var(--btnRim);
-  box-shadow:var(--wall);
   transition:transform .26s cubic-bezier(.55,0,.85,.3),box-shadow .26s,
              border-color .26s,color .18s;
 }
@@ -1414,10 +1411,12 @@ const STAGE_H = 600;
 /* 计时参数 */
 const DURATION_MS   = 5 * 60 * 1000;  /* 一轮恰好 5 分钟 */
 const DANGER_AT_MS  = 7000;           /* 最后 7 秒进入警戒色 */
-const SCRAMBLE_MS   = 400;            /* 切入内部时的乱码时长 */
+const SEG_LIGHT_MS  = 100;            /* 乱码前全部数码管点亮 */
+const SCRAMBLE_MS   = 200;            /* 切入内部时的乱码时长 */
 const SCRAMBLE_HOLD = 75;             /* 乱码帧间隔 */
-const HOLD_MS       = 700;            /* 定格 5:00.00 让眼睛看清 */
-const BOOT_MS       = 400;            /* 倒计时开始时 DANGER 抬起后落回的时长 */
+const HOLD_MS       = 600;            /* 定格 5:00.00 让眼睛看清 */
+const BOOT_OFF_MS   = 200;            /* 5:00:00 − 200ms = 4:59:80 */
+const BOOT_DROP_MS  = 260;            /* 5:00:00 − 260ms = 4:59:74 */
 /* 通电自检：前三格（STOP → SLOW → NORMAL）依次闪一下，最终停在外部模式的默认档 NORMAL。
    第四格 RACING 归内部模式，不参与自检 */
 const POWER_STEP_DELAYS = [120, 220, 320];
@@ -1795,27 +1794,30 @@ let countdownRaf = 0;
 let scrambleRaf  = 0;
 let holdTimeout  = 0;
 let clockTimeout = 0;
-let bootTimer    = 0;
 
 /* ── 06 倒计时 ───────────────────────────────────────────── */
-/* DANGER 开关的开机瞬闪：抬起 + 点亮 BOOT_MS，然后落回、熄灭，
-   一直保持「按下」相，直到最后 7 秒由 body.danger 重新点亮 */
-function clearBootTimer(){
-  if (bootTimer){ clearTimeout(bootTimer); bootTimer = 0; }
-}
-
+/* DANGER 开关的开机瞬闪：乱码一开始就抬起并点亮（.boot），
+   之后由 tick() 里的 syncBootLook 按显示值收尾 —— 先灭灯、再落下。
+   落定后一直保持「按下」相，直到最后 7 秒由 body.danger 重新点亮 */
 function bootDanger(){
-  clearBootTimer();
+  ui.dangerCell.classList.remove('raised');
   ui.dangerCell.classList.add('boot');
-  bootTimer = setTimeout(() => {
-    bootTimer = 0;
-    ui.dangerCell.classList.remove('boot');
-  }, BOOT_MS);
 }
 
 function clearBootDanger(){
-  clearBootTimer();
-  ui.dangerCell.classList.remove('boot');
+  ui.dangerCell.classList.remove('boot','raised');
+}
+
+/* 4:59:80 灭灯（.boot → .raised）、4:59:74 落下*/
+function syncBootLook(ms){
+  const left = DURATION_MS - ms;
+  if (left < BOOT_OFF_MS) return;
+  const el = ui.dangerCell;
+  if (el.classList.contains('boot')){
+    el.classList.remove('boot');
+    el.classList.add('raised');
+  }
+  if (left >= BOOT_DROP_MS) el.classList.remove('raised');
 }
 
 function tick(now){
@@ -1823,6 +1825,7 @@ function tick(now){
   remainingMs = endTime - now;
   if (remainingMs < 0) remainingMs = 0;
   drawCountdown(remainingMs);
+  syncBootLook(remainingMs);
   setDanger(remainingMs <= DANGER_AT_MS);
   if (remainingMs === 0){ triggerZero(); return; }
   countdownRaf = requestAnimationFrame(tick);
@@ -1844,18 +1847,31 @@ function startCountdown(){
   remainingMs = DURATION_MS;
   isRunning = true;
   setDanger(false);
-  drawScramble();
+
+  const preLight = roe ? SEG_LIGHT_MS : 0;
+  if (preLight){
+    clearDotDither();
+    for (let i = 0; i < countdownDigits.length; i++) setDigitMask(countdownDigits, i, 0x7F);
+  } else {
+    drawScramble();
+  }
+  bootDanger();                             /* 乱码一开始就抬起并点亮 */
 
   const startedAt = performance.now();
-  let nextFrameAt = SCRAMBLE_HOLD;
+  let nextFrameAt = preLight + SCRAMBLE_HOLD;
+  let preLit = preLight > 0;
 
   const step = () => {
     const elapsed = performance.now() - startedAt;
-    if (elapsed >= SCRAMBLE_MS){
+    if (preLit && elapsed >= preLight){
+      preLit = false;
+      setLive(false);
+      drawScramble();
+    }
+    if (elapsed >= preLight + SCRAMBLE_MS){
       scrambleRaf = 0;
       setLive(true);
       drawCountdown(DURATION_MS);
-      bootDanger();                         /* 倒计时真正开始：开关抬起点亮 0.4s */
       holdTimeout = setTimeout(() => {
         holdTimeout = 0;
         endTime = performance.now() + remainingMs;
