@@ -2,7 +2,12 @@
 
 **ACTIVE TIME REMAINING — Front View**
 
+🌐 [中文说明](./README.md)
+
 An Evangelion-inspired armored HUD countdown / clock. Pure HTML + CSS + inline SVG, zero build step, just open the file.
+
+![EOE](./image/EOE.png)
+![ROE](./image/ROE.png)
 
 ---
 
