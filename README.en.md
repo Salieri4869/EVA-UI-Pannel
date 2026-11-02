@@ -6,8 +6,8 @@
 
 An Evangelion-inspired armored HUD countdown / clock. Pure HTML + CSS + inline SVG, zero build step, just open the file.
 
-![EOE](./image/EOE.png)
-![ROE](./image/ROE.png)
+![EOE](./image/EOE.jpg)
+![ROE](./image/ROE.jpg)
 
 ---
 

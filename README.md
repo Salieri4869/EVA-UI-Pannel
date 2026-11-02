@@ -6,8 +6,8 @@
 
 EVA 风格的装甲风 HUD 倒计时／时钟界面，纯 HTML + CSS + 内联 SVG 实现，无需构建、双击即开。
 
-![EOE](./image/EOE.png)
-![ROE](./image/ROE.png) 
+![EOE](./image/EOE.jpg)
+![ROE](./image/ROE.jpg) 
 
 ---
 
