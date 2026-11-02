@@ -258,13 +258,6 @@ body.roe.reserve:not(.beast):not(.danger) .mode.active{--zl:#eef4ff}
 .mode.active{cursor:pointer;animation:pulse 1.6s infinite}
 @keyframes pulse{0%,100%{filter:brightness(1.1)}50%{filter:brightness(1.4)}}
 
-/* EOE：内部 / 外部 的字与字光走红色（琥珀只留在边框 + 主電源上），
-   字光几何沿用 --glow 的 9/24/56px，只把颜色换红 */
-body:not(.roe) .mode{
-  color:var(--red);
-  text-shadow:0 0 9px rgba(255,40,18,.45),0 0 24px rgba(255,20,10,.28),0 0 56px rgba(255,8,0,.14);
-}
-
 /* 断电 / 不可用：整块消失（ROE 另清厚度；.inactive 须用 :not(.dead) 排除才不被压回可见） */
 .mode.dead,.mode.dead.inactive{
   opacity:0;animation:none;filter:none;pointer-events:none;
