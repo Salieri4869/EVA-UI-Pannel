@@ -201,6 +201,13 @@ body.danger .gline{background:linear-gradient(90deg,#ff2a14,#ff6a2a);box-shadow:
   font-size:23px;line-height:28px;letter-spacing:normal;white-space:nowrap;
 }
 .atoL{left:530px;top:178px;font-size:28px;line-height:38px;font-weight:700}
+/* 电量视图的百分号：299px 让字形净高 229（正好等于数码管一位的高度），横向收窄后塞进右侧空位 */
+.pctL{
+  left:984.3px;top:151.5px;
+  font-family:Arial,"Helvetica Neue",sans-serif;font-size:299px;line-height:299px;font-weight:700;
+  transform:scaleX(.83);transform-origin:0 0;display:none;
+}
+body.battery .pctL{display:block}
 
 /* ── 11 数码管 ───────────────────────────────────────────── */
 .seg-wrap{left:591px;top:185px;width:618px;height:229px}
@@ -212,11 +219,15 @@ body.danger .gline{background:linear-gradient(90deg,#ff2a14,#ff6a2a);box-shadow:
 body.pw:not(.clk):not(.zero) .seg-wrap.idle .cd .seg:not(.on){opacity:.07}
 .seg-wrap.idle .dot{opacity:0}
 
-body:not(.pw) .seg-wrap{visibility:hidden}
+body:not(.pw) :is(.seg-wrap,.pctL){visibility:hidden}
 
 .clock-dig{position:absolute;inset:0;display:none}
 body.clk .clock-dig{display:block}
 body.clk .cd{display:none}
+/* 电量视图：复用倒计时那几位大字（冒号仍隐藏），时钟那组让位 */
+body.battery .digit.cd{display:block}
+body.battery .clock-dig{display:none}
+body.battery .seg-wrap{left:563px}   /* 只三位数，左移让出百分号的位置 */
 
 /* ── 12 右列信息框 ───────────────────────────────────────── */
 .box{
@@ -535,7 +546,7 @@ body.roe .gline{background:linear-gradient(90deg,#ff7ccf,#b17cff 60%,#7a8cff);bo
 /* 告急 / 獣化的红档在 19 章统一给（同一条规则管两个状态），这里只留蓝档 */
 
 .glow{transition:color .35s}
-body.roe .jpL,body.roe .atoL{color:#f4f6ff;text-shadow:0 0 6px rgba(170,195,255,.6),2px 3px 1px rgba(0,0,0,.95)}
+body.roe .jpL,body.roe .atoL,body.roe .pctL{color:#f4f6ff;text-shadow:0 0 6px rgba(170,195,255,.6),2px 3px 1px rgba(0,0,0,.95)}
 body.roe .enL{color:#dde3f7;text-shadow:none}
 
 
@@ -911,7 +922,7 @@ body.roe:is(.beast,.danger) .gline{background:linear-gradient(90deg,#ff5a6a,#ff2
 /* ── 文字：一律 #ff3a4c ────────────────────────────────────── */
 /* ★ 标题必须单独一条：:is() 的权重取参数里最高的那个，把 .jpL 和 .mode .jp
    混进同一个 :is() 会把单类那批抬到 (0,4,1)，反压下面标题的黑投影。 */
-body.roe:is(.beast,.danger) :is(.jpL,.enL,.atoL){
+body.roe:is(.beast,.danger) :is(.jpL,.enL,.atoL,.pctL){
   color:#ff3a4c !important;
   /* 标题的投影是黑的，只让发光层转红（黑投影必须写在最前，否则被红晕糊成红色） */
   text-shadow:2px 3px 1px rgba(0,0,0,.98),0 0 8px rgba(255,30,50,.55),0 0 22px rgba(255,20,40,.22) !important;
@@ -1328,6 +1339,7 @@ body.roe.beast .powerbox:not(.off) .glv{display:block}
 
   <!-- ═══ 数码管 ═══ -->
   <div class="abs seg-wrap idle" id="segWrap"><div class="clock-dig" id="clockDig"></div></div>
+  <div class="abs glow pctL" id="pctL">%</div>
   <canvas class="fx" id="fxTop" width="1500" height="600" aria-hidden="true"></canvas>
 
   <!-- ═══ 右列 ═══ -->
@@ -1376,7 +1388,7 @@ body.roe.beast .powerbox:not(.off) .glv{display:block}
 <!-- 底部热区-->
 <div class="hintZone">
   <span class="hintHot" aria-hidden="true"></span>
-  <p class="hint">「主電源供給システム」断电重启 · 「内部 / 外部」切换供电模式 ·「活動限界まで」左侧小方块 [倒计时 / 24H / 12H ]时钟 · 左下角斜槽：EOE ⇄ ROE 配色 · 獣化（Esc 退出）</p>
+  <p class="hint">「主電源供給システム」断电重启 · 「内部 / 外部」切换供电模式 ·「活動限界まで」左侧小方块 [倒计时 / 24H / 12H / 电量] · 左下角斜槽：EOE ⇄ ROE 配色 · 獣化（Esc 退出）</p>
 </div>
 
 <script>
@@ -1392,6 +1404,7 @@ body.roe.beast .powerbox:not(.off) .glv{display:block}
      pw       主電源通电            clk     时钟视图（24H / 12H）
      zero     归零                  danger  最后 7 秒
      reserve  予備（外部按钮第二次按下）
+     bat      电量视图（clk 的第 4 档）
    分节：01 常量 · 02 DOM · 03 标题乱码 · 04 七段数码管 · 05 状态量
         06 倒计时 · 07 时钟 · 08 渲染 · 09 交互 · 10 獣化特效 · 11 自适应
    ══════════════════════════════════════════════════════════════ */
@@ -1418,7 +1431,8 @@ const POWER_STEP_DELAYS = [120, 220, 320];
 const VIEW_COUNTDOWN = 0;
 const VIEW_CLOCK_24  = 1;
 const VIEW_CLOCK_12  = 2;
-const VIEW_COUNT     = 3;
+const VIEW_BATTERY   = 3;
+const VIEW_COUNT     = 4;
 
 const TITLE_JP = ['活動限界まで', '現在の時間は'];
 const TITLE_EN = ['ACTIVE TIME REMAINING:', 'CURRENT TIME COUNTING:'];
@@ -1469,6 +1483,7 @@ const ui = {
   titleJP:    document.querySelector('.jpL'),
   titleEN:    document.querySelector('.enL'),
   titleAto:   document.querySelector('.atoL'),
+  pctL:       document.getElementById('pctL'),
   extJP:      modeExtEl.querySelector('.jp'),
   extEN:      modeExtEl.querySelector('.en'),
   bars:       [...document.querySelectorAll('.cell[data-bar]')]
@@ -1533,7 +1548,7 @@ function stopFadeTick(){
   for (const s of document.querySelectorAll('.jpL .dim,.enL .dim,.atoL .dim')) s.classList.remove('dim');
 }
 
-const FADE_TARGETS = [ui.titleJP, ui.titleEN, ui.titleAto, ui.segWrap];
+const FADE_TARGETS = [ui.titleJP, ui.titleEN, ui.titleAto, ui.segWrap, ui.pctL];
 
 /* ── 04 七段数码管 ───────────────────────────────────────── */
 function buildSegGeometry(width, height, thickness, gap){
@@ -1787,6 +1802,9 @@ let countdownRaf = 0;
 let scrambleRaf  = 0;
 let holdTimeout  = 0;
 let clockTimeout = 0;
+let battery       = null;   /* BatteryManager；拿不到就一直是 null */
+let batteryAsked  = false;
+let batteryTookOver = false; /* 数码管正被电量读数占用 */
 
 /* ── 06 倒计时 ───────────────────────────────────────────── */
 /* DANGER 开关的开机瞬闪：乱码一开始就抬起并点亮（.boot），
@@ -1900,13 +1918,23 @@ function resumeCountdown(){
   isFrozen = false;
   setLive(true);
   setDanger(remainingMs <= DANGER_AT_MS);
+  drawCountdown(remainingMs);       /* 从电量视图回来时先抹掉那几位读数 */
   countdownRaf = requestAnimationFrame(tick);
 }
 
 function syncCountdown(){
+  if (viewMode === VIEW_BATTERY){
+    freezeCountdown();               /* 与时钟视图一致：剩余时间冻住，切回来接着走 */
+    setLive(false);                  /* 数码管这几位归电量读数用，走白字 */
+    batteryTookOver = true;
+    return;
+  }
+  const tookOver = batteryTookOver;  /* 刚离开电量视图：那几位得按倒计时重画一遍 */
+  batteryTookOver = false;
   if (!powered || !internal || zero || reserve){
     stopCountdown();
     if (zero){
+      if (tookOver) drawCountdown(0);
       setLive(true);
       return;
     }
@@ -1943,6 +1971,37 @@ function stopClock(){
   timeMarker = '';
 }
 
+/* ── 07b 电量 ─────────────────────────────────────────────── */
+/* 借用倒计时的 3 位大字显示百分比：100 / 87 / 7（不补前导零），
+   后 2 位小字熄灭。拿不到 Battery Status API（如 Firefox）时三位显示横杠 */
+const BATTERY_DASH = 1 << 6;             /* 只点中间那一横 = "—" */
+
+function syncBattery(){
+  if (batteryAsked || !navigator.getBattery) return;
+  batteryAsked = true;
+  navigator.getBattery().then(manager => {
+    battery = manager;
+    const refresh = () => { if (viewMode === VIEW_BATTERY) render(); };   /* 充电状态也会改内部 / 外部的显示 */
+    manager.addEventListener('levelchange', refresh);
+    manager.addEventListener('chargingchange', refresh);
+    refresh();
+  }).catch(() => { battery = null; });
+}
+
+function drawBattery(){
+  if (battery){
+    const pct = Math.max(0, Math.min(100, Math.round(battery.level * 100)));
+    setDigitMask(countdownDigits, 0, SEG_MASK[(pct / 100) | 0]);                 /* 不足三位补前导零：087 / 007 */
+    setDigitMask(countdownDigits, 1, SEG_MASK[((pct / 10) | 0) % 10]);
+    setDigitMask(countdownDigits, 2, SEG_MASK[pct % 10]);
+  } else {
+    for (let i = 0; i < 3; i++) setDigitMask(countdownDigits, i, BATTERY_DASH);
+  }
+  setDigitMask(countdownDigits, 3, 0);
+  setDigitMask(countdownDigits, 4, 0);
+  ui.pctL.style.visibility = battery ? '' : 'hidden';   /* 只有横杠时百分号没有意义 */
+}
+
 /* ── 08 渲染 ─────────────────────────────────────────────── */
 function applyDangerClass(){
   document.body.classList.toggle('danger', isDanger && viewMode === VIEW_COUNTDOWN);
@@ -1977,8 +2036,12 @@ function crossFade(){
 
 function render(){
   const isClock = viewMode !== VIEW_COUNTDOWN;
+  const isBattery = viewMode === VIEW_BATTERY;
   const isInternal = powered && internal;
   const isReserve = powered && !internal && reserve;
+  /* 电量档：内部 / 外部指示灯跟着充放电走（充电＝外部供电，未充电＝内部供电）。
+     只改显示，真实 internal 不动，倒计时该走该停都不受影响 */
+  const showInternal = isBattery && powered && battery ? !battery.charging : internal;
 
   if (!roe || !powered) beast = false;
   document.body.classList.toggle('roe', roe);
@@ -1987,17 +2050,18 @@ function render(){
   ui.themeTag.textContent = roe ? 'ROE' : 'EOE';
   document.body.classList.toggle('pw', powered);
   document.body.classList.toggle('clk', isClock);
+  document.body.classList.toggle('battery', isBattery);
   document.body.classList.toggle('zero', zero);
   document.body.classList.toggle('reserve', isReserve);
-  document.body.dataset.mode = internal ? 'internal' : 'external';
+  document.body.dataset.mode = showInternal ? 'internal' : 'external';
   applyDangerClass();
 
-  syncTitle(ui.titleJP, TITLE_JP[isClock ? 1 : 0]);
-  syncTitle(ui.titleEN, TITLE_EN[isClock ? 1 : 0]);
+  syncTitle(ui.titleJP, TITLE_JP[isClock && !isBattery ? 1 : 0]);
+  syncTitle(ui.titleEN, TITLE_EN[isClock && !isBattery ? 1 : 0]);
   ui.extJP.textContent = isReserve ? '予備' : '外部';
   ui.extEN.textContent = isReserve ? 'AUXILIARY' : 'EXTERNAL';
 
-  for (const [el, isOn] of [[ui.modeExt, powered && !internal], [ui.modeInt, isInternal]]){
+  for (const [el, isOn] of [[ui.modeExt, powered && !showInternal], [ui.modeInt, powered && showInternal]]){
     el.classList.toggle('active', isOn);
     el.classList.toggle('inactive', !isOn);
     el.classList.toggle('dead', !powered);
@@ -2009,10 +2073,16 @@ function render(){
   ui.powerBox.classList.toggle('off', !powered);
 
   const zeroLook = zero && !isClock;
-  const barIndex = zeroLook ? 0 : (barOverride !== null ? barOverride : (internal ? 3 : 2));
+  const barIndex = zeroLook ? 0 : (barOverride !== null ? barOverride : (showInternal ? 3 : 2));
   setActiveBar(!powered || isReserve ? -1 : barIndex, zeroLook);
 
-  if (isClock){
+  if (isBattery){
+    timeMarker = '';
+    syncTitle(ui.titleAto, 'あと');
+    stopClock();
+    syncBattery();
+    drawBattery();
+  } else if (isClock){
     timeMarker = '';
     drawClock(viewMode === VIEW_CLOCK_12);
     if (powered) startClock(); else stopClock();
