@@ -13,15 +13,15 @@ An Evangelion-inspired armored HUD countdown / clock. Pure HTML + CSS + inline S
 
 ## ✨ Features
 
-- **Two themes — EOE / ROE** — EOE is flat black-and-red; ROE adds 3D glass keys and a magenta-purple background. Toggle from the diagonal notch at the bottom-left
-- **Auto red / blue skins** — the final 7 seconds and "The Beast" share one red skin; Reserve and zero-state can switch to the blue skin (`F`). Precedence lives in the selectors (base < red < blue), never in source order
+- **Two themes — EOE / ROE** — EOE follows the TV series, ROE follows the Rebuild films. Toggle from the diagonal notch at the bottom-left
+- **Auto red / blue filters** — the final 7 seconds and "The Beast" share one red filter; Reserve and zero-state can switch to the blue filter (`F`). Precedence lives in the selectors (base < red < blue), never in source order
 - **Charging armor background** — pitch black when off; sweeps in from bottom-left to top-right on power-on via `mask-image` translation
 - **Five power states** — OFF / External / Reserve / Internal / Zero
 - **Three views** — countdown `5:00.00` (centisecond precision), 24H clock, 12H clock
 - **Self-check + scramble boot** — powering up in External lights STOP → SLOW → NORMAL in sequence; entering Internal scrambles the digits, freezes on `5:00.00`, then starts counting
 - **Danger / zero states** — turns blood-red and blinks for the final 7 seconds; on zero the STOP bar locks and the title and DANGER box blink on independent rhythms
 - **The Beast (獣化)** — in ROE while powered, click「裏コード」to tear the titles, hollow the digits and throw 8px color blocks; `Esc` exits
-- **Full keyboard accessible** — Tab to focus, Enter / Space to activate, `F` for the blue skin, `Esc` to leave The Beast
+- **Full keyboard accessible** — Tab to focus, Enter / Space to activate, `F` for the blue filter, `Esc` to leave The Beast
 
 ## 📁 Structure
 
@@ -59,14 +59,13 @@ python3 -m http.server 8080
 |---|---|
 | Click `主電源供給システム` | Toggle main power. Powering up resets to External + countdown and runs the self-check |
 | Click `内部` | Enter Internal: scramble → freeze `5:00.00` → count down. Clicking again at zero restarts |
-| Click `外部` (while Internal) | Drop back to External standby |
-| Click `外部` again (while External) | Switch to `予備 / AUXILIARY`: the selected box turns to white hatching, all function bars go dark, blue skin on by default |
+| Click `外部` | From Internal, drop back to External standby; from External, switch to `予備 / AUXILIARY` (white hatching, all function bars dark, blue filter on by default) |
 | Click the small block left of the title | Cycle: countdown → 24H → 12H (leaving Reserve when switching to clock) |
 | Click the bottom-left notch | EOE ⇄ ROE palette |
 | Click `STOP / SLOW / NORMAL / RACING` | Manually override the gear indicator (External defaults to NORMAL, Internal to RACING, zero locks STOP) |
 | Click `裏コード / 登録する` | Toggle The Beast (ROE + powered only) |
 | `Ctrl` / `⌘` / `Shift` + click the same box | Open the reference video (bilibili) |
-| `F` | Blue skin on/off — only in Reserve and Internal-zero |
+| `F` | Blue filter on/off — only in Reserve and Internal-zero |
 | `Esc` | Leave The Beast |
 | Tab / Enter / Space | Full keyboard control |
 
@@ -93,7 +92,7 @@ blueOpt{reserve,zero}  // blue-skin switches per scenario (F key)
 | `reserve` | Reserve supply | second click on External |
 | `danger` | Final 7 s: red blink | countdown ≤ 7000 ms |
 | `zero` | Limit reached | countdown = 0 |
-| `blue` | Blue skin active | Reserve by default / `F` at zero |
+| `blue` | Blue filter active | Reserve by default / `F` at zero |
 | `beast` | The Beast | 「裏コード」click |
 
 There is also `body.dataset.mode = 'internal' | 'external'` for the two label sets.
@@ -111,7 +110,7 @@ To jump straight to a state, paste one line into the console:
 | Reserve | `document.body.classList.add('pw','reserve')` |
 | ROE palette | `document.body.classList.add('roe')` |
 | Back to EOE | `document.body.classList.remove('roe','beast','blue')` |
-| Blue skin | `document.body.classList.add('roe','blue')` |
+| Blue filter | `document.body.classList.add('roe','blue')` |
 | The Beast | `document.body.classList.add('roe','beast')` |
 | Leave The Beast | `document.body.classList.remove('beast')` |
 
@@ -131,7 +130,7 @@ The title uses **EVA Matisse Classic** (self-hosted via `@font-face`). It is a c
 ```css
 :root{
   --stageW:1300px; --stageH:600px;  /* visible stage */
-  --bleed:200px;                    /* left bleed; inner canvas = stageW + bleed */
+  --bleed:200px;                    /* 200px extra on the left of the stage: hatches and the notch live there */
 }
 ```
 
@@ -176,10 +175,10 @@ ROE does not use those three; its palette is a set of slots in chapter 17, `body
 18     ROE 3D geometry and buttons
 19     red skin (shared by beast / danger)
 19a    Beast motion and glitch
-20     blue skin (body.roe.blue)
+20     blue filter (body.roe.blue)
 ```
 
-> Skin precedence is not source order: every red rule carries `:where(:not(.blue))`, so the whole chapter stops matching while the blue skin is on. Follow that pattern for new red rules.
+> Filter precedence is not source order: every red rule carries `:where(:not(.blue))`, so the whole chapter stops matching while the blue filter is on. Follow that pattern for new red rules.
 
 ## 📄 License
 
