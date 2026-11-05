@@ -15,7 +15,7 @@
    18     ROE 立体与按钮
    19     红色 Red Skin（body.roe.beast / body.roe.danger 共用）
    19a    獣化 The Beast · 动效与花屏（body.roe.beast）
-   20 蓝皮（body.roe.blue，见 blueScope()）
+   20 蓝滤镜（body.roe.blue，见 blueScope()）
    ══════════════════════════════════════════════════════════════ */
 /* ── 01 字体 ─────────────────────────────────────────────── */
 @font-face{
@@ -249,7 +249,7 @@ body.clk .cd{display:none}
   transition:opacity .3s;
 }
 .mode:not(.active) .zebra{opacity:0}
-/* 予備 选中块的白斜纹：ROE 下把 --zl 钉成白；红皮（.beast/.danger）不命中，回落到 19 章的红 */
+/* 予備 选中块的白斜纹：ROE 下把 --zl 钉成白；红滤镜（.beast/.danger）不命中，回落到 19 章的红 */
 body.roe.reserve:not(.beast):not(.danger) .mode.active{--zl:#eef4ff}
 
 .powerbox .jp{position:absolute;left:6px;top:1px;font-size:19px;font-weight:700;line-height:22px;white-space:nowrap}
@@ -543,7 +543,7 @@ body.roe{
   --gradbarSh:0 0 10px rgba(60,200,255,.65),0 0 24px rgba(40,140,255,.35);
   --glineBg:linear-gradient(90deg,#ff7ccf,#b17cff 60%,#7a8cff);
   --glineSh:0 0 7px rgba(200,120,255,.55);
-  /* 按钮底色：--btnOnBg 给选中档位，--powerOnBg 单独给主電源（ROE 同色、蓝皮不同，故不合并） */
+  /* 按钮底色：--btnOnBg 给选中档位，--powerOnBg 单独给主電源（ROE 同色、蓝滤镜不同，故不合并） */
   --boxBg:linear-gradient(180deg,rgba(128,160,230,.5),rgba(78,102,178,.58));
   --btnOnBg:linear-gradient(168deg,rgba(150,180,242,.92),rgba(108,142,216,.92));
   --powerOnBg:linear-gradient(168deg,rgba(150,180,242,.92),rgba(108,142,216,.92));
@@ -589,7 +589,7 @@ body.roe .titleen{color:var(--titleEnC);text-shadow:var(--titleEnSh)}
 
 body.roe .seg{fill:url(#gSegW);stroke:rgba(255,255,255,.45);stroke-width:.6;stroke-linejoin:round}
 body.roe .dot{background:#f4f7ff}
-/* 倒计时点亮的发光 / 点色走槽位变量：默认红、告急更亮，蓝皮（20 章）只覆盖变量 */
+/* 倒计时点亮的发光 / 点色走槽位变量：默认红、告急更亮，蓝滤镜（20 章）只覆盖变量 */
 body.roe{
   --cdBloom:drop-shadow(2px 3px 1px rgba(8,0,30,.72)) drop-shadow(0 0 5px rgba(255,30,60,.55)) drop-shadow(0 0 16px rgba(255,10,40,.3));
   --cdGlow:0 0 7px rgba(255,35,65,.75),2px 3px 0 rgba(8,0,30,.75);
@@ -686,7 +686,7 @@ body.roe .mode.active{
   color:#e8102c;
   text-shadow:0 0 9px rgba(255,40,60,.45),0 0 24px rgba(255,24,44,.28),0 0 56px rgba(255,10,32,.14);
 }
-/* 主電源自己一档底色：ROE 与上面同值，蓝皮下两者不同 */
+/* 主電源自己一档底色：ROE 与上面同值，蓝滤镜下两者不同 */
 body.roe .powerbox:not(.off){
   background:var(--powerOnBg);
 }
@@ -868,9 +868,9 @@ body.roe .subbox:hover{filter:brightness(1.1)}
    19 Red Skin（body.roe.beast / body.roe.danger）
    ──────────────────────────────────────────────────────────────
    19a 只留獣化独有的动效；本节不写 animation（唯一例外是关掉 pulse 呼吸）。
-   ⛔ 优先级就写在本节选择器里：每条都带 :where(:not(.blue))，蓝皮在场即整节失效。
+   ⛔ 优先级就写在本节选择器里：每条都带 :where(:not(.blue))，蓝滤镜在场即整节失效。
      :where() 权重为 0，所以加了它特异性不变；别删它改用章节位置来压。
-     新增红皮规则照这个格式写，19a 的动效不参与配色优先级、不必带。 */
+     新增红滤镜规则照这个格式写，19a 的动效不参与配色优先级、不必带。 */
 body{
   --rb3:linear-gradient(180deg,#0a0206 0 48px,transparent 48px) var(--rbStrip),
         linear-gradient(to top right,#ff3a2a 0,#ff1c28 30%,#f01430 50%,#c80c28 68%,#7c0818 85%,#3c0310 100%) var(--rbMain);
@@ -911,7 +911,7 @@ body.roe:is(.beast,.danger):where(:not(.blue)){
   --bkFill:#ff8a96;
   /* 斜纹：只换第一色，第二色沿用 ROE 的 transparent */
   --zl:#ff3a4c;
-  /* 按钮底色（规则在 18 章）：红皮下 .mode.active 与 .powerbox 本来就同一条渐变 */
+  /* 按钮底色（规则在 18 章）：红滤镜下 .mode.active 与 .powerbox 本来就同一条渐变 */
   --btnOnBg:linear-gradient(168deg,rgba(255,86,98,.9),rgba(198,22,40,.9));
   --powerOnBg:linear-gradient(168deg,rgba(255,86,98,.9),rgba(198,22,40,.9));
   --btnOffBg:linear-gradient(180deg,rgba(210,44,64,.55),rgba(132,18,38,.62));
@@ -996,7 +996,7 @@ body.roe:is(.beast,.danger):where(:not(.blue)) .subbox{
   text-shadow:var(--dstkGlow);
 }
 
-/* 告急 × 归零：18 章 `body.roe.zero:not(.clk) .mode.inactive`(0,5,1) 会压过红皮，
+/* 告急 × 归零：18 章 `body.roe.zero:not(.clk) .mode.inactive`(0,5,1) 会压过红滤镜，
    归零的暗相照样是红底，所以按同一档红再钉一次。 */
 body.roe.danger.zero:not(.clk):where(:not(.blue)) .mode.inactive{
   text-shadow:0 0 9px rgba(255,70,90,.5),0 0 24px rgba(255,30,50,.28),0 0 56px rgba(255,10,30,.14);
@@ -1111,10 +1111,10 @@ body.roe.beast .mode.inactive .gl{opacity:.6}
 body.roe.beast .mode:not(.dead) .glv,
 body.roe.beast .powerbox:not(.off) .glv{display:block}
 
-/* ═══ 20 蓝皮 Blue Skin（body.roe.blue） ══════════════════════
+/* ═══ 20 蓝滤镜 Blue Skin（body.roe.blue） ══════════════════════
    触发：JS blueScope()（予備默认开 / 内部归零默认关 / F 键切）。
    主体是背景层 .charge.blue + 配色槽位；数码管、按钮、功能格、裏コード另有直接改写的规则。
-   本节不需要让位规则：19 章每条配色规则都自带 :not(.blue)，蓝皮在场时那节整体不生效。
+   本节不需要让位规则：19 章每条配色规则都自带 :not(.blue)，蓝滤镜在场时那节整体不生效。
    所以本章放在 19 章前或后都一样，改位置不会改画面。 */
 body{
   --rb4:linear-gradient(180deg,#02021c 0 48px,transparent 48px) var(--rbStrip),
@@ -1139,7 +1139,7 @@ body.roe.blue{
   --powerOnBg:linear-gradient(168deg,rgba(78,104,255,.85),rgba(40,56,215,.88));
   --btnOffBg:linear-gradient(180deg,rgba(70,92,235,.7),rgba(40,52,200,.78));
 
-  /* 配色槽位（红皮 / ROE 同名变量） */
+  /* 配色槽位（红滤镜 / ROE 同名变量） */
   --cyan:var(--blueLt); --tkC:var(--blueLt); --hintC:var(--blueLt);
   --tickC:var(--blueTx); --tkT2:var(--blueTx); --cyFill:var(--blueTx); --cellTick:var(--blueTx); --bkFill:var(--blueTx);
   --sepFill:var(--blueLt); --zl:var(--blueLt); --zl2:transparent;
@@ -1493,7 +1493,7 @@ body.roe.blue .cell .redbar::before{background:var(--blueTx)}
 <!-- 底部热区-->
 <div class="hintzone">
   <span class="hinthot" aria-hidden="true"></span>
-  <p class="hint">「主電源供給システム」断电重启 · 「内部 / 外部」切换供电模式 ·「活動限界まで」左侧小方块 [倒计时 / 24H / 12H ]时钟 · 左下角斜槽：EOE ⇄ ROE 配色 · 獣化（Esc 退出）· F：予備滤镜 开/关</p>
+  <p class="hint">「主電源供給システム」断电重启 · 「内部 / 外部」切换供电模式 ·「活動限界まで」左侧小方块 [倒计时 / 24H / 12H ]时钟 · 左下角斜槽：EOE ⇄ ROE 配色 · 獣化（Esc 退出）· F：蓝色滤镜 开/关</p>
 </div>
 
 <script>
@@ -1503,7 +1503,7 @@ body.roe.blue .cell .redbar::before{background:var(--blueTx)}
 /* ═══ 行为层 ═══════════════════════════════════════════════════
    状态只写 mode / viewMode / roe / beast / isDanger（另有 barOverride、blueOpt 两个覆盖项），
    render() → syncBody() 算成 body 类，CSS 只看类：
-   roe 配色 · beast 獣化 · pw 通电 · clk 时钟 · zero 归零 · danger 最后 7 秒 · reserve 予備 · blue 蓝皮
+   roe 配色 · beast 獣化 · pw 通电 · clk 时钟 · zero 归零 · danger 最后 7 秒 · reserve 予備 · blue 蓝滤镜
    分节：01 常量 02 DOM 03 乱码 04 数码管 05 状态量 06 倒计时 07 时钟 08 渲染 09 交互 10 獣化 11 缩放 */
 
 /* ── 01 常量 ─────────────────────────────────────────────── */
@@ -1887,7 +1887,7 @@ let mode = MODE_OFF;
 const isPowered  = () => mode !== MODE_OFF;
 const isInternal = () => mode === MODE_INTERNAL || mode === MODE_ZERO;
 
-const blueOpt = { reserve:true, zero:false };   // 蓝皮各场景的开关（F 键切）：予備默认开，内部归零默认关
+const blueOpt = { reserve:true, zero:false };   // 蓝滤镜各场景的开关（F 键切）：予備默认开，内部归零默认关
 let viewMode = VIEW_COUNTDOWN;
 let roe     = false;
 let beast   = false;
@@ -2062,14 +2062,14 @@ function stopClock(){
 }
 
 /* ── 08 渲染 ─────────────────────────────────────────────── */
-/* 蓝皮当前属于哪个场景：'reserve'（ROE 予備）/ 'zero'（ROE 内部归零）/ null */
+/* 蓝滤镜当前属于哪个场景：'reserve'（ROE 予備）/ 'zero'（ROE 内部归零）/ null */
 function blueScope(){
   if (!roe || beast) return null;
   if (mode === MODE_RESERVE) return 'reserve';
   if (mode === MODE_ZERO && viewMode === VIEW_COUNTDOWN) return 'zero';
   return null;
 }
-/* 蓝皮是否生效：场景开关为开；予備遇到告急时让位给红皮（归零则蓝皮优先） */
+/* 蓝滤镜是否生效：场景开关为开；予備遇到告急时让位给红滤镜（归零则蓝滤镜优先） */
 function blueActive(){
   const k = blueScope();
   return !!k && blueOpt[k] && !(k === 'reserve' && isDanger && viewMode === VIEW_COUNTDOWN);
@@ -2087,7 +2087,7 @@ function syncBody(){
   cls.toggle('zero', mode === MODE_ZERO);
   cls.toggle('reserve', mode === MODE_RESERVE);
   cls.toggle('blue', blue);
-  cls.toggle('danger', isDanger && !isClock && !blue);   /* 内部归零开了蓝皮时，让出红色告急 */
+  cls.toggle('danger', isDanger && !isClock && !blue);   /* 内部归零开了蓝滤镜时，让出红色告急 */
   document.body.dataset.mode = isInternal() ? 'internal' : 'external';
 }
 
