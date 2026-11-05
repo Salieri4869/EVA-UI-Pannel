@@ -4,7 +4,7 @@
 
 🌐 [中文说明](./README.md)
 
-An Evangelion-inspired armored HUD countdown / clock. Pure HTML + CSS + inline SVG, zero build step, just open the file.
+An Evangelion-inspired armored HUD countdown / clock. Pure HTML + CSS + inline SVG, with Canvas for the glitch effects — zero build step, just open the file.
 
 ![EOE](./image/EOE.jpg)
 ![ROE](./image/ROE.jpg)
@@ -13,27 +13,35 @@ An Evangelion-inspired armored HUD countdown / clock. Pure HTML + CSS + inline S
 
 ## ✨ Features
 
+- **Two themes — EOE / ROE** — EOE is flat black-and-red; ROE adds 3D glass keys and a magenta-purple background. Toggle from the diagonal notch at the bottom-left
+- **Auto red / blue skins** — the final 7 seconds and "The Beast" share one red skin; Reserve and zero-state can switch to the blue skin (`F`). Precedence lives in the selectors (base < red < blue), never in source order
 - **Charging armor background** — pitch black when off; sweeps in from bottom-left to top-right on power-on via `mask-image` translation
-- **Two modes** — countdown `5:00.00` (centisecond precision) and live 24H / 12H clock, cycled by clicking the small block left of the title
-- **Danger / zero states** — turns blood-red and blinks for the final 7 seconds; on zero, the title and DANGER box blink on independent rhythms, only the STOP bar remains
-- **Cyan lines light up with power** — armor ticks and separator lines ignite sequentially using staggered `--d` delays
-- **CRT power-off feel** — fade-in on, instant cut-off off; font falls back gracefully
-- **Full keyboard accessible** — switch, mode boxes and buttons all `tabindex=0` + `:focus-visible` outline, no stray click rectangles
+- **Five power states** — OFF / External / Reserve / Internal / Zero
+- **Three views** — countdown `5:00.00` (centisecond precision), 24H clock, 12H clock
+- **Self-check + scramble boot** — powering up in External lights STOP → SLOW → NORMAL in sequence; entering Internal scrambles the digits, freezes on `5:00.00`, then starts counting
+- **Danger / zero states** — turns blood-red and blinks for the final 7 seconds; on zero the STOP bar locks and the title and DANGER box blink on independent rhythms
+- **The Beast (獣化)** — in ROE while powered, click「裏コード」to tear the titles, hollow the digits and throw 8px color blocks; `Esc` exits
+- **Full keyboard accessible** — Tab to focus, Enter / Space to activate, `F` for the blue skin, `Esc` to leave The Beast
 
 ## 📁 Structure
 
 ```
 .
-├── 活動限界まで.html            # single self-contained entry point
-└── font/
-    └── EVA-Matisse_Classic.ttf  # title font (place it yourself)
+├── README.md / README.en.md
+├── image/
+│   ├── EOE.jpg
+│   └── ROE.jpg
+└── src/
+    ├── 活動限界まで.html            # single self-contained entry point
+    └── font/
+        └── EVA-Matisse_Classic.ttf  # title font (place it yourself)
 ```
 
 ## 🚀 Quick Start
 
 ```bash
 git clone https://gitee.com/AmadeusC204/eva-ui-pannel.git
-cd src
+cd eva-ui-pannel/src
 ls font/EVA-Matisse_Classic.ttf   # make sure the font is in place
 open 活動限界まで.html            # double-click to run
 ```
@@ -49,58 +57,129 @@ python3 -m http.server 8080
 
 | Action | Effect |
 |---|---|
-| Click `POWER SUPPLY` | Toggle main power: armor charges, screen lights up |
-| Click the small block left of the title | Cycle: countdown → 24H clock → 12H clock |
-| Click `INTERNAL / EXTERNAL` | Switch activity mode; active box shows zebra stripes |
-| Click `SLOW / NORMAL / RACING` | Pick speed; red bar under the button marks the active gear |
-| Countdown hits zero | Auto-locks to `STOP`, title + DANGER box blink in alternation |
-| Tab + Enter | Full keyboard control |
+| Click `主電源供給システム` | Toggle main power. Powering up resets to External + countdown and runs the self-check |
+| Click `内部` | Enter Internal: scramble → freeze `5:00.00` → count down. Clicking again at zero restarts |
+| Click `外部` (while Internal) | Drop back to External standby |
+| Click `外部` again (while External) | Switch to `予備 / AUXILIARY`: the selected box turns to white hatching, all function bars go dark, blue skin on by default |
+| Click the small block left of the title | Cycle: countdown → 24H → 12H (leaving Reserve when switching to clock) |
+| Click the bottom-left notch | EOE ⇄ ROE palette |
+| Click `STOP / SLOW / NORMAL / RACING` | Manually override the gear indicator (External defaults to NORMAL, Internal to RACING, zero locks STOP) |
+| Click `裏コード / 登録する` | Toggle The Beast (ROE + powered only) |
+| `Ctrl` / `⌘` / `Shift` + click the same box | Open the reference video (bilibili) |
+| `F` | Blue skin on/off — only in Reserve and Internal-zero |
+| `Esc` | Leave The Beast |
+| Tab / Enter / Space | Full keyboard control |
 
-> While powered off, the digits, mode boxes, buttons and DANGER box all hide — only the black armor silhouette stays.
+> While powered off, the digits, mode boxes, buttons and DANGER box all hide — only the black armor silhouette stays. The ROE bottom-left notch still glows; that is intended.
 
 ## 🧠 State Machine
 
-The UI is driven entirely by classes on `<body>`; just add / remove them to change state:
+The JS keeps a few source states; `render()` → `syncBody()` turns them into classes on `<body>`, and the CSS only reads those classes:
+
+```js
+mode      // MODE_OFF / MODE_EXTERNAL / MODE_RESERVE / MODE_INTERNAL / MODE_ZERO
+viewMode  // VIEW_COUNTDOWN / VIEW_CLOCK_24 / VIEW_CLOCK_12
+roe       // palette: true = ROE, false = EOE
+beast     // The Beast (only valid in ROE while powered)
+barOverride            // manual gear index, null = follow state
+blueOpt{reserve,zero}  // blue-skin switches per scenario (F key)
+```
 
 | class | Meaning | Triggered by |
 |---|---|---|
-| `pw` | Main power on: charge animation + UI fades in | POWER SUPPLY click |
+| `pw` | Main power on: charge animation + UI fades in | power box click |
 | `clk` | Clock view (hides countdown, shows HH:MM:SS) | title-block click |
-| `danger` | Final 7 s: amber → blood red, cyan lines stay | countdown ≤ 7s |
-| `zero` | Limit reached: group A/B blink out of phase, only STOP bar left | countdown = 0 |
+| `roe` | ROE palette | bottom-left notch click |
+| `reserve` | Reserve supply | second click on External |
+| `danger` | Final 7 s: red blink | countdown ≤ 7000 ms |
+| `zero` | Limit reached | countdown = 0 |
+| `blue` | Blue skin active | Reserve by default / `F` at zero |
+| `beast` | The Beast | 「裏コード」click |
 
-```js
-document.body.classList.add('pw');      // power on
-document.body.classList.toggle('clk'); // toggle clock
-document.body.classList.add('danger'); // enter danger
-document.body.classList.add('zero');   // lock at zero
-```
+There is also `body.dataset.mode = 'internal' | 'external'` for the two label sets.
+
+To jump straight to a state, paste one line into the console:
+
+| Target | Code |
+|---|---|
+| Power on (External standby) | `document.body.classList.add('pw')` |
+| Power off | `document.body.classList.remove('pw')` |
+| Clock view | `document.body.classList.add('clk')` |
+| Back to countdown | `document.body.classList.remove('clk')` |
+| Danger red | `document.body.classList.add('danger')` |
+| Zero | `document.body.classList.add('pw','zero')` |
+| Reserve | `document.body.classList.add('pw','reserve')` |
+| ROE palette | `document.body.classList.add('roe')` |
+| Back to EOE | `document.body.classList.remove('roe','beast','blue')` |
+| Blue skin | `document.body.classList.add('roe','blue')` |
+| The Beast | `document.body.classList.add('roe','beast')` |
+| Leave The Beast | `document.body.classList.remove('beast')` |
+
+These switch the look only; they do not drive the timer.
 
 ## 🔤 Font
 
 The title uses **EVA Matisse Classic** (self-hosted via `@font-face`). It is a closed commercial font, so **it is NOT included in this repo**:
 
-- Drop `EVA-Matisse_Classic.ttf` into the `font/` folder yourself
+- Drop `EVA-Matisse_Classic.ttf` into `src/font/` yourself
 - Missing? The browser falls back to `serif` — layout stays intact, but you lose the EVA glyph flavor
 
 ## 🎨 Customization
 
-All visual tokens sit at the top of `<style>`; change one, the whole UI follows:
+### Sizing
 
 ```css
-body{
-  --amber:#ffac1e;   /* primary color */
-  --red:#ff2415;     /* danger red */
-  --cyan:#3fd8ff;    /* tick cyan */
+:root{
+  --stageW:1300px; --stageH:600px;  /* visible stage */
+  --bleed:200px;                    /* left bleed; inner canvas = stageW + bleed */
 }
 ```
 
-| What to tweak | Where |
+`fitPanel()` scales the whole panel to fit the window, so these numbers are safe to edit.
+
+### Colors
+
+```css
+body{
+  --amber:#ffac1e;   /* EOE primary */
+  --red:#ff2415;     /* danger red */
+  --cyan:#3fd8ff;    /* ticks / separator base */
+}
+```
+
+ROE does not use those three; its palette is a set of slots in chapter 17, `body.roe{…}`:
+
+| Slot | Controls |
 |---|---|
-| Initial countdown (default 5:00.00) | initial-seconds constant in the inline JS |
-| Danger threshold (default 7s) | the `danger` check in JS |
-| Canvas size (default 1300×600) | `.panel { width / height }` |
-| Digit brightness | `.seg{opacity:.07}` → `.seg.on{opacity:1}` |
+| `--plateTop / --plateMid / --plateBot` | panel glass, three stops of the `#gPanel` gradient |
+| `--plateD0 … --plateD3` | armor brightness, four levels (D0 darkest): walls, shadows, seam patches |
+| `--plateRim` | inner stroke / seam line |
+| `--boxBg / --btnOnBg / --powerOnBg / --btnOffBg` | mode boxes and power key fills |
+| `--gradbarBg / --glineBg` | divider bars |
+| `--titleC / --titleEnC` | the two title colors |
+
+### Behavior constants (top of the JS)
+
+| Constant | Purpose | Default |
+|---|---|---|
+| `DURATION_MS` | one round | 5 minutes |
+| `DANGER_AT_MS` | danger threshold | 7000 |
+| `SEG_LIGHT_MS` / `SCRAMBLE_MS` / `SCRAMBLE_HOLD` / `HOLD_MS` | boot scramble and freeze timing | 100 / 200 / 75 / 600 |
+| `BOOT_OFF_MS` / `BOOT_DROP_MS` | digit blackout moments on power-up / internal start | 200 / 260 |
+| `ROE_GAP_SCALE` | ROE segment-gap multiplier | 1.5 |
+
+### Style chapters
+
+```
+01–16  shared base for EOE / ROE
+17     ROE palette layer (body.roe)
+18     ROE 3D geometry and buttons
+19     red skin (shared by beast / danger)
+19a    Beast motion and glitch
+20     blue skin (body.roe.blue)
+```
+
+> Skin precedence is not source order: every red rule carries `:where(:not(.blue))`, so the whole chapter stops matching while the blue skin is on. Follow that pattern for new red rules.
 
 ## 📄 License
 
