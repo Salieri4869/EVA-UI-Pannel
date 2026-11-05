@@ -541,13 +541,15 @@ body.roe .enL{color:#dde3f7;text-shadow:none}
 
 body.roe .seg{fill:url(#gSegW);stroke:rgba(255,255,255,.45);stroke-width:.6;stroke-linejoin:round}
 body.roe .dot{background:#f4f7ff}
-body.roe .seg-wrap.live .digit.cd{--seg-bloom:drop-shadow(2px 3px 1px rgba(8,0,30,.72)) drop-shadow(0 0 5px rgba(255,30,60,.55)) drop-shadow(0 0 16px rgba(255,10,40,.3))}
-body.roe.danger .seg-wrap.live .digit.cd{--seg-bloom:drop-shadow(2px 3px 1px rgba(8,0,30,.72)) drop-shadow(0 0 6px rgba(255,40,60,.85)) drop-shadow(0 0 22px rgba(255,10,40,.5))}
-/* 倒计时点亮：点也跟着转红（与 .seg 的 gSegR 同一档红） */
-body.roe .seg-wrap.live .dot.cd{
-  --seg-glow:0 0 7px rgba(255,35,65,.75),2px 3px 0 rgba(8,0,30,.75);
-  background:#ff1e3a;
+/* 倒计时点亮的发光 / 点色走槽位变量：默认红、告急更亮，蓝皮（19c）只覆盖变量 */
+body.roe{
+  --cd-bloom:drop-shadow(2px 3px 1px rgba(8,0,30,.72)) drop-shadow(0 0 5px rgba(255,30,60,.55)) drop-shadow(0 0 16px rgba(255,10,40,.3));
+  --cd-glow:0 0 7px rgba(255,35,65,.75),2px 3px 0 rgba(8,0,30,.75);
+  --cd-dot:#ff1e3a;   /* 与 .seg 的 gSegR 同一档红 */
 }
+body.roe.danger{--cd-bloom:drop-shadow(2px 3px 1px rgba(8,0,30,.72)) drop-shadow(0 0 6px rgba(255,40,60,.85)) drop-shadow(0 0 22px rgba(255,10,40,.5))}
+body.roe .seg-wrap.live .digit.cd{--seg-bloom:var(--cd-bloom)}
+body.roe .seg-wrap.live .dot.cd{--seg-glow:var(--cd-glow);background:var(--cd-dot)}
 body.roe .seg-wrap.live .cd .seg{fill:url(#gSegR);stroke:rgba(255,150,170,.32)}
 body.roe.zero:not(.clk) .jpL,
 body.roe.zero:not(.clk) .enL,
@@ -665,6 +667,7 @@ body.roe:not(.beast) #modeExternal.active{
 body.roe.zero:not(.clk):not(.beast) #modeExternal.active{
   text-shadow:0 0 7px rgba(232,242,255,.5),0 0 18px rgba(184,208,255,.28);
 }
+
 body.roe .mode.inactive:not(.dead){
   opacity:1;color:#b3c9f0;
   text-shadow:0 0 9px rgba(150,182,250,.31),0 0 24px rgba(96,132,235,.19),0 0 56px rgba(70,105,225,.1);
@@ -976,6 +979,113 @@ body.roe.danger.zero:not(.clk) .mode.inactive{
 }
 
 /* ══════════════════════════════════════════════════════════════
+   19c 蓝皮 Blue Skin（body.bluefx）
+   ──────────────────────────────────────────────────────────────
+   做法同 19 章红皮：背景铺一层 .charge.blue，再把配色槽位、文字、按钮、
+   数码管、装甲板整体换成同一档蓝。
+   开关逻辑全在 JS 的 blueScope()：予備默认开、ROE 内部归零默认关（F 键切）。
+   告急时 JS 不挂 bluefx（红皮优先）；内部归零时 JS 让出 danger（蓝皮优先），
+   所以这里的选择器不必再排除 .danger。
+   颜色全部出自下面这组原色，改色调只改这一处。
+   ══════════════════════════════════════════════════════════════ */
+body{
+  --rb4:linear-gradient(180deg,#02021c 0 48px,transparent 48px) 0 0/1500px 600px no-repeat,
+        linear-gradient(to top right,#5a46ff 0,#4a3eff 24%,#3b3cff 46%,#2c30f0 64%,#1d22c8 82%,#10127a 100%) 200px 0/1300px 600px no-repeat;
+}
+.charge.blue{background:var(--rb4);opacity:0;transition:mask-position .5s cubic-bezier(.35,.1,.25,1),opacity .35s ease}
+body.roe.bluefx .charge.blue{opacity:1}
+
+body.roe.bluefx{
+  /* 原色：亮 / 浅 / 字 / 中；深色底板四档；光晕 rgb */
+  --bk-hi:#b8c8ff; --bk-lt:#9db2ff; --bk-tx:#86a0ff; --bk-md:#5d78ff;
+  --bk-d0:#05052a; --bk-d1:#080840; --bk-d2:#0a0a48; --bk-d3:#1a1a86;
+  --bk-g:70,100,255;
+  /* 复用的组合 */
+  --bk-bloom:drop-shadow(2px 3px 1px rgba(0,0,40,.6)) drop-shadow(0 0 5px rgba(var(--bk-g),.55)) drop-shadow(0 0 14px rgba(50,70,255,.28));
+  --bk-glow:0 0 7px rgba(70,90,255,.7),2px 3px 0 rgba(0,0,40,.6);
+  --bk-btn:linear-gradient(168deg,#4f72ff,#2f46ea);
+  --bk-panel:linear-gradient(168deg,rgba(60,84,245,.72),rgba(34,46,200,.8));
+  --bk-tsh:0 0 10px rgba(110,140,255,.85),0 0 28px rgba(var(--bk-g),.5);
+
+  /* 配色槽位（红皮 / ROE 同名变量） */
+  --cyan:var(--bk-lt); --tkC:var(--bk-lt); --hintC:var(--bk-lt);
+  --tickC:var(--bk-tx); --tkT2:var(--bk-tx); --cyFill:var(--bk-tx); --cellTick:var(--bk-tx); --bkFill:var(--bk-tx);
+  --sepFill:var(--bk-lt); --zl:var(--bk-lt); --zl2:transparent;
+  --yeFill:var(--bk-md);
+  --tkG:drop-shadow(0 0 3px rgba(90,120,255,.85)); --yeGlow:var(--tkG);
+  --cyGlow:drop-shadow(0 0 3px rgba(110,140,255,.85));
+  --sepGlow:0 0 6px rgba(90,120,255,.65);
+  --seg-glow:var(--bk-glow); --seg-bloom:var(--bk-bloom);
+  --cd-glow:var(--bk-glow); --cd-bloom:var(--bk-bloom); --cd-dot:#2a30e8;
+  --glassV:rgba(40,52,215,.5); --rimW:rgba(140,165,255,.3); --btnRim:rgba(130,160,255,.4);
+  --hintGlow:0 0 8px rgba(var(--bk-g),.5); --hintBg:rgba(4,6,44,.9); --hintRim:rgba(120,150,255,.45);
+  --hintTab:0 8px 24px rgba(0,0,0,.65),0 0 16px rgba(60,90,255,.22);
+}
+body.roe.bluefx :is(.inner,.leftbezel,.leftbar){background:#03032a}
+
+/* 装甲板与补缝 */
+body.roe.bluefx #gPanel stop:nth-child(1){stop-color:#0c0c52}
+body.roe.bluefx #gPanel stop:nth-child(2){stop-color:#13136a}
+body.roe.bluefx #gPanel stop:nth-child(3){stop-color:#1c1c8a}
+body.roe.bluefx :is(.pShadow,.blk0Cast .b0s){fill:var(--bk-d1)}
+body.roe.bluefx :is(.pWall,.blk0Cast .b0w){fill:var(--bk-d2)}
+body.roe.bluefx :is(.pWall2,.blk0Cast .b0w2){fill:var(--bk-d3)}
+body.roe.bluefx .deco .blk0{fill:var(--bk-d0)}
+body.roe.bluefx :is(.pRim,.baseShade line){stroke:rgba(140,165,255,.28)}
+body.roe.bluefx #gSeamX .s0{stop-color:var(--bk-d3)}
+body.roe.bluefx #gSeamX .s1{stop-color:var(--bk-d2)}
+body.roe.bluefx #gSeamX .s2{stop-color:var(--bk-d0)}
+body.roe.bluefx .gradbar{background:linear-gradient(180deg,var(--bk-lt),#2a3ee0);box-shadow:0 0 8px rgba(var(--bk-g),.5)}
+body.roe.bluefx .gline{background:linear-gradient(90deg,var(--bk-tx),#3a4cff);box-shadow:0 0 7px rgba(60,90,255,.6)}
+
+/* 文字：偏暗的浅蓝，对比压低（截图里字比底板只亮一点） */
+body.roe.bluefx :is(.jpL,.enL,.atoL){
+  color:var(--bk-lt);
+  text-shadow:2px 3px 1px rgba(0,0,40,.9),0 0 8px rgba(var(--bk-g),.55),0 0 22px rgba(50,80,255,.25);
+}
+body.roe.bluefx :is(.mode .jp,.mode .en,.powerbox .jp,.powerbox .en,.cell .txt,.subbox .jp,.subbox .en1,.subbox .en2){
+  color:var(--bk-tx);
+  text-shadow:0 0 8px rgba(var(--bk-g),.7);
+}
+
+/* 数码管：蓝黑半透明（予備本来就有 resvFade 明灭，保留）。
+   发光 / 点色走 ROE 的 --cd-* 槽位（见 544 行附近），蓝皮只需在上面定义它们 */
+body.roe.bluefx :is(.seg,.seg-wrap.live .cd .seg){fill:#2326d8;stroke:rgba(130,155,255,.4)}
+body.roe.bluefx .dot{background:#2a30e8}
+
+/* 按钮：当前选中的（予備 / 内部）最亮；其余压暗一档 */
+body.roe.bluefx :is(#modeExternal,#modeInternal).active{
+  color:#7f9bff;
+  background:var(--bk-btn);
+  border-color:rgba(160,185,255,.5);
+  text-shadow:var(--bk-tsh);
+  animation:none;
+}
+body.roe.bluefx .mode.inactive:not(.dead){
+  color:var(--bk-tx);
+  background:linear-gradient(180deg,rgba(70,92,235,.7),rgba(40,52,200,.78));
+  border-color:rgba(130,160,255,.34);
+  text-shadow:0 0 9px rgba(var(--bk-g),.5),0 0 24px rgba(50,80,255,.28);
+}
+body.roe.bluefx .powerbox:not(.off){
+  color:var(--bk-lt);
+  background:linear-gradient(168deg,rgba(78,104,255,.85),rgba(40,56,215,.88));
+  animation:none;
+}
+body.roe.bluefx .mode.active{--zl:var(--bk-lt);--zl2:transparent}   /* 245 行把 --zl 钉成白色 */
+
+/* 右下角两格、STOP/SLOW… 功能格与亮条 */
+body.roe.bluefx .danger-cell::before{background:var(--bk-panel)}
+body.roe.bluefx .subbox{background:var(--bk-panel);border-color:rgba(130,160,255,.4);box-shadow:none}
+body.roe.bluefx .cell{color:var(--bk-tx)}
+body.roe.bluefx .cell.sel .txt{color:var(--bk-hi)}
+body.roe.bluefx .cell .redbar{
+  background:linear-gradient(180deg,var(--bk-lt) 0 2px,transparent 2px calc(100% - 2px),var(--bk-lt) calc(100% - 2px));
+  filter:drop-shadow(0 0 7px #5a78ff) drop-shadow(0 0 16px rgba(var(--bk-g),.5));
+}
+body.roe.bluefx .cell .redbar::before{background:var(--bk-tx)}
+
+/* ══════════════════════════════════════════════════════════════
    19a 獣化 The Beast · 动效与花屏（body.roe.beast）
    —— 颜色全在 19 章，这里只放「会动的东西」：
       整屏亮度抖 / 标题字抖 / 数码管抖 / DANGER 警报闪 / 幽灵段 /
@@ -1112,6 +1222,7 @@ body.roe.beast .powerbox:not(.off) .glv{display:block}
   <div class="charge"></div>
   <div class="charge alt"></div>
   <div class="charge red"></div>
+  <div class="charge blue"></div>
   <div class="leftbezel"></div>
   <div class="leftbar"></div>
 
@@ -1376,7 +1487,7 @@ body.roe.beast .powerbox:not(.off) .glv{display:block}
 <!-- 底部热区-->
 <div class="hintZone">
   <span class="hintHot" aria-hidden="true"></span>
-  <p class="hint">「主電源供給システム」断电重启 · 「内部 / 外部」切换供电模式 ·「活動限界まで」左侧小方块 [倒计时 / 24H / 12H ]时钟 · 左下角斜槽：EOE ⇄ ROE 配色 · 獣化（Esc 退出）</p>
+  <p class="hint">「主電源供給システム」断电重启 · 「内部 / 外部」切换供电模式 ·「活動限界まで」左侧小方块 [倒计时 / 24H / 12H ]时钟 · 左下角斜槽：EOE ⇄ ROE 配色 · 獣化（Esc 退出）· F：予備滤镜 开/关</p>
 </div>
 
 <script>
@@ -1769,6 +1880,8 @@ let powered  = false;
 let internal = false;
 let zero     = false;
 let reserve  = false;
+const blueOpt = { reserve:true, zero:false };   // 蓝皮各场景的开关（F 键切）：予備默认开，内部归零默认关
+let blueSkin = false;                           // 蓝皮此刻是否生效（render() 维护）
 let viewMode = VIEW_COUNTDOWN;
 let roe     = false;
 let beast   = false;
@@ -1828,6 +1941,7 @@ function triggerZero(){
   isRunning = false;
   countdownRaf = 0;
   zero = true;
+  blueOpt.zero = false;   // 每次归零都回到默认关，按 F 手动开启
   barOverride = null;
   render();
 }
@@ -1944,8 +2058,21 @@ function stopClock(){
 }
 
 /* ── 08 渲染 ─────────────────────────────────────────────── */
+/* 蓝皮当前属于哪个场景：'reserve'（ROE 予備）/ 'zero'（ROE 内部归零）/ null */
+function blueScope(){
+  if (!roe || beast || !powered) return null;
+  if (!internal && reserve) return 'reserve';
+  if (internal && zero && viewMode === VIEW_COUNTDOWN) return 'zero';
+  return null;
+}
+/* 蓝皮是否生效：场景开关为开；予備遇到告急时让位给红皮（归零则蓝皮优先） */
+function blueActive(){
+  const k = blueScope();
+  return !!k && blueOpt[k] && !(k === 'reserve' && isDanger && viewMode === VIEW_COUNTDOWN);
+}
+
 function applyDangerClass(){
-  document.body.classList.toggle('danger', isDanger && viewMode === VIEW_COUNTDOWN);
+  document.body.classList.toggle('danger', isDanger && viewMode === VIEW_COUNTDOWN && !blueSkin);
 }
 
 function setDanger(on){
@@ -1989,6 +2116,8 @@ function render(){
   document.body.classList.toggle('clk', isClock);
   document.body.classList.toggle('zero', zero);
   document.body.classList.toggle('reserve', isReserve);
+  blueSkin = blueActive();
+  document.body.classList.toggle('bluefx', blueSkin);
   document.body.dataset.mode = internal ? 'internal' : 'external';
   applyDangerClass();
 
@@ -2219,6 +2348,10 @@ function onSubbox(event){
 bindActivate(ui.subBox, onSubbox);
 addEventListener('keydown', event => {
   if (event.key === 'Escape' && beast){ beast = false; render(); }
+  if (event.key.toLowerCase() === 'f' && !event.repeat && !event.ctrlKey && !event.metaKey){
+    const k = blueScope();
+    if (k){ blueOpt[k] = !blueOpt[k]; render(); }
+  }
 });
 
 /* ── 11 自适应缩放 ───────────────────────────────────────── */
