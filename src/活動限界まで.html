@@ -124,7 +124,8 @@ body.pw .charge,body.pw .chargelayer{mask-position:calc(var(--innerW) * -1) calc
   fill:#000;stroke:var(--amber);stroke-width:2;stroke-linejoin:miter;
   filter:drop-shadow(0 0 4px rgba(255,150,20,.5));
 }
-.deco .blk0{fill:#000;stroke:none}
+.deco .floorPlate,.deco .dangerPlate{fill:#000;stroke:none}
+body.roe:where(:not(.beast):not(.danger):not(.blue)) .deco polygon.floorPlate{fill:#000}
 body.danger .deco .blk{filter:drop-shadow(0 0 4px rgba(255,40,20,.6))}
 
 .deco .clk{cursor:pointer;outline:none;stroke:none;filter:none}
@@ -463,7 +464,7 @@ body.roe .themetag{color:#fff;text-shadow:0 2px 5px rgba(10,10,70,.5)}
 
 .deco .blk{transition:fill .45s,stroke .45s}
 body.roe .deco .blk{fill:rgba(0,0,0,0);stroke:rgba(0,0,0,0);filter:none}
-body.roe .deco .blk0{fill:var(--plateD0)}
+body.roe .deco .floorPlate,body.roe .deco .dangerPlate{fill:var(--plateD0)}
 body.roe .deco .themehot:hover{fill:rgba(150,160,255,.10)}
 body.roe .deco .themehot:focus-visible{stroke:#a8c0ff;stroke-width:2.5}
 
@@ -533,7 +534,7 @@ body.roe{
   --plateTop:#0a0a2c;   /* #gPanel stop1：右上端，最暗 */
   --plateMid:#10103e;   /* #gPanel stop2：中部 */
   --plateBot:#22227e;   /* #gPanel stop3：左下斜槽端，最亮 */
-  --plateD0:#0a0a34;    /* 底板 .blk0 / 补缝 s2：最暗 */
+  --plateD0:#0a0a34;    /* 大板 .floorPlate / DANGER 底板 .dangerPlate / 补缝 s2：最暗 */
   --plateD1:#1a1c70;    /* 落影 .pshadow / 右下 .b0s */
   --plateD2:#1c2066;    /* 侧壁 .pwall / 补缝 s1 / 右下 .b0w */
   --plateD3:#343a9c;    /* 内壁 .pwall2 / 补缝 s0 / 右下 .b0w2：最亮 */
@@ -1320,7 +1321,7 @@ body.roe.blue .cell .redbar::before{background:var(--blueTx)}
       </mask>
     </defs>
 
-    <polygon class="blk0" aria-hidden="true" points="440,600 560,488 1500,488 1500,600"/>
+    <polygon class="floorPlate" aria-hidden="true" points="440,600 560,488 1500,488 1500,600"/>
     <polygon class="blk"  aria-hidden="true" points="515,222 583,222 583,420 515,420 437,530.5 352,502.5"/>
     <polygon id="themeHot" class="blk themehot" role="button" tabindex="0" aria-label="切换配色：EOE / ROE"
              points="348,509.5 433,537.5 388.9,600 295.4,600"/>
@@ -1332,7 +1333,7 @@ body.roe.blue .cell .redbar::before{background:var(--blueTx)}
       <use class="b0w"  href="#blk0Edge" transform="translate(5 7)"  fill="#1c2066"/>
       <use class="b0w2" href="#blk0Edge" transform="translate(2 3)"  fill="#343a9c"/>
     </g>
-    <polygon class="blk0" aria-hidden="true" points="1195,422 1405,422 1405,489 1195,489"/>
+    <polygon class="dangerPlate" aria-hidden="true" points="1195,422 1405,422 1405,489 1195,489"/>
     <g class="baseshade" aria-hidden="true">
       <rect mask="url(#mShadeBot)" x="505" y="420" width="900" height="2.5" fill="url(#gSeamX)"/>
       <line x1="515" y1="420" x2="1405" y2="420" stroke="rgba(160,175,255,.28)" stroke-width="1"/>
