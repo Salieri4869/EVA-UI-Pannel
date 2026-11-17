@@ -448,12 +448,9 @@ body.roe .inner,body.roe .leftbezel,body.roe .leftbar{background:#03031a}
 .plate{position:absolute;inset:0;width:var(--innerW);height:var(--stageH);overflow:visible;pointer-events:none;opacity:0;transition:opacity .45s ease}
 body.roe .plate{opacity:1}
 
-.baseshade{opacity:0;pointer-events:none;transition:opacity .45s ease}
-body.roe .baseshade{opacity:1}
-
 /* 右下底板右侧的落影/侧壁：只在 ROE 显形，配色跟着装甲板走 */
-.blk0cast{opacity:0;pointer-events:none;transition:opacity .45s ease}
-body.roe .blk0cast{opacity:1}
+.dangerCast{opacity:0;pointer-events:none;transition:opacity .45s ease}
+body.roe .dangerCast{opacity:1}
 
 .deco .themehot{cursor:pointer;outline:none}
 .deco .themehot:hover{stroke:#ffe8b4;filter:drop-shadow(0 0 8px rgba(255,190,70,.95))}
@@ -470,7 +467,7 @@ body.roe .themetag{color:#fff;text-shadow:0 2px 5px rgba(10,10,70,.5)}
 
 .deco .blk{transition:fill .45s,stroke .45s}
 body.roe .deco .blk{fill:rgba(0,0,0,0);stroke:rgba(0,0,0,0);filter:none}
-body.roe .deco .floorPlate,body.roe .deco .dangerPlate{fill:var(--plateD0)}
+body.roe .deco .floorPlate{fill:var(--plateD0)}
 body.roe .deco .themehot:hover{fill:rgba(150,160,255,.10)}
 body.roe .deco .themehot:focus-visible{stroke:#a8c0ff;stroke-width:2.5}
 
@@ -535,16 +532,17 @@ body.roe{
   --hintRim:rgba(150,175,255,.45);
   --hintTab:0 8px 24px rgba(0,0,0,.6),0 0 16px rgba(90,130,255,.22);
 
-  /* 装甲槽位：三套皮肤只填这 7 个，消费规则在 17 章末。
+  /* 装甲槽位：三套皮肤只填这 8 个，消费规则在 17 章末。
      ⛔ EOE 下这些规则不匹配（都带 body.roe 前缀），SVG 上的 fill= / stop-color= 才是 EOE 的值，别删。 */
   --plateTop:#0a0a2c;   /* #gPanel stop1：右上端，最暗 */
   --plateMid:#10103e;   /* #gPanel stop2：中部 */
   --plateBot:#22227e;   /* #gPanel stop3：左下斜槽端，最亮 */
-  --plateD0:#0a0a34;    /* 大板 .floorPlate / DANGER 底板 .dangerPlate / 补缝 s2：最暗 */
-  --plateD1:#1a1c70;    /* 落影 .pshadow / 右下 .b0s */
-  --plateD2:#1c2066;    /* 侧壁 .pwall / 补缝 s1 / 右下 .b0w */
-  --plateD3:#343a9c;    /* 内壁 .pwall2 / 补缝 s0 / 右下 .b0w2：最亮 */
-  --plateRim:rgba(160,175,255,.28);   /* .prim 描边 + .baseshade 那条补缝线 */
+  --plateD0:#0a0a34;    /* 大板 .floorPlate：最暗 */
+  --plateD1:#1a1c70;    /* 落影 .pshadow / 右下 .d0s */
+  --plateD2:#1c2066;    /* 侧壁 .pwall / 右下 .d0w */
+  --plateD3:#343a9c;    /* 内壁 .pwall2 / 右下 .d0w2：最亮 */
+  --plateCast:#00001c;  /* 玻璃投影 .castShadow / .castShadowLeg：三套皮肤同值，要分肤色改这里 */
+  --plateRim:rgba(160,175,255,.28);   /* .prim 描边 */
   /* 分界彩条 */
   --gradbarBg:linear-gradient(180deg,#7df0ff,#2ab0ec 55%,#2f6fe6);
   --gradbarSh:0 0 10px rgba(60,200,255,.65),0 0 24px rgba(40,140,255,.35);
@@ -570,21 +568,19 @@ body.roe:not(.pw) .bk,
 body.roe:not(.pw) .cut{opacity:0}
 
 /* ── 装甲槽位消费：19 / 20 章只负责填值 ─────────────────────
-   ⛔ 同一变量有多处消费点（主面板 / 补缝 / 右下侧壁），必须同值，拆开写拐角会露硬边。 */
+   ⛔ 同一变量有多处消费点（主面板 / 右下侧壁），必须同值，拆开写拐角会露硬边。 */
 body.roe #gPanel .gp0{stop-color:var(--plateTop)}
 body.roe #gPanel .gp1{stop-color:var(--plateMid)}
 body.roe #gPanel .gp2{stop-color:var(--plateBot)}
 body.roe .pshadow,
-body.roe .blk0cast .b0s{fill:var(--plateD1)}
+body.roe .dangerCast .d0s{fill:var(--plateD1)}
 body.roe .pwall,
-body.roe .blk0cast .b0w{fill:var(--plateD2)}
+body.roe .dangerCast .d0w{fill:var(--plateD2)}
 body.roe .pwall2,
-body.roe .blk0cast .b0w2{fill:var(--plateD3)}
-body.roe #gSeamX .s0{stop-color:var(--plateD3)}
-body.roe #gSeamX .s1{stop-color:var(--plateD2)}
-body.roe #gSeamX .s2{stop-color:var(--plateD0)}
-body.roe .prim,
-body.roe .baseshade line{stroke:var(--plateRim)}
+body.roe .dangerCast .d0w2{fill:var(--plateD3)}
+body.roe .castShadow,
+body.roe .castShadowLeg{fill:var(--plateCast)}
+body.roe .prim{stroke:var(--plateRim)}
 
 body.roe .gradbar{background:var(--gradbarBg);box-shadow:var(--gradbarSh)}
 body.roe .gline{background:var(--glineBg);box-shadow:var(--glineSh)}
@@ -1265,6 +1261,8 @@ body.roe.blue .cell .redbar::before{background:var(--blueTx)}
   <svg class="plate" viewBox="0 0 1500 600" aria-hidden="true">
     <defs>
       <path id="platePath" d="M488,122 A4,4 0 0 1 492,118 L742,118 L759.4,146.7 L1405,146.7 L1405,420 L515,420 L437,530.5 L352,502.5 L515,222 L515,170 L490.96,163.8 A4,4 0 0 1 488,159.93 Z M348,509.5 L433,537.5 L388.9,600 L295.4,600 Z"/>
+      <!-- 斜腿右侧一带的剪影：mShadow / mWall / mCast / mCastLeg 共用，只在这里改形状 -->
+      <polygon id="legCut" points="470,405 560,405 560,600 380,600 380,540 352,509 358,498"/>
       <linearGradient id="gPanel" gradientUnits="userSpaceOnUse" x1="1405" y1="146" x2="352" y2="520">
         <!-- class 供 --plateTop/Mid/Bot 槽位点名（17 章）；这块板只在 body.roe 下显形，属性值 = ROE 默认色 -->
         <stop class="gp0" offset="0"   stop-color="#0a0a2c" stop-opacity=".94"/>
@@ -1285,15 +1283,19 @@ body.roe.blue .cell .redbar::before{background:var(--blueTx)}
         <rect x="-100" y="-100" width="1700" height="800" fill="#fff"/>
         <use href="#platePath" fill="#000"/>
         <rect x="508" y="419" width="897" height="52" fill="url(#gFeather)"/>
+        <use href="#legCut" fill="#000"/>   <!-- 斜腿右侧一带：旧的浅蓝落影不要，改由 mCast 的暗影 -->
       </mask>
       <mask id="mWall" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1700" height="800">
         <rect x="-100" y="-100" width="1700" height="800" fill="#fff"/>
         <use href="#platePath" fill="#000"/>
         <rect x="518" y="419" width="887" height="13" fill="#000"/>
+        <use href="#legCut" fill="#000"/>   <!-- 斜腿右侧一带：亮蓝侧壁不要（参考图里这一侧是暗影，没有亮壁） -->
       </mask>
       <filter id="fBlur"><feGaussianBlur stdDeviation="8"/></filter>
-      <path id="panelBody" d="M488,122 A4,4 0 0 1 492,118 L742,118 L759.4,146.7 L1405,146.7 L1405,420 L515,420 L437,530.5 L352,502.5 L515,222 L515,170 L490.96,163.8 A4,4 0 0 1 488,159.93 Z M348,509.5 L433,537.5 L388.9,600 L295.4,600 Z
-         M1195,420 H1405 V489 H1195 Z M1195,420 V426 A6,6 0 0 0 1189,420 Z M1195,488 H1189 A6,6 0 0 0 1195,482 Z M1405,488 V482 A6,6 0 0 0 1411,488 Z"/>
+      <!-- 右下底板的玻璃形体：与 .deco 里 .dangerPlate 同一轮廓，y 取 420（大板在 ROE 无描边） -->
+      <path id="dangerGlass" d="M1195,420 H1405 V489 H1195 Z M1195,420 V426 A6,6 0 0 0 1189,420 Z M1195,488 H1189 A6,6 0 0 0 1195,482 Z M1405,488 V482 A6,6 0 0 0 1411,488 Z"/>
+      <!-- 玻璃体 = 大板 + 右下底板；两块不重叠，半透明停靠不会叠双份 -->
+      <g id="panelBody"><use href="#platePath"/><use href="#dangerGlass"/></g>
       <filter id="fCast" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="4.5"/></filter>
       <linearGradient id="gCastX" gradientUnits="userSpaceOnUse" x1="505" y1="0" x2="540" y2="0">
         <stop offset="0" stop-color="#000"/><stop offset="1" stop-color="#fff"/>
@@ -1301,11 +1303,22 @@ body.roe.blue .cell .redbar::before{background:var(--blueTx)}
       <mask id="mCast" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1700" height="800">
         <rect x="-100" y="-100" width="1700" height="800" fill="#000"/>
         <rect x="505" y="418" width="700" height="71" fill="url(#gCastX)"/>
+        <use href="#legCut" fill="#fff"/>   <!-- 斜腿右侧一带：暗影在这里也显示，与条带顶边的暗影连成一圈 -->
+        <use href="#panelBody" fill="#000"/>
+      </mask>
+      <linearGradient id="gLegFade" gradientUnits="userSpaceOnUse" x1="520" y1="0" x2="558" y2="0">
+        <stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#000"/>
+      </linearGradient>
+      <mask id="mCastLeg" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1700" height="800">
+        <rect x="-100" y="-100" width="1700" height="800" fill="#000"/>
+        <use href="#legCut" fill="url(#gLegFade)"/>
         <use href="#panelBody" fill="#000"/>
       </mask>
       <mask id="mRimOff" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1700" height="800">
         <rect x="-100" y="-100" width="1700" height="800" fill="#fff"/>
         <rect x="505" y="417" width="910" height="7" fill="#000"/>
+        <path d="M515,222 L352,502.5 L437,530.5 L515,420 M742,118 L759.4,146.7 M348,509.5 L433,537.5 L388.9,600 L295.4,600 Z"
+              fill="none" stroke="#000" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
       </mask>
     </defs>
     <g mask="url(#mShadow)">
@@ -1316,7 +1329,10 @@ body.roe.blue .cell .redbar::before{background:var(--blueTx)}
       <use class="pwall2" href="#platePath" transform="translate(2 3)" fill="#343a9c"/>
     </g>
     <g mask="url(#mCast)">
-      <use href="#panelBody" transform="translate(0 2)" fill="#00001c" opacity=".62" filter="url(#fCast)"/>
+      <use class="castShadow" href="#panelBody" transform="translate(0 2)" fill="#00001c" opacity=".62" filter="url(#fCast)"/>
+    </g>
+    <g mask="url(#mCastLeg)">
+      <use class="castShadowLeg" href="#panelBody" transform="translate(4 2)" fill="#00001c" opacity=".7" filter="url(#fCast)"/>
     </g>
     <use href="#panelBody" fill="url(#gPanel)"/>
     <use class="prim" mask="url(#mRimOff)" href="#platePath" fill="none" stroke="rgba(160,175,255,.28)" stroke-width="1"/>
@@ -1329,16 +1345,7 @@ body.roe.blue .cell .redbar::before{background:var(--blueTx)}
       <rect id="barY" width="2" height="10"/>
       <rect id="barH" width="7" height="2"/>
       <rect id="barR" x="-1.5" y="-3.5" width="2" height="7" transform="rotate(30)"/>
-      <linearGradient id="gSeamX" gradientUnits="userSpaceOnUse" x1="513" y1="0" x2="600" y2="0">
-        <stop class="s0" offset="0"   stop-color="#343a9c"/>
-        <stop class="s1" offset=".32" stop-color="#1c2066"/>
-        <stop class="s2" offset="1"   stop-color="#0a0a34"/>
-      </linearGradient>
-      <mask id="mShadeBot" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1700" height="800">
-        <rect x="-100" y="-100" width="1700" height="800" fill="#fff"/>
-        <use href="#platePath" fill="#000"/>
-      </mask>
-      <rect id="blk0Edge" x="1195" y="420" width="210" height="69"/>
+      <rect id="dangerEdge" x="1195" y="420" width="210" height="69"/>
       <filter id="fBlurX" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"/></filter>
       <mask id="mEdgeStrip" maskUnits="userSpaceOnUse" x="1300" y="400" width="200" height="120">
         <rect x="1403" y="420" width="97" height="69" fill="#fff"/>
@@ -1352,17 +1359,15 @@ body.roe.blue .cell .redbar::before{background:var(--blueTx)}
     <path id="clockHot" class="blk clk" d="M488 122A4 4 0 0 1 492 118L514 118L514 170L490.96 163.8A4 4 0 0 1 488 159.93Z"
           role="button" tabindex="0" aria-label="切换视图：倒计时 / 24H / 12H"/>
     <polygon class="blk"  aria-hidden="true" points="515,118 742,118 759.4,146.7 1405,146.7 1405,420 583,420 583,222 515,222"/>
-    <g class="blk0cast" aria-hidden="true" mask="url(#mEdgeStrip)">
-      <use class="b0s"  href="#blk0Edge" transform="translate(10 2)" fill="#1a1c70" opacity=".38" filter="url(#fBlurX)"/>
-      <use class="b0w"  href="#blk0Edge" transform="translate(5 7)"  fill="#1c2066"/>
-      <use class="b0w2" href="#blk0Edge" transform="translate(2 3)"  fill="#343a9c"/>
+    <g class="dangerCast" aria-hidden="true" mask="url(#mEdgeStrip)">
+      <use class="d0s"  href="#dangerEdge" transform="translate(10 2)" fill="#1a1c70" opacity=".38" filter="url(#fBlurX)"/>
+      <use class="d0w"  href="#dangerEdge" transform="translate(5 7)"  fill="#1c2066"/>
+      <use class="d0w2" href="#dangerEdge" transform="translate(2 3)"  fill="#343a9c"/>
     </g>
     <path class="dangerPlate" aria-hidden="true" d="M1195,421 H1405 V489 H1195 Z
          M1195,421 V427 A6,6 0 0 0 1189,421 Z
          M1195,488 H1189 A6,6 0 0 0 1195,482 Z
-         M1405,488 V482 A6,6 0 0 0 1411,488 Z"/>
-    <g class="baseshade" aria-hidden="true">
-    </g>
+         M1405,488 V482 A6,6 0 0 0 1411,488 Z"/>   <!-- y=421：EOE 大板有 2px 描边，这块贴描边外沿；ROE 用 .plate 里 #dangerGlass 的 420 版 -->
 
     <g class="bk" aria-hidden="true">
       <use href="#barH" x="230" y="72"/>
