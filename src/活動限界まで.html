@@ -106,13 +106,15 @@ body.danger{
 
 /* ── 05 充能层 ───────────────────────────────────────────── */
 .charge,.chargelayer{
+  --maskOffY:calc(var(--stageH) * .25);    /* 断电：整块越过过渡带，全透明（+150px） */
+  --maskOnY:calc(var(--stageH) * -2.1);    /* 通电：右上角留 60px 余量，全不透明 */
   position:absolute;inset:0;pointer-events:none;
   mask-image:linear-gradient(to top right,#000 0 50%,transparent 52%);
-  mask-repeat:no-repeat;mask-size:calc(var(--innerW) * 4) calc(var(--stageH) * 4);mask-position:calc(var(--innerW) * -1) 0;
+  mask-repeat:no-repeat;mask-size:calc(var(--innerW) * 4) calc(var(--stageH) * 4);mask-position:calc(var(--innerW) * -1) var(--maskOffY);
   transition:mask-position .5s cubic-bezier(.35,.1,.25,1);
 }
 .charge{background:var(--rb)}
-body.pw .charge,body.pw .chargelayer{mask-position:calc(var(--innerW) * -1) calc(var(--stageH) * -2)}
+body.pw .charge,body.pw .chargelayer{mask-position:calc(var(--innerW) * -1) var(--maskOnY)}
 
 /* ── 06 左侧黑边 ─────────────────────────────────────────── */
 .leftbezel{position:absolute;left:var(--bleed);top:0;width:10px;height:var(--stageH);background:#000}
