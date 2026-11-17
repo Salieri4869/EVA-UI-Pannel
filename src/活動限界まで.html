@@ -31,6 +31,7 @@ html,body{height:100%;background:#000;overflow:hidden}
 /* ── 03 设计令牌 ─────────────────────────────────────────── */
 :root{
   --stageW:1300px; --stageH:600px;
+  --btnR:3px;
   --bleed:200px;
   --innerW:calc(var(--stageW) + var(--bleed));
   /* 皮肤渐变的两层布局：顶部 48px 黑带铺满 inner，主渐变只铺可见舞台 */
@@ -127,6 +128,8 @@ body.pw .charge,body.pw .chargelayer{mask-position:calc(var(--innerW) * -1) var(
   filter:drop-shadow(0 0 4px rgba(255,150,20,.5));
 }
 .deco .floorPlate,.deco .dangerPlate{fill:#000;stroke:none}
+.deco .dangerPlate{transition:opacity .45s ease}
+body.roe .deco .dangerPlate{opacity:0}   /* ROE：由 .plate 里的 #panelBody 接管，与大板同一形体 */
 body.roe:where(:not(.beast):not(.danger):not(.blue)) .deco polygon.floorPlate{fill:#000}
 body.danger .deco .blk{filter:drop-shadow(0 0 4px rgba(255,40,20,.6))}
 
@@ -326,6 +329,7 @@ body.pw .sep i{opacity:1;transition-delay:var(--d,0ms)}
 }
 body:not(.pw) .cell{opacity:0;pointer-events:none}
 body.pw .cell{transition:opacity .28s}
+.box,.cell,.dangercell,.subbox{border-radius:var(--btnR)}
 
 /* ── 14 红色预警框 ───────────────────────────────────────── */
 .dangercell,.subbox{
@@ -610,7 +614,7 @@ body.roe.zero:not(.clk) .segwrap{animation:zeroSeg .39s steps(1) infinite}
 body.roe.zero:not(.clk) .seg:not(.on){opacity:0}
 
 body.roe .box,body.roe .cell,body.roe .dangercell,body.roe .subbox{
-  isolation:isolate;border-style:solid;border-width:2px;border-radius:3px;text-shadow:none;
+  isolation:isolate;border-style:solid;border-width:2px;text-shadow:none;
   -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
 }
 
@@ -1288,6 +1292,21 @@ body.roe.blue .cell .redbar::before{background:var(--blueTx)}
         <rect x="518" y="419" width="887" height="13" fill="#000"/>
       </mask>
       <filter id="fBlur"><feGaussianBlur stdDeviation="8"/></filter>
+      <path id="panelBody" d="M488,122 A4,4 0 0 1 492,118 L742,118 L759.4,146.7 L1405,146.7 L1405,420 L515,420 L437,530.5 L352,502.5 L515,222 L515,170 L490.96,163.8 A4,4 0 0 1 488,159.93 Z M348,509.5 L433,537.5 L388.9,600 L295.4,600 Z
+         M1195,420 H1405 V489 H1195 Z M1195,420 V426 A6,6 0 0 0 1189,420 Z M1195,488 H1189 A6,6 0 0 0 1195,482 Z M1405,488 V482 A6,6 0 0 0 1411,488 Z"/>
+      <filter id="fCast" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="4.5"/></filter>
+      <linearGradient id="gCastX" gradientUnits="userSpaceOnUse" x1="505" y1="0" x2="540" y2="0">
+        <stop offset="0" stop-color="#000"/><stop offset="1" stop-color="#fff"/>
+      </linearGradient>
+      <mask id="mCast" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1700" height="800">
+        <rect x="-100" y="-100" width="1700" height="800" fill="#000"/>
+        <rect x="505" y="418" width="700" height="71" fill="url(#gCastX)"/>
+        <use href="#panelBody" fill="#000"/>
+      </mask>
+      <mask id="mRimOff" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1700" height="800">
+        <rect x="-100" y="-100" width="1700" height="800" fill="#fff"/>
+        <rect x="505" y="417" width="910" height="7" fill="#000"/>
+      </mask>
     </defs>
     <g mask="url(#mShadow)">
       <use class="pshadow" href="#platePath" transform="translate(10 2)" fill="#1a1c70" opacity=".38" filter="url(#fBlur)"/>
@@ -1296,8 +1315,11 @@ body.roe.blue .cell .redbar::before{background:var(--blueTx)}
       <use class="pwall" href="#platePath" transform="translate(5 7)" fill="#1c2066"/>
       <use class="pwall2" href="#platePath" transform="translate(2 3)" fill="#343a9c"/>
     </g>
-    <use href="#platePath" fill="url(#gPanel)"/>
-    <use class="prim" href="#platePath" fill="none" stroke="rgba(160,175,255,.28)" stroke-width="1"/>
+    <g mask="url(#mCast)">
+      <use href="#panelBody" transform="translate(0 2)" fill="#00001c" opacity=".62" filter="url(#fCast)"/>
+    </g>
+    <use href="#panelBody" fill="url(#gPanel)"/>
+    <use class="prim" mask="url(#mRimOff)" href="#platePath" fill="none" stroke="rgba(160,175,255,.28)" stroke-width="1"/>
   </svg>
 
   <!-- ═══ 装甲 ═══ -->
@@ -1335,10 +1357,11 @@ body.roe.blue .cell .redbar::before{background:var(--blueTx)}
       <use class="b0w"  href="#blk0Edge" transform="translate(5 7)"  fill="#1c2066"/>
       <use class="b0w2" href="#blk0Edge" transform="translate(2 3)"  fill="#343a9c"/>
     </g>
-    <polygon class="dangerPlate" aria-hidden="true" points="1195,422 1405,422 1405,489 1195,489"/>
+    <path class="dangerPlate" aria-hidden="true" d="M1195,421 H1405 V489 H1195 Z
+         M1195,421 V427 A6,6 0 0 0 1189,421 Z
+         M1195,488 H1189 A6,6 0 0 0 1195,482 Z
+         M1405,488 V482 A6,6 0 0 0 1411,488 Z"/>
     <g class="baseshade" aria-hidden="true">
-      <rect mask="url(#mShadeBot)" x="505" y="420" width="900" height="2.5" fill="url(#gSeamX)"/>
-      <line x1="515" y1="420" x2="1405" y2="420" stroke="rgba(160,175,255,.28)" stroke-width="1"/>
     </g>
 
     <g class="bk" aria-hidden="true">
